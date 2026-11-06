@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { SlidersHorizontal, X } from "lucide-react";
+import { Globe2, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import ArtistCard from "@/components/ArtistCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { searchArtists } from "@/lib/server-fns";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_site/explorer")({
   validateSearch: (s) => ({
@@ -34,12 +35,15 @@ export const Route = createFileRoute("/_site/explorer")({
       {
         name: "description",
         content:
-          "Parcourez les artistes, photographes, musiciens et créateurs africains par pays, ville et discipline.",
+          "Parcourez les artistes, photographes, musiciens et créateurs africains par pays, ville et discipline. Contact direct, profils vérifiés.",
       },
     ],
   }),
   component: ExplorerPage,
 });
+
+const clean = (obj) =>
+  Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== "" && v !== false));
 
 function ExplorerPage() {
   const { items, total, facets } = Route.useLoaderData();
@@ -55,10 +59,7 @@ function ExplorerPage() {
 
   function apply(e) {
     if (e) e.preventDefault();
-    const clean = Object.fromEntries(
-      Object.entries(form).filter(([, v]) => v !== undefined && v !== "" && v !== false)
-    );
-    navigate({ to: "/explorer", search: clean });
+    navigate({ to: "/explorer", search: clean(form) });
     setOpen(false);
   }
 
@@ -68,7 +69,12 @@ function ExplorerPage() {
     setOpen(false);
   }
 
-  const activeCount = Object.values(search).filter((v) => v !== undefined && v !== "").length;
+  function removeFilter(key) {
+    const next = { ...search };
+    delete next[key];
+    setForm(next);
+    navigate({ to: "/explorer", search: clean(next) });
+  }
 
   const SORTS = [
     { value: "pertinence", label: t("explorer.sort.relevance") },
@@ -76,67 +82,161 @@ function ExplorerPage() {
     { value: "populaire", label: t("explorer.sort.popular") },
   ];
 
+  const chips = [
+    search.q && { key: "q", label: `« ${search.q} »` },
+    search.country && { key: "country", label: search.country },
+    search.city && { key: "city", label: search.city },
+    search.category && { key: "category", label: search.category },
+    search.specialty && { key: "specialty", label: search.specialty },
+    search.availability && { key: "availability", label: t(`avail.${search.availability}`) },
+    search.premiumOnly && { key: "premiumOnly", label: t("explorer.proOnly") },
+  ].filter(Boolean);
+
+  const countries = (facets.countries || []).slice(0, 9);
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
-      <div className="max-w-2xl">
-        <p className="label-caps">{t("explorer.eyebrow")}</p>
-        <h1 className="mt-3 text-[clamp(2rem,4.5vw,3.2rem)] font-semibold leading-tight">
-          {t("explorer.title")}
-        </h1>
-        <p className="mt-4 text-[14.5px] leading-relaxed text-muted-foreground">
-          {total > 1
-            ? t("explorer.countPlural", { n: total })
-            : t("explorer.count", { n: total })}{" "}
-          {t("explorer.countNote")}
-        </p>
+      <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+        <div className="max-w-2xl">
+          <p className="label-caps">{t("explorer.eyebrow")}</p>
+          <h1 className="mt-3 text-[clamp(2rem,4.5vw,3.2rem)] font-semibold leading-tight">
+            {t("explorer.title")}
+          </h1>
+          <p className="mt-4 text-[14.5px] leading-relaxed text-muted-foreground">
+            {total > 1
+              ? t("explorer.countPlural", { n: total })
+              : t("explorer.count", { n: total })}{" "}
+            {t("explorer.countNote")}
+          </p>
+        </div>
+
+        <div className="flex gap-8 border-t border-border pt-6 lg:border-0 lg:pt-0">
+          <div>
+            <p className="font-heading text-2xl font-semibold">{facets.countries?.length || 0}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+              Pays représentés
+            </p>
+          </div>
+          <div>
+            <p className="font-heading text-2xl font-semibold">{facets.categories?.length || 0}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+              Disciplines
+            </p>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={apply} className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Input
-          value={form.q || ""}
-          onChange={(e) => set("q")(e.target.value)}
-          placeholder={t("explorer.q")}
-          className="h-12 flex-1 rounded-full border-border bg-card px-5"
-        />
-        <Select value={form.sort || "pertinence"} onValueChange={set("sort")}>
-          <SelectTrigger className="h-12 w-full rounded-full bg-card px-5 sm:w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SORTS.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <button
-          type="submit"
-          className="h-12 rounded-full bg-foreground px-7 text-[13px] font-medium text-background transition-colors hover:bg-primary"
-        >
-          {t("explorer.search")}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-border bg-card px-5 text-[13px] font-medium lg:hidden"
-        >
-          <SlidersHorizontal className="h-4 w-4" />
-          {t("explorer.filters")}
-          {activeCount > 0 && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] text-foreground">
-              {activeCount}
+      <form
+        onSubmit={apply}
+        className="mt-9 rounded-2xl border border-border bg-card p-3 shadow-[0_18px_50px_-42px_rgba(21,21,21,0.5)] sm:p-4"
+      >
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={form.q || ""}
+              onChange={(e) => set("q")(e.target.value)}
+              placeholder={t("explorer.q")}
+              className="h-12 rounded-full border-0 bg-secondary/60 pl-11 pr-4 text-[13.5px] focus-visible:ring-1"
+            />
+          </div>
+
+          <Select value={form.sort || "pertinence"} onValueChange={set("sort")}>
+            <SelectTrigger className="h-12 w-full rounded-full px-5 text-[13px] lg:w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORTS.map((s) => (
+                <SelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <button
+            type="submit"
+            className="h-12 shrink-0 rounded-full bg-foreground px-7 text-[13px] font-medium text-background transition-colors hover:bg-primary"
+          >
+            {t("explorer.search")}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-border px-5 text-[13px] font-medium lg:hidden"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {t("explorer.filters")}
+            {chips.length > 0 && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] text-foreground">
+                {chips.length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {countries.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-border/70 pt-3">
+            <span className="mr-1 inline-flex items-center gap-1.5 text-[10.5px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              <Globe2 className="h-3 w-3" /> Pays
             </span>
-          )}
-        </button>
+            {countries.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => {
+                  const next = clean({
+                    ...search,
+                    country: search.country === c ? undefined : c,
+                  });
+                  setForm(next);
+                  navigate({ to: "/explorer", search: next });
+                }}
+                className={cn(
+                  "rounded-full px-3 py-1 text-[11.5px] transition-colors",
+                  search.country === c
+                    ? "bg-foreground text-background"
+                    : "bg-secondary text-foreground/70 hover:bg-secondary/70"
+                )}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
       </form>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[260px_1fr] lg:gap-12">
+      {chips.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+            Filtres actifs
+          </span>
+          {chips.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => removeFilter(c.key)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11.5px] font-medium hover:border-foreground/30"
+            >
+              {c.label}
+              <X className="h-3 w-3" />
+            </button>
+          ))}
+          <button
+            onClick={reset}
+            className="text-[11.5px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            {t("explorer.reset")}
+          </button>
+        </div>
+      )}
+
+      <div className="mt-9 grid gap-10 lg:grid-cols-[250px_1fr] lg:gap-12">
         <aside className={`${open ? "block" : "hidden"} lg:block`}>
           <div className="space-y-5 rounded-2xl border border-border bg-card p-5 lg:sticky lg:top-28">
             <div className="flex items-center justify-between">
-              <p className="text-[12px] font-medium uppercase tracking-[0.16em]">
-                {t("explorer.filters")}
+              <p className="inline-flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.16em]">
+                <SlidersHorizontal className="h-3.5 w-3.5" /> {t("explorer.filters")}
               </p>
               <button
                 type="button"
@@ -222,6 +322,35 @@ function ExplorerPage() {
         </aside>
 
         <div>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+            <p className="inline-flex items-center gap-2 text-[12.5px] text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              {items.length} {items.length > 1 ? "profils affichés" : "profil affiché"}
+            </p>
+            <div className="hidden items-center gap-2 lg:flex">
+              <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                Trier
+              </span>
+              <Select
+                value={search.sort || "pertinence"}
+                onValueChange={(v) =>
+                  navigate({ to: "/explorer", search: clean({ ...search, sort: v }) })
+                }
+              >
+                <SelectTrigger className="h-9 w-40 rounded-full text-[12px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORTS.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {items.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border px-6 py-20 text-center">
               <p className="text-[15px] font-medium">{t("explorer.empty")}</p>
@@ -234,7 +363,7 @@ function ExplorerPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {items.map((a) => (
                 <ArtistCard key={a.id} artist={a} sponsored={a.boosted} />
               ))}

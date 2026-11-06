@@ -8,11 +8,11 @@ export const DEFAULT_PLANS = [
     badge: null,
     tagline: "Se faire connaître",
     tagline_en: "Get discovered",
-    mediaLimit: 5,
+    mediaLimit: 3,
     categoriesLimit: 1,
     features: [
       "Profil public indexé",
-      "Jusqu'à 5 photos de portfolio",
+      "Jusqu'à 3 photos de portfolio",
       "Une catégorie principale",
       "Biographie, pays et ville",
       "Réseaux sociaux",
@@ -21,7 +21,7 @@ export const DEFAULT_PLANS = [
     ],
     features_en: [
       "Indexed public profile",
-      "Up to 5 portfolio photos",
+      "Up to 3 portfolio photos",
       "One main category",
       "Biography, country and city",
       "Social links",

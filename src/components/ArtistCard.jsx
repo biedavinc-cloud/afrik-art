@@ -24,6 +24,7 @@ export default function ArtistCard({ artist, sponsored = false }) {
           <Image
             src={image}
             alt={artist.display_name}
+            quality={96}
             className="h-full w-full transition-transform duration-700 group-hover:scale-[1.04]"
           />
         ) : (

@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authed/dashboard/portfolio")({
 function PortfolioPage() {
   const { profile } = useDashboard();
   const [artworks, setArtworks] = useState([]);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(3);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef(null);
@@ -37,7 +37,7 @@ function PortfolioPage() {
     const plans = Array.isArray(planRes) ? planRes : planRes?.items || [];
     const config = plans.find((p) => p.key === profile.plan);
     setArtworks(arts);
-    setLimit(config?.media_limit ?? 5);
+    setLimit(config?.media_limit ?? 3);
     setLoading(false);
   }
 
@@ -113,7 +113,7 @@ function PortfolioPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <AddVideoDialog profile={profile} onAdded={load} />
+          <AddVideoDialog profile={profile} onAdded={load} remaining={remaining} limit={limit} />
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading || remaining === 0}
@@ -187,13 +187,17 @@ function PortfolioPage() {
   );
 }
 
-function AddVideoDialog({ profile, onAdded }) {
+function AddVideoDialog({ profile, onAdded, remaining = 0, limit = 3 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ title: "", video_url: "", description: "" });
 
   async function submit(e) {
     e.preventDefault();
+    if (remaining <= 0) {
+      toast.error(`Votre formule est limitée à ${limit} médias.`);
+      return;
+    }
     setBusy(true);
     try {
       await base44.entities.Artwork.create({
@@ -219,7 +223,10 @@ function AddVideoDialog({ profile, onAdded }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-[12.5px] font-medium">
+        <button
+          disabled={remaining <= 0}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-[12.5px] font-medium disabled:opacity-50"
+        >
           <Plus className="h-4 w-4" /> Vidéo
         </button>
       </DialogTrigger>

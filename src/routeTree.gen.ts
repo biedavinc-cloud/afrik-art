@@ -21,7 +21,6 @@ import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedOnboardingRouteImport } from './routes/_authed/onboarding'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
-import { Route as SiteActualitesRouteImport } from './routes/_site/actualites'
 import { Route as SiteCategoriesRouteImport } from './routes/_site/categories'
 import { Route as SiteConditionsRouteImport } from './routes/_site/conditions'
 import { Route as SiteConfidentialiteRouteImport } from './routes/_site/confidentialite'
@@ -56,6 +55,7 @@ import { Route as AuthedDashboardDemandesRouteImport } from './routes/_authed/da
 import { Route as AuthedDashboardPortfolioRouteImport } from './routes/_authed/dashboard.portfolio'
 import { Route as AuthedDashboardProfilRouteImport } from './routes/_authed/dashboard.profil'
 import { Route as AuthedDashboardVisibiliteRouteImport } from './routes/_authed/dashboard.visibilite'
+import { Route as SiteActualitesIndexRouteImport } from './routes/_site/actualites.index'
 import { Route as SiteActualitesSlugRouteImport } from './routes/_site/actualites.$slug'
 import { Route as SiteTalentsSlugRouteImport } from './routes/_site/talents.$slug'
 
@@ -114,11 +114,6 @@ const AuthedOnboardingRoute = AuthedOnboardingRouteImport.update({
 const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => SiteRoute,
-} as any)
-const SiteActualitesRoute = SiteActualitesRouteImport.update({
-  id: '/actualites',
-  path: '/actualites',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteCategoriesRoute = SiteCategoriesRouteImport.update({
@@ -295,10 +290,15 @@ const AuthedDashboardVisibiliteRoute =
     path: '/visibilite',
     getParentRoute: () => AuthedDashboardRoute,
   } as any)
+const SiteActualitesIndexRoute = SiteActualitesIndexRouteImport.update({
+  id: '/actualites/',
+  path: '/actualites/',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteActualitesSlugRoute = SiteActualitesSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => SiteActualitesRoute,
+  id: '/actualites/$slug',
+  path: '/actualites/$slug',
+  getParentRoute: () => SiteRoute,
 } as any)
 const SiteTalentsSlugRoute = SiteTalentsSlugRouteImport.update({
   id: '/talents/$slug',
@@ -316,7 +316,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthedAdminRouteWithChildren
   '/dashboard': typeof AuthedDashboardRouteWithChildren
   '/onboarding': typeof AuthedOnboardingRoute
-  '/actualites': typeof SiteActualitesRouteWithChildren
   '/categories': typeof SiteCategoriesRoute
   '/conditions': typeof SiteConditionsRoute
   '/confidentialite': typeof SiteConfidentialiteRoute
@@ -353,6 +352,7 @@ export interface FileRoutesByFullPath {
   '/talents/$slug': typeof SiteTalentsSlugRoute
   '/admin/': typeof AuthedAdminIndexRoute
   '/dashboard/': typeof AuthedDashboardIndexRoute
+  '/actualites/': typeof SiteActualitesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
@@ -362,7 +362,6 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/onboarding': typeof AuthedOnboardingRoute
-  '/actualites': typeof SiteActualitesRouteWithChildren
   '/categories': typeof SiteCategoriesRoute
   '/conditions': typeof SiteConditionsRoute
   '/confidentialite': typeof SiteConfidentialiteRoute
@@ -399,6 +398,7 @@ export interface FileRoutesByTo {
   '/talents/$slug': typeof SiteTalentsSlugRoute
   '/admin': typeof AuthedAdminIndexRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
+  '/actualites': typeof SiteActualitesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -413,7 +413,6 @@ export interface FileRoutesById {
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
   '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
   '/_authed/onboarding': typeof AuthedOnboardingRoute
-  '/_site/actualites': typeof SiteActualitesRouteWithChildren
   '/_site/categories': typeof SiteCategoriesRoute
   '/_site/conditions': typeof SiteConditionsRoute
   '/_site/confidentialite': typeof SiteConfidentialiteRoute
@@ -451,6 +450,7 @@ export interface FileRoutesById {
   '/_site/talents/$slug': typeof SiteTalentsSlugRoute
   '/_authed/admin/': typeof AuthedAdminIndexRoute
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
+  '/_site/actualites/': typeof SiteActualitesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -464,7 +464,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/onboarding'
-    | '/actualites'
     | '/categories'
     | '/conditions'
     | '/confidentialite'
@@ -501,6 +500,7 @@ export interface FileRouteTypes {
     | '/talents/$slug'
     | '/admin/'
     | '/dashboard/'
+    | '/actualites/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -510,7 +510,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/onboarding'
-    | '/actualites'
     | '/categories'
     | '/conditions'
     | '/confidentialite'
@@ -547,6 +546,7 @@ export interface FileRouteTypes {
     | '/talents/$slug'
     | '/admin'
     | '/dashboard'
+    | '/actualites'
   id:
     | '__root__'
     | '/_authed'
@@ -560,7 +560,6 @@ export interface FileRouteTypes {
     | '/_authed/admin'
     | '/_authed/dashboard'
     | '/_authed/onboarding'
-    | '/_site/actualites'
     | '/_site/categories'
     | '/_site/conditions'
     | '/_site/confidentialite'
@@ -598,6 +597,7 @@ export interface FileRouteTypes {
     | '/_site/talents/$slug'
     | '/_authed/admin/'
     | '/_authed/dashboard/'
+    | '/_site/actualites/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -696,13 +696,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof SiteIndexRouteImport
-      parentRoute: typeof SiteRoute
-    }
-    '/_site/actualites': {
-      id: '/_site/actualites'
-      path: '/actualites'
-      fullPath: '/actualites'
-      preLoaderRoute: typeof SiteActualitesRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/categories': {
@@ -943,12 +936,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardVisibiliteRouteImport
       parentRoute: typeof AuthedDashboardRoute
     }
+    '/_site/actualites/': {
+      id: '/_site/actualites/'
+      path: '/actualites'
+      fullPath: '/actualites/'
+      preLoaderRoute: typeof SiteActualitesIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/actualites/$slug': {
       id: '/_site/actualites/$slug'
-      path: '/$slug'
+      path: '/actualites/$slug'
       fullPath: '/actualites/$slug'
       preLoaderRoute: typeof SiteActualitesSlugRouteImport
-      parentRoute: typeof SiteActualitesRoute
+      parentRoute: typeof SiteRoute
     }
     '/_site/talents/$slug': {
       id: '/_site/talents/$slug'
@@ -1045,20 +1045,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
 const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
-interface SiteActualitesRouteChildren {
-  SiteActualitesSlugRoute: typeof SiteActualitesSlugRoute
-}
-
-const SiteActualitesRouteChildren: SiteActualitesRouteChildren = {
-  SiteActualitesSlugRoute: SiteActualitesSlugRoute,
-}
-
-const SiteActualitesRouteWithChildren = SiteActualitesRoute._addFileChildren(
-  SiteActualitesRouteChildren,
-)
-
 interface SiteRouteChildren {
-  SiteActualitesRoute: typeof SiteActualitesRouteWithChildren
   SiteCategoriesRoute: typeof SiteCategoriesRoute
   SiteConditionsRoute: typeof SiteConditionsRoute
   SiteConfidentialiteRoute: typeof SiteConfidentialiteRoute
@@ -1073,11 +1060,12 @@ interface SiteRouteChildren {
   SiteTarifsRoute: typeof SiteTarifsRoute
   SiteTopArtistesRoute: typeof SiteTopArtistesRoute
   SiteIndexRoute: typeof SiteIndexRoute
+  SiteActualitesSlugRoute: typeof SiteActualitesSlugRoute
   SiteTalentsSlugRoute: typeof SiteTalentsSlugRoute
+  SiteActualitesIndexRoute: typeof SiteActualitesIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
-  SiteActualitesRoute: SiteActualitesRouteWithChildren,
   SiteCategoriesRoute: SiteCategoriesRoute,
   SiteConditionsRoute: SiteConditionsRoute,
   SiteConfidentialiteRoute: SiteConfidentialiteRoute,
@@ -1092,7 +1080,9 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteTarifsRoute: SiteTarifsRoute,
   SiteTopArtistesRoute: SiteTopArtistesRoute,
   SiteIndexRoute: SiteIndexRoute,
+  SiteActualitesSlugRoute: SiteActualitesSlugRoute,
   SiteTalentsSlugRoute: SiteTalentsSlugRoute,
+  SiteActualitesIndexRoute: SiteActualitesIndexRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
