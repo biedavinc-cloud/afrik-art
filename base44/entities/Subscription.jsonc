@@ -1,0 +1,77 @@
+{
+  "name": "Subscription",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "pro",
+        "premium"
+      ],
+      "enumColors": [
+        "gray",
+        "blue",
+        "purple"
+      ]
+    },
+    "price": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "canceled",
+        "expired"
+      ],
+      "enumColors": [
+        "yellow",
+        "green",
+        "gray",
+        "red"
+      ],
+      "default": "pending"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "ends_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

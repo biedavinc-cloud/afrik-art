@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 11.4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 11.4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11.4%;
+    --primary: 355.8 78% 50.2%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 97.6%;
+    --secondary-foreground: 0 0% 11.4%;
+    --muted: 0 0% 97.6%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 355.8 78% 50.2%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 355.8 78% 50.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90.2%;
+    --input: 0 0% 90.2%;
+    --ring: 355.8 78% 50.2%;
+    --chart-1: 355.8 78% 50.2%;
+    --chart-2: 0 0% 11.4%;
+    --chart-3: 199.3 18.4% 33.1%;
+    --chart-4: 0 0% 40%;
+    --chart-5: 0 0% 80%;
+    --radius: 0.85rem;
+    --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    --teal-deep: 199.3 18.4% 33.1%;
+    --teal-deep-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 11.4%;
+    --sidebar-primary: 355.8 78% 50.2%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 97.6%;
+    --sidebar-accent-foreground: 0 0% 11.4%;
+    --sidebar-border: 0 0% 90.2%;
+    --sidebar-ring: 355.8 78% 50.2%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5 {
+    @apply font-heading;
+    letter-spacing: -0.03em;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.25);
+  }
+}
+
+@layer components {
+  .label-caps {
+    @apply text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground;
+  }
+
+  .rule-gold {
+    @apply h-px w-10 bg-accent;
+  }
+
+  .surface {
+    @apply rounded-2xl border border-border bg-card;
+  }
+
+  /* Fond teal profond écrit en CSS brut : la classe utilitaire générée depuis
+     tailwind.config.js n'était pas incluse dans le CSS servi, ce qui laissait
+     le footer sans fond (texte blanc sur fond blanc). */
+  .surface-teal {
+    background-color: hsl(var(--teal-deep));
+  }
+}
+
+@layer utilities {
+  .fade-up {
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

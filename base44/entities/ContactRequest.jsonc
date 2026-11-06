@@ -1,0 +1,99 @@
+{
+  "name": "ContactRequest",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "artist_user_id": {
+      "type": "string"
+    },
+    "artist_name": {
+      "type": "string"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_email": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "collaboration_type": {
+      "type": "string",
+      "enum": [
+        "exposition",
+        "achat",
+        "commande",
+        "presse",
+        "collaboration",
+        "autre"
+      ],
+      "enumColors": [
+        "purple",
+        "green",
+        "blue",
+        "yellow",
+        "pink",
+        "gray"
+      ],
+      "default": "collaboration"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "read",
+        "archived"
+      ],
+      "enumColors": [
+        "yellow",
+        "blue",
+        "gray"
+      ],
+      "default": "new"
+    }
+  },
+  "required": [
+    "profile_id",
+    "sender_name",
+    "sender_email",
+    "message"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "data.artist_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.artist_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

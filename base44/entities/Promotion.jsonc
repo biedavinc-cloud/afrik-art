@@ -1,0 +1,102 @@
+{
+  "name": "Promotion",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "artist_name": {
+      "type": "string"
+    },
+    "duration_hours": {
+      "type": "number"
+    },
+    "duration_label": {
+      "type": "string"
+    },
+    "price": {
+      "type": "number"
+    },
+    "target_countries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "expired",
+        "canceled"
+      ],
+      "enumColors": [
+        "yellow",
+        "green",
+        "gray",
+        "red"
+      ],
+      "default": "pending"
+    },
+    "starts_at": {
+      "type": "string"
+    },
+    "ends_at": {
+      "type": "string"
+    },
+    "impressions": {
+      "type": "number",
+      "default": 0
+    },
+    "clicks": {
+      "type": "number",
+      "default": 0
+    },
+    "visits": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "profile_id",
+    "duration_hours",
+    "price"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.status": "active"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

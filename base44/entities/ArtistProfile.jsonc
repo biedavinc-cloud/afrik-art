@@ -1,0 +1,187 @@
+{
+  "name": "ArtistProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Identifiant du compte propri\u00e9taire du profil"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Nom public ou pseudonyme"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Identifiant unique utilis\u00e9 dans l'URL publique"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Phrase de pr\u00e9sentation courte"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Biographie du cr\u00e9ateur"
+    },
+    "country": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "primary_category": {
+      "type": "string",
+      "description": "Cat\u00e9gorie artistique principale"
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "specialty": {
+      "type": "string",
+      "description": "Sp\u00e9cialit\u00e9 pr\u00e9cise (ex. portrait documentaire)"
+    },
+    "availability": {
+      "type": "string",
+      "enum": [
+        "available",
+        "open_to_collab",
+        "busy"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow"
+      ],
+      "default": "available"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "cover_url": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "instagram": {
+      "type": "string"
+    },
+    "behance": {
+      "type": "string"
+    },
+    "youtube": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "pro",
+        "premium"
+      ],
+      "enumColors": [
+        "gray",
+        "blue",
+        "purple"
+      ],
+      "default": "starter"
+    },
+    "plan_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "pending",
+        "canceled"
+      ],
+      "enumColors": [
+        "green",
+        "yellow",
+        "red"
+      ],
+      "default": "active"
+    },
+    "plan_ends_at": {
+      "type": "string"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended"
+      ],
+      "enumColors": [
+        "green",
+        "red"
+      ],
+      "default": "active"
+    },
+    "views": {
+      "type": "number",
+      "default": 0
+    },
+    "featured_until": {
+      "type": "string"
+    },
+    "is_demo": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "display_name",
+    "slug"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.status": "active"
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

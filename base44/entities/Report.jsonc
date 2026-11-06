@@ -1,0 +1,70 @@
+{
+  "name": "Report",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "profile_slug": {
+      "type": "string"
+    },
+    "reporter_email": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "contenu_inapproprie",
+        "droits_auteur",
+        "usurpation",
+        "spam",
+        "autre"
+      ],
+      "enumColors": [
+        "red",
+        "pink",
+        "yellow",
+        "blue",
+        "gray"
+      ]
+    },
+    "details": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "resolved",
+        "dismissed"
+      ],
+      "enumColors": [
+        "yellow",
+        "green",
+        "gray"
+      ],
+      "default": "open"
+    }
+  },
+  "required": [
+    "reason"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
