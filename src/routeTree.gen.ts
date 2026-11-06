@@ -21,15 +21,27 @@ import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedOnboardingRouteImport } from './routes/_authed/onboarding'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteActualitesRouteImport } from './routes/_site/actualites'
 import { Route as SiteCategoriesRouteImport } from './routes/_site/categories'
 import { Route as SiteConditionsRouteImport } from './routes/_site/conditions'
 import { Route as SiteConfidentialiteRouteImport } from './routes/_site/confidentialite'
+import { Route as SiteContactArtisteRouteImport } from './routes/_site/contact-artiste'
 import { Route as SiteDroitsAuteurRouteImport } from './routes/_site/droits-auteur'
 import { Route as SiteExplorerRouteImport } from './routes/_site/explorer'
+import { Route as SiteFaqRouteImport } from './routes/_site/faq'
+import { Route as SiteGalerieRouteImport } from './routes/_site/galerie'
+import { Route as SiteGuideArtisteRouteImport } from './routes/_site/guide-artiste'
+import { Route as SiteRechercheRouteImport } from './routes/_site/recherche'
+import { Route as SiteSupportRouteImport } from './routes/_site/support'
 import { Route as SiteTarifsRouteImport } from './routes/_site/tarifs'
+import { Route as SiteTopArtistesRouteImport } from './routes/_site/top-artistes'
 import { Route as ApiProbeRouteImport } from './routes/api/probe'
 import { Route as ApiTimeRouteImport } from './routes/api/time'
+import { Route as AuthedAppBlogRouteImport } from './routes/_authed/_app/blog'
+import { Route as AuthedAppCentrePromotionRouteImport } from './routes/_authed/_app/centre-promotion'
+import { Route as AuthedAppFacturesRouteImport } from './routes/_authed/_app/factures'
 import { Route as AuthedAppMessagerieRouteImport } from './routes/_authed/_app/messagerie'
+import { Route as AuthedAppParametresRouteImport } from './routes/_authed/_app/parametres'
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin.index'
 import { Route as AuthedAdminArtistesRouteImport } from './routes/_authed/admin.artistes'
 import { Route as AuthedAdminCategoriesRouteImport } from './routes/_authed/admin.categories'
@@ -43,6 +55,7 @@ import { Route as AuthedDashboardDemandesRouteImport } from './routes/_authed/da
 import { Route as AuthedDashboardPortfolioRouteImport } from './routes/_authed/dashboard.portfolio'
 import { Route as AuthedDashboardProfilRouteImport } from './routes/_authed/dashboard.profil'
 import { Route as AuthedDashboardVisibiliteRouteImport } from './routes/_authed/dashboard.visibilite'
+import { Route as SiteActualitesSlugRouteImport } from './routes/_site/actualites.$slug'
 import { Route as SiteTalentsSlugRouteImport } from './routes/_site/talents.$slug'
 
 const AuthedRoute = AuthedRouteImport.update({
@@ -102,6 +115,11 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteActualitesRoute = SiteActualitesRouteImport.update({
+  id: '/actualites',
+  path: '/actualites',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteCategoriesRoute = SiteCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -117,6 +135,11 @@ const SiteConfidentialiteRoute = SiteConfidentialiteRouteImport.update({
   path: '/confidentialite',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteContactArtisteRoute = SiteContactArtisteRouteImport.update({
+  id: '/contact-artiste',
+  path: '/contact-artiste',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteDroitsAuteurRoute = SiteDroitsAuteurRouteImport.update({
   id: '/droits-auteur',
   path: '/droits-auteur',
@@ -127,9 +150,39 @@ const SiteExplorerRoute = SiteExplorerRouteImport.update({
   path: '/explorer',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteFaqRoute = SiteFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteGalerieRoute = SiteGalerieRouteImport.update({
+  id: '/galerie',
+  path: '/galerie',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteGuideArtisteRoute = SiteGuideArtisteRouteImport.update({
+  id: '/guide-artiste',
+  path: '/guide-artiste',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteRechercheRoute = SiteRechercheRouteImport.update({
+  id: '/recherche',
+  path: '/recherche',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteSupportRoute = SiteSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteTarifsRoute = SiteTarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteTopArtistesRoute = SiteTopArtistesRouteImport.update({
+  id: '/top-artistes',
+  path: '/top-artistes',
   getParentRoute: () => SiteRoute,
 } as any)
 const ApiProbeRoute = ApiProbeRouteImport.update({
@@ -142,9 +195,30 @@ const ApiTimeRoute = ApiTimeRouteImport.update({
   path: '/api/time',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthedAppBlogRoute = AuthedAppBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => AuthedAppRoute,
+} as any)
+const AuthedAppCentrePromotionRoute =
+  AuthedAppCentrePromotionRouteImport.update({
+    id: '/centre-promotion',
+    path: '/centre-promotion',
+    getParentRoute: () => AuthedAppRoute,
+  } as any)
+const AuthedAppFacturesRoute = AuthedAppFacturesRouteImport.update({
+  id: '/factures',
+  path: '/factures',
+  getParentRoute: () => AuthedAppRoute,
+} as any)
 const AuthedAppMessagerieRoute = AuthedAppMessagerieRouteImport.update({
   id: '/messagerie',
   path: '/messagerie',
+  getParentRoute: () => AuthedAppRoute,
+} as any)
+const AuthedAppParametresRoute = AuthedAppParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
   getParentRoute: () => AuthedAppRoute,
 } as any)
 const AuthedAdminIndexRoute = AuthedAdminIndexRouteImport.update({
@@ -215,6 +289,11 @@ const AuthedDashboardVisibiliteRoute =
     path: '/visibilite',
     getParentRoute: () => AuthedDashboardRoute,
   } as any)
+const SiteActualitesSlugRoute = SiteActualitesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SiteActualitesRoute,
+} as any)
 const SiteTalentsSlugRoute = SiteTalentsSlugRouteImport.update({
   id: '/talents/$slug',
   path: '/talents/$slug',
@@ -231,15 +310,27 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthedAdminRouteWithChildren
   '/dashboard': typeof AuthedDashboardRouteWithChildren
   '/onboarding': typeof AuthedOnboardingRoute
+  '/actualites': typeof SiteActualitesRouteWithChildren
   '/categories': typeof SiteCategoriesRoute
   '/conditions': typeof SiteConditionsRoute
   '/confidentialite': typeof SiteConfidentialiteRoute
+  '/contact-artiste': typeof SiteContactArtisteRoute
   '/droits-auteur': typeof SiteDroitsAuteurRoute
   '/explorer': typeof SiteExplorerRoute
+  '/faq': typeof SiteFaqRoute
+  '/galerie': typeof SiteGalerieRoute
+  '/guide-artiste': typeof SiteGuideArtisteRoute
+  '/recherche': typeof SiteRechercheRoute
+  '/support': typeof SiteSupportRoute
   '/tarifs': typeof SiteTarifsRoute
+  '/top-artistes': typeof SiteTopArtistesRoute
   '/api/probe': typeof ApiProbeRoute
   '/api/time': typeof ApiTimeRoute
+  '/blog': typeof AuthedAppBlogRoute
+  '/centre-promotion': typeof AuthedAppCentrePromotionRoute
+  '/factures': typeof AuthedAppFacturesRoute
   '/messagerie': typeof AuthedAppMessagerieRoute
+  '/parametres': typeof AuthedAppParametresRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -251,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/portfolio': typeof AuthedDashboardPortfolioRoute
   '/dashboard/profil': typeof AuthedDashboardProfilRoute
   '/dashboard/visibilite': typeof AuthedDashboardVisibiliteRoute
+  '/actualites/$slug': typeof SiteActualitesSlugRoute
   '/talents/$slug': typeof SiteTalentsSlugRoute
   '/admin/': typeof AuthedAdminIndexRoute
   '/dashboard/': typeof AuthedDashboardIndexRoute
@@ -263,15 +355,27 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/onboarding': typeof AuthedOnboardingRoute
+  '/actualites': typeof SiteActualitesRouteWithChildren
   '/categories': typeof SiteCategoriesRoute
   '/conditions': typeof SiteConditionsRoute
   '/confidentialite': typeof SiteConfidentialiteRoute
+  '/contact-artiste': typeof SiteContactArtisteRoute
   '/droits-auteur': typeof SiteDroitsAuteurRoute
   '/explorer': typeof SiteExplorerRoute
+  '/faq': typeof SiteFaqRoute
+  '/galerie': typeof SiteGalerieRoute
+  '/guide-artiste': typeof SiteGuideArtisteRoute
+  '/recherche': typeof SiteRechercheRoute
+  '/support': typeof SiteSupportRoute
   '/tarifs': typeof SiteTarifsRoute
+  '/top-artistes': typeof SiteTopArtistesRoute
   '/api/probe': typeof ApiProbeRoute
   '/api/time': typeof ApiTimeRoute
+  '/blog': typeof AuthedAppBlogRoute
+  '/centre-promotion': typeof AuthedAppCentrePromotionRoute
+  '/factures': typeof AuthedAppFacturesRoute
   '/messagerie': typeof AuthedAppMessagerieRoute
+  '/parametres': typeof AuthedAppParametresRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -283,6 +387,7 @@ export interface FileRoutesByTo {
   '/dashboard/portfolio': typeof AuthedDashboardPortfolioRoute
   '/dashboard/profil': typeof AuthedDashboardProfilRoute
   '/dashboard/visibilite': typeof AuthedDashboardVisibiliteRoute
+  '/actualites/$slug': typeof SiteActualitesSlugRoute
   '/talents/$slug': typeof SiteTalentsSlugRoute
   '/admin': typeof AuthedAdminIndexRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
@@ -300,16 +405,28 @@ export interface FileRoutesById {
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
   '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
   '/_authed/onboarding': typeof AuthedOnboardingRoute
+  '/_site/actualites': typeof SiteActualitesRouteWithChildren
   '/_site/categories': typeof SiteCategoriesRoute
   '/_site/conditions': typeof SiteConditionsRoute
   '/_site/confidentialite': typeof SiteConfidentialiteRoute
+  '/_site/contact-artiste': typeof SiteContactArtisteRoute
   '/_site/droits-auteur': typeof SiteDroitsAuteurRoute
   '/_site/explorer': typeof SiteExplorerRoute
+  '/_site/faq': typeof SiteFaqRoute
+  '/_site/galerie': typeof SiteGalerieRoute
+  '/_site/guide-artiste': typeof SiteGuideArtisteRoute
+  '/_site/recherche': typeof SiteRechercheRoute
+  '/_site/support': typeof SiteSupportRoute
   '/_site/tarifs': typeof SiteTarifsRoute
+  '/_site/top-artistes': typeof SiteTopArtistesRoute
   '/api/probe': typeof ApiProbeRoute
   '/api/time': typeof ApiTimeRoute
   '/_site/': typeof SiteIndexRoute
+  '/_authed/_app/blog': typeof AuthedAppBlogRoute
+  '/_authed/_app/centre-promotion': typeof AuthedAppCentrePromotionRoute
+  '/_authed/_app/factures': typeof AuthedAppFacturesRoute
   '/_authed/_app/messagerie': typeof AuthedAppMessagerieRoute
+  '/_authed/_app/parametres': typeof AuthedAppParametresRoute
   '/_authed/admin/artistes': typeof AuthedAdminArtistesRoute
   '/_authed/admin/categories': typeof AuthedAdminCategoriesRoute
   '/_authed/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -321,6 +438,7 @@ export interface FileRoutesById {
   '/_authed/dashboard/portfolio': typeof AuthedDashboardPortfolioRoute
   '/_authed/dashboard/profil': typeof AuthedDashboardProfilRoute
   '/_authed/dashboard/visibilite': typeof AuthedDashboardVisibiliteRoute
+  '/_site/actualites/$slug': typeof SiteActualitesSlugRoute
   '/_site/talents/$slug': typeof SiteTalentsSlugRoute
   '/_authed/admin/': typeof AuthedAdminIndexRoute
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
@@ -337,15 +455,27 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/onboarding'
+    | '/actualites'
     | '/categories'
     | '/conditions'
     | '/confidentialite'
+    | '/contact-artiste'
     | '/droits-auteur'
     | '/explorer'
+    | '/faq'
+    | '/galerie'
+    | '/guide-artiste'
+    | '/recherche'
+    | '/support'
     | '/tarifs'
+    | '/top-artistes'
     | '/api/probe'
     | '/api/time'
+    | '/blog'
+    | '/centre-promotion'
+    | '/factures'
     | '/messagerie'
+    | '/parametres'
     | '/admin/artistes'
     | '/admin/categories'
     | '/admin/monetisation'
@@ -357,6 +487,7 @@ export interface FileRouteTypes {
     | '/dashboard/portfolio'
     | '/dashboard/profil'
     | '/dashboard/visibilite'
+    | '/actualites/$slug'
     | '/talents/$slug'
     | '/admin/'
     | '/dashboard/'
@@ -369,15 +500,27 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/onboarding'
+    | '/actualites'
     | '/categories'
     | '/conditions'
     | '/confidentialite'
+    | '/contact-artiste'
     | '/droits-auteur'
     | '/explorer'
+    | '/faq'
+    | '/galerie'
+    | '/guide-artiste'
+    | '/recherche'
+    | '/support'
     | '/tarifs'
+    | '/top-artistes'
     | '/api/probe'
     | '/api/time'
+    | '/blog'
+    | '/centre-promotion'
+    | '/factures'
     | '/messagerie'
+    | '/parametres'
     | '/admin/artistes'
     | '/admin/categories'
     | '/admin/monetisation'
@@ -389,6 +532,7 @@ export interface FileRouteTypes {
     | '/dashboard/portfolio'
     | '/dashboard/profil'
     | '/dashboard/visibilite'
+    | '/actualites/$slug'
     | '/talents/$slug'
     | '/admin'
     | '/dashboard'
@@ -405,16 +549,28 @@ export interface FileRouteTypes {
     | '/_authed/admin'
     | '/_authed/dashboard'
     | '/_authed/onboarding'
+    | '/_site/actualites'
     | '/_site/categories'
     | '/_site/conditions'
     | '/_site/confidentialite'
+    | '/_site/contact-artiste'
     | '/_site/droits-auteur'
     | '/_site/explorer'
+    | '/_site/faq'
+    | '/_site/galerie'
+    | '/_site/guide-artiste'
+    | '/_site/recherche'
+    | '/_site/support'
     | '/_site/tarifs'
+    | '/_site/top-artistes'
     | '/api/probe'
     | '/api/time'
     | '/_site/'
+    | '/_authed/_app/blog'
+    | '/_authed/_app/centre-promotion'
+    | '/_authed/_app/factures'
     | '/_authed/_app/messagerie'
+    | '/_authed/_app/parametres'
     | '/_authed/admin/artistes'
     | '/_authed/admin/categories'
     | '/_authed/admin/monetisation'
@@ -426,6 +582,7 @@ export interface FileRouteTypes {
     | '/_authed/dashboard/portfolio'
     | '/_authed/dashboard/profil'
     | '/_authed/dashboard/visibilite'
+    | '/_site/actualites/$slug'
     | '/_site/talents/$slug'
     | '/_authed/admin/'
     | '/_authed/dashboard/'
@@ -529,6 +686,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteIndexRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/actualites': {
+      id: '/_site/actualites'
+      path: '/actualites'
+      fullPath: '/actualites'
+      preLoaderRoute: typeof SiteActualitesRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/categories': {
       id: '/_site/categories'
       path: '/categories'
@@ -550,6 +714,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteConfidentialiteRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/contact-artiste': {
+      id: '/_site/contact-artiste'
+      path: '/contact-artiste'
+      fullPath: '/contact-artiste'
+      preLoaderRoute: typeof SiteContactArtisteRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/droits-auteur': {
       id: '/_site/droits-auteur'
       path: '/droits-auteur'
@@ -564,11 +735,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteExplorerRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/faq': {
+      id: '/_site/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof SiteFaqRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/galerie': {
+      id: '/_site/galerie'
+      path: '/galerie'
+      fullPath: '/galerie'
+      preLoaderRoute: typeof SiteGalerieRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/guide-artiste': {
+      id: '/_site/guide-artiste'
+      path: '/guide-artiste'
+      fullPath: '/guide-artiste'
+      preLoaderRoute: typeof SiteGuideArtisteRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/recherche': {
+      id: '/_site/recherche'
+      path: '/recherche'
+      fullPath: '/recherche'
+      preLoaderRoute: typeof SiteRechercheRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/support': {
+      id: '/_site/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SiteSupportRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/tarifs': {
       id: '/_site/tarifs'
       path: '/tarifs'
       fullPath: '/tarifs'
       preLoaderRoute: typeof SiteTarifsRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/top-artistes': {
+      id: '/_site/top-artistes'
+      path: '/top-artistes'
+      fullPath: '/top-artistes'
+      preLoaderRoute: typeof SiteTopArtistesRouteImport
       parentRoute: typeof SiteRoute
     }
     '/api/probe': {
@@ -585,11 +798,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTimeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authed/_app/blog': {
+      id: '/_authed/_app/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof AuthedAppBlogRouteImport
+      parentRoute: typeof AuthedAppRoute
+    }
+    '/_authed/_app/centre-promotion': {
+      id: '/_authed/_app/centre-promotion'
+      path: '/centre-promotion'
+      fullPath: '/centre-promotion'
+      preLoaderRoute: typeof AuthedAppCentrePromotionRouteImport
+      parentRoute: typeof AuthedAppRoute
+    }
+    '/_authed/_app/factures': {
+      id: '/_authed/_app/factures'
+      path: '/factures'
+      fullPath: '/factures'
+      preLoaderRoute: typeof AuthedAppFacturesRouteImport
+      parentRoute: typeof AuthedAppRoute
+    }
     '/_authed/_app/messagerie': {
       id: '/_authed/_app/messagerie'
       path: '/messagerie'
       fullPath: '/messagerie'
       preLoaderRoute: typeof AuthedAppMessagerieRouteImport
+      parentRoute: typeof AuthedAppRoute
+    }
+    '/_authed/_app/parametres': {
+      id: '/_authed/_app/parametres'
+      path: '/parametres'
+      fullPath: '/parametres'
+      preLoaderRoute: typeof AuthedAppParametresRouteImport
       parentRoute: typeof AuthedAppRoute
     }
     '/_authed/admin/': {
@@ -683,6 +924,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedDashboardVisibiliteRouteImport
       parentRoute: typeof AuthedDashboardRoute
     }
+    '/_site/actualites/$slug': {
+      id: '/_site/actualites/$slug'
+      path: '/$slug'
+      fullPath: '/actualites/$slug'
+      preLoaderRoute: typeof SiteActualitesSlugRouteImport
+      parentRoute: typeof SiteActualitesRoute
+    }
     '/_site/talents/$slug': {
       id: '/_site/talents/$slug'
       path: '/talents/$slug'
@@ -694,11 +942,19 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedAppRouteChildren {
+  AuthedAppBlogRoute: typeof AuthedAppBlogRoute
+  AuthedAppCentrePromotionRoute: typeof AuthedAppCentrePromotionRoute
+  AuthedAppFacturesRoute: typeof AuthedAppFacturesRoute
   AuthedAppMessagerieRoute: typeof AuthedAppMessagerieRoute
+  AuthedAppParametresRoute: typeof AuthedAppParametresRoute
 }
 
 const AuthedAppRouteChildren: AuthedAppRouteChildren = {
+  AuthedAppBlogRoute: AuthedAppBlogRoute,
+  AuthedAppCentrePromotionRoute: AuthedAppCentrePromotionRoute,
+  AuthedAppFacturesRoute: AuthedAppFacturesRoute,
   AuthedAppMessagerieRoute: AuthedAppMessagerieRoute,
+  AuthedAppParametresRoute: AuthedAppParametresRoute,
 }
 
 const AuthedAppRouteWithChildren = AuthedAppRoute._addFileChildren(
@@ -768,24 +1024,52 @@ const AuthedRouteChildren: AuthedRouteChildren = {
 const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
+interface SiteActualitesRouteChildren {
+  SiteActualitesSlugRoute: typeof SiteActualitesSlugRoute
+}
+
+const SiteActualitesRouteChildren: SiteActualitesRouteChildren = {
+  SiteActualitesSlugRoute: SiteActualitesSlugRoute,
+}
+
+const SiteActualitesRouteWithChildren = SiteActualitesRoute._addFileChildren(
+  SiteActualitesRouteChildren,
+)
+
 interface SiteRouteChildren {
+  SiteActualitesRoute: typeof SiteActualitesRouteWithChildren
   SiteCategoriesRoute: typeof SiteCategoriesRoute
   SiteConditionsRoute: typeof SiteConditionsRoute
   SiteConfidentialiteRoute: typeof SiteConfidentialiteRoute
+  SiteContactArtisteRoute: typeof SiteContactArtisteRoute
   SiteDroitsAuteurRoute: typeof SiteDroitsAuteurRoute
   SiteExplorerRoute: typeof SiteExplorerRoute
+  SiteFaqRoute: typeof SiteFaqRoute
+  SiteGalerieRoute: typeof SiteGalerieRoute
+  SiteGuideArtisteRoute: typeof SiteGuideArtisteRoute
+  SiteRechercheRoute: typeof SiteRechercheRoute
+  SiteSupportRoute: typeof SiteSupportRoute
   SiteTarifsRoute: typeof SiteTarifsRoute
+  SiteTopArtistesRoute: typeof SiteTopArtistesRoute
   SiteIndexRoute: typeof SiteIndexRoute
   SiteTalentsSlugRoute: typeof SiteTalentsSlugRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteActualitesRoute: SiteActualitesRouteWithChildren,
   SiteCategoriesRoute: SiteCategoriesRoute,
   SiteConditionsRoute: SiteConditionsRoute,
   SiteConfidentialiteRoute: SiteConfidentialiteRoute,
+  SiteContactArtisteRoute: SiteContactArtisteRoute,
   SiteDroitsAuteurRoute: SiteDroitsAuteurRoute,
   SiteExplorerRoute: SiteExplorerRoute,
+  SiteFaqRoute: SiteFaqRoute,
+  SiteGalerieRoute: SiteGalerieRoute,
+  SiteGuideArtisteRoute: SiteGuideArtisteRoute,
+  SiteRechercheRoute: SiteRechercheRoute,
+  SiteSupportRoute: SiteSupportRoute,
   SiteTarifsRoute: SiteTarifsRoute,
+  SiteTopArtistesRoute: SiteTopArtistesRoute,
   SiteIndexRoute: SiteIndexRoute,
   SiteTalentsSlugRoute: SiteTalentsSlugRoute,
 }

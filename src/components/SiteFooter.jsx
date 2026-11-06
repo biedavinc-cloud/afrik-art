@@ -8,7 +8,7 @@ export default function SiteFooter() {
   return (
     <footer className="mt-24 surface-teal text-background">
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-[13px] font-semibold text-primary-foreground">
@@ -28,10 +28,12 @@ export default function SiteFooter() {
           </div>
 
           <FooterCol
-            title={t("footer.platform")}
+            title={t("footer.discover")}
             links={[
               { label: t("nav.explore"), to: "/explorer" },
-              { label: t("nav.categories"), to: "/categories" },
+              { label: t("nav.gallery"), to: "/galerie" },
+              { label: t("nav.journal"), to: "/actualites" },
+              { label: t("nav.top"), to: "/top-artistes" },
               { label: t("nav.pricing"), to: "/tarifs" },
             ]}
           />
@@ -41,6 +43,16 @@ export default function SiteFooter() {
               { label: t("header.signup"), to: "/register" },
               { label: t("footer.login"), to: "/login" },
               { label: t("header.space"), to: "/dashboard" },
+            ]}
+          />
+          <FooterCol
+            title={t("footer.resources")}
+            links={[
+              { label: t("nav.guide"), to: "/guide-artiste" },
+              { label: t("nav.faq"), to: "/faq" },
+              { label: t("nav.support"), to: "/support" },
+              { label: t("nav.contact"), to: "/contact-artiste" },
+              { label: t("nav.search"), to: "/recherche" },
             ]}
           />
           <div>

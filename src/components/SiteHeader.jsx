@@ -15,8 +15,19 @@ export default function SiteHeader() {
   const nav = [
     { label: t("nav.home"), to: "/" },
     { label: t("nav.explore"), to: "/explorer" },
-    { label: t("nav.categories"), to: "/categories" },
+    { label: t("nav.gallery"), to: "/galerie" },
+    { label: t("nav.journal"), to: "/actualites" },
     { label: t("nav.pricing"), to: "/tarifs" },
+  ];
+
+  const secondary = [
+    { label: t("nav.search"), to: "/recherche" },
+    { label: t("nav.top"), to: "/top-artistes" },
+    { label: t("nav.categories"), to: "/categories" },
+    { label: t("nav.guide"), to: "/guide-artiste" },
+    { label: t("nav.faq"), to: "/faq" },
+    { label: t("nav.support"), to: "/support" },
+    { label: t("nav.contact"), to: "/contact-artiste" },
   ];
 
   return (
@@ -114,6 +125,16 @@ export default function SiteHeader() {
                 to={item.to}
                 onClick={() => setOpen(false)}
                 className="border-b border-border/70 py-3.5 text-[15px] font-medium"
+              >
+                {item.label}
+              </Link>
+            ))}
+            {secondary.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpen(false)}
+                className="border-b border-border/70 py-3 text-[13.5px] text-foreground/70"
               >
                 {item.label}
               </Link>
