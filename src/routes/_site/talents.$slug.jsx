@@ -8,6 +8,7 @@ import {
   Instagram,
   Link2,
   MapPin,
+  MessageCircle,
   Play,
   Share2,
   Sparkles,
@@ -75,6 +76,11 @@ function PublicProfilePage() {
 
   return (
     <div>
+      {profile.is_published === false && (
+        <div className="bg-foreground px-5 py-2.5 text-center text-[12px] font-medium text-background">
+          Profil en brouillon — visible uniquement par les administrateurs.
+        </div>
+      )}
       <div className="relative h-[280px] w-full overflow-hidden bg-secondary sm:h-[360px]">
         {profile.cover_url ? (
           <Image src={profile.cover_url} alt={`Couverture de ${profile.display_name}`} className="h-full w-full" />
@@ -275,11 +281,23 @@ function PublicProfilePage() {
                 votre message directement dans son espace.
               </p>
               {!isOwner && (
-                <ContactDialog profile={profile}>
-                  <button className="mt-5 w-full rounded-full bg-foreground px-5 py-3 text-[13px] font-medium text-background transition-colors hover:bg-primary">
-                    Contacter cet artiste
-                  </button>
-                </ContactDialog>
+                <>
+                  <ContactDialog profile={profile}>
+                    <button className="mt-5 w-full rounded-full bg-foreground px-5 py-3 text-[13px] font-medium text-background transition-colors hover:bg-primary">
+                      Contacter cet artiste
+                    </button>
+                  </ContactDialog>
+                  {profile.whatsapp_number && (
+                    <a
+                      href={`https://wa.me/${profile.whatsapp_number.replace(/[^0-9]/g, "")}`}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-[13px] font-medium transition-colors hover:bg-secondary"
+                    >
+                      <MessageCircle className="h-4 w-4" /> WhatsApp direct
+                    </a>
+                  )}
+                </>
               )}
 
               <div className="mt-6 space-y-3 border-t border-border pt-5">

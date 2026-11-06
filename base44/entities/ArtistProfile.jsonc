@@ -77,6 +77,27 @@
     "contact_email": {
       "type": "string"
     },
+    "whatsapp_number": {
+      "type": "string",
+      "description": "Num\u00e9ro WhatsApp au format international"
+    },
+    "accepting_contact": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_email": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_whatsapp": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": true,
+      "description": "Profil visible publiquement"
+    },
     "plan": {
       "type": "string",
       "enum": [

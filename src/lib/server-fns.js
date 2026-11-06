@@ -18,7 +18,9 @@ async function loadRanked(base44) {
       .map((p) => [p.profile_id, p])
   );
 
-  return asPage(profilesRes).map((p) => ({
+  return asPage(profilesRes)
+    .filter((p) => p.is_published !== false)
+    .map((p) => ({
     ...p,
     boosted: promos.has(p.id),
     promotion_ends_at: promos.get(p.id)?.ends_at || null,

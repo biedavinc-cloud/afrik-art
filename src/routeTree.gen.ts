@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MfaRouteImport } from './routes/mfa'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthedAppRouteImport } from './routes/_authed/_app'
 import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedOnboardingRouteImport } from './routes/_authed/onboarding'
@@ -28,6 +29,7 @@ import { Route as SiteExplorerRouteImport } from './routes/_site/explorer'
 import { Route as SiteTarifsRouteImport } from './routes/_site/tarifs'
 import { Route as ApiProbeRouteImport } from './routes/api/probe'
 import { Route as ApiTimeRouteImport } from './routes/api/time'
+import { Route as AuthedAppMessagerieRouteImport } from './routes/_authed/_app/messagerie'
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin.index'
 import { Route as AuthedAdminArtistesRouteImport } from './routes/_authed/admin.artistes'
 import { Route as AuthedAdminCategoriesRouteImport } from './routes/_authed/admin.categories'
@@ -75,6 +77,10 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedAppRoute = AuthedAppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedAdminRoute = AuthedAdminRouteImport.update({
   id: '/admin',
@@ -135,6 +141,11 @@ const ApiTimeRoute = ApiTimeRouteImport.update({
   id: '/api/time',
   path: '/api/time',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedAppMessagerieRoute = AuthedAppMessagerieRouteImport.update({
+  id: '/messagerie',
+  path: '/messagerie',
+  getParentRoute: () => AuthedAppRoute,
 } as any)
 const AuthedAdminIndexRoute = AuthedAdminIndexRouteImport.update({
   id: '/',
@@ -228,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/tarifs': typeof SiteTarifsRoute
   '/api/probe': typeof ApiProbeRoute
   '/api/time': typeof ApiTimeRoute
+  '/messagerie': typeof AuthedAppMessagerieRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -259,6 +271,7 @@ export interface FileRoutesByTo {
   '/tarifs': typeof SiteTarifsRoute
   '/api/probe': typeof ApiProbeRoute
   '/api/time': typeof ApiTimeRoute
+  '/messagerie': typeof AuthedAppMessagerieRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -283,6 +296,7 @@ export interface FileRoutesById {
   '/mfa': typeof MfaRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authed/_app': typeof AuthedAppRouteWithChildren
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
   '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
   '/_authed/onboarding': typeof AuthedOnboardingRoute
@@ -295,6 +309,7 @@ export interface FileRoutesById {
   '/api/probe': typeof ApiProbeRoute
   '/api/time': typeof ApiTimeRoute
   '/_site/': typeof SiteIndexRoute
+  '/_authed/_app/messagerie': typeof AuthedAppMessagerieRoute
   '/_authed/admin/artistes': typeof AuthedAdminArtistesRoute
   '/_authed/admin/categories': typeof AuthedAdminCategoriesRoute
   '/_authed/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -330,6 +345,7 @@ export interface FileRouteTypes {
     | '/tarifs'
     | '/api/probe'
     | '/api/time'
+    | '/messagerie'
     | '/admin/artistes'
     | '/admin/categories'
     | '/admin/monetisation'
@@ -361,6 +377,7 @@ export interface FileRouteTypes {
     | '/tarifs'
     | '/api/probe'
     | '/api/time'
+    | '/messagerie'
     | '/admin/artistes'
     | '/admin/categories'
     | '/admin/monetisation'
@@ -384,6 +401,7 @@ export interface FileRouteTypes {
     | '/mfa'
     | '/register'
     | '/reset-password'
+    | '/_authed/_app'
     | '/_authed/admin'
     | '/_authed/dashboard'
     | '/_authed/onboarding'
@@ -396,6 +414,7 @@ export interface FileRouteTypes {
     | '/api/probe'
     | '/api/time'
     | '/_site/'
+    | '/_authed/_app/messagerie'
     | '/_authed/admin/artistes'
     | '/_authed/admin/categories'
     | '/_authed/admin/monetisation'
@@ -474,6 +493,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authed/_app': {
+      id: '/_authed/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedAppRouteImport
+      parentRoute: typeof AuthedRoute
     }
     '/_authed/admin': {
       id: '/_authed/admin'
@@ -558,6 +584,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/time'
       preLoaderRoute: typeof ApiTimeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authed/_app/messagerie': {
+      id: '/_authed/_app/messagerie'
+      path: '/messagerie'
+      fullPath: '/messagerie'
+      preLoaderRoute: typeof AuthedAppMessagerieRouteImport
+      parentRoute: typeof AuthedAppRoute
     }
     '/_authed/admin/': {
       id: '/_authed/admin/'
@@ -660,6 +693,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthedAppRouteChildren {
+  AuthedAppMessagerieRoute: typeof AuthedAppMessagerieRoute
+}
+
+const AuthedAppRouteChildren: AuthedAppRouteChildren = {
+  AuthedAppMessagerieRoute: AuthedAppMessagerieRoute,
+}
+
+const AuthedAppRouteWithChildren = AuthedAppRoute._addFileChildren(
+  AuthedAppRouteChildren,
+)
+
 interface AuthedAdminRouteChildren {
   AuthedAdminArtistesRoute: typeof AuthedAdminArtistesRoute
   AuthedAdminCategoriesRoute: typeof AuthedAdminCategoriesRoute
@@ -707,12 +752,14 @@ const AuthedDashboardRouteWithChildren = AuthedDashboardRoute._addFileChildren(
 )
 
 interface AuthedRouteChildren {
+  AuthedAppRoute: typeof AuthedAppRouteWithChildren
   AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
   AuthedDashboardRoute: typeof AuthedDashboardRouteWithChildren
   AuthedOnboardingRoute: typeof AuthedOnboardingRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedAppRoute: AuthedAppRouteWithChildren,
   AuthedAdminRoute: AuthedAdminRouteWithChildren,
   AuthedDashboardRoute: AuthedDashboardRouteWithChildren,
   AuthedOnboardingRoute: AuthedOnboardingRoute,
