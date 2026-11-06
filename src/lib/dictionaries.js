@@ -1,5 +1,8 @@
-// Dictionnaires FR / EN — plateforme Afrik Art.
+// Dictionnaires FR / EN / ES / PT / SW — plateforme Afrik Art.
 // Clés plates : "section.sous-section.cle". Le français sert de repli.
+import { es } from "@/lib/dictionaries/es";
+import { pt } from "@/lib/dictionaries/pt";
+import { sw } from "@/lib/dictionaries/sw";
 
 export const DICTIONARIES = {
   fr: {
@@ -380,9 +383,17 @@ export const DICTIONARIES = {
     "common.save": "Save",
     "common.cancel": "Cancel",
   },
+  es,
+  pt,
+  sw,
 };
 
 export const LANGUAGES = [
   { code: "fr", label: "FR" },
   { code: "en", label: "EN" },
+  { code: "es", label: "ES" },
+  { code: "pt", label: "PT" },
+  { code: "sw", label: "SW" },
 ];
+
+export const LANGUAGE_CODES = LANGUAGES.map((l) => l.code);

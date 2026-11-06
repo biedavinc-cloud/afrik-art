@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Loader2, PenLine, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Image } from "@/components/ui/image";
@@ -31,10 +32,33 @@ function excerpt(post) {
 }
 
 function NewsPage() {
-  const { items, categories } = Route.useLoaderData();
+  const data = Route.useLoaderData();
+  const { categories } = data;
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const fetchMore = useServerFn(listBlogPosts);
+  const [extra, setExtra] = useState([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    setExtra([]);
+  }, [data]);
+
+  const items = [...data.items, ...extra];
   const [featured, ...rest] = items;
+  const hasMore = items.length < (data.total || 0);
+
+  async function loadMore() {
+    setLoadingMore(true);
+    try {
+      const res = await fetchMore({
+        data: { q: search.q, category: search.category, offset: items.length },
+      });
+      setExtra((prev) => [...prev, ...res.items]);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
@@ -124,7 +148,8 @@ function NewsPage() {
             </div>
             <div className="flex flex-col justify-center p-7 lg:p-10">
               <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-primary">
-                {featured.category || "Culture"} · À la une
+                {featured.category || "Culture"} ·{" "}
+                {featured.editorial ? "Rédaction" : "À la une"}
               </p>
               <h2 className="mt-4 text-[clamp(1.4rem,2.6vw,2rem)] font-semibold leading-snug">
                 {featured.title}
@@ -169,6 +194,22 @@ function NewsPage() {
               </Link>
             ))}
           </div>
+
+          {hasMore && (
+            <div className="mt-10 flex flex-col items-center gap-3">
+              <p className="text-[12px] text-muted-foreground">
+                {items.length} sur {data.total} articles
+              </p>
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-2.5 text-[12.5px] font-medium transition-colors hover:bg-secondary disabled:opacity-60"
+              >
+                {loadingMore && <Loader2 className="h-4 w-4 animate-spin" />}
+                Charger plus d'articles
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>

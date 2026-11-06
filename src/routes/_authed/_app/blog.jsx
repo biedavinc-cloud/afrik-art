@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/lib/AuthContext";
 import {
   Select,
   SelectContent,
@@ -19,11 +21,32 @@ export const Route = createFileRoute("/_authed/_app/blog")({
   component: MyBlogPage,
 });
 
-const CATEGORIES = ["Culture", "Portrait", "Marché de l'art", "Conseils", "Reportage", "Voyage"];
+const CATEGORIES = [
+  "Culture",
+  "Portrait",
+  "Marché de l'art",
+  "Conseils",
+  "Reportage",
+  "Voyage",
+  "Tech & innovation",
+  "Écosystème Liafrik",
+  "Coulisses de la plateforme",
+];
 
-const EMPTY = { title: "", category: "Culture", cover_url: "", excerpt: "", content: "", status: "draft" };
+const EMPTY = {
+  title: "",
+  category: "Culture",
+  cover_url: "",
+  excerpt: "",
+  content: "",
+  status: "draft",
+  author_name: "",
+  editorial: false,
+};
 
 function MyBlogPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
@@ -57,6 +80,8 @@ function MyBlogPage() {
       excerpt: post.excerpt || "",
       content: post.content || "",
       status: post.status || "draft",
+      author_name: post.author_name || "",
+      editorial: Boolean(post.editorial),
     });
   }
 
@@ -155,6 +180,33 @@ function MyBlogPage() {
             </div>
           </div>
 
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="b-author">Auteur affiché</Label>
+              <Input
+                id="b-author"
+                value={form.author_name}
+                onChange={(e) => setForm({ ...form, author_name: e.target.value })}
+                placeholder="Votre nom ou « La rédaction Afrik Art »"
+                className="mt-1.5"
+              />
+            </div>
+            {isAdmin && (
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-secondary/40 px-4 py-3">
+                <div>
+                  <p className="text-[12.5px] font-medium">Article officiel</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    Signalé « Rédaction » sur le journal.
+                  </p>
+                </div>
+                <Switch
+                  checked={form.editorial}
+                  onCheckedChange={(v) => setForm({ ...form, editorial: v })}
+                />
+              </div>
+            )}
+          </div>
+
           <div>
             <Label htmlFor="b-excerpt">Chapô</Label>
             <Textarea
@@ -249,6 +301,11 @@ function MyBlogPage() {
                   >
                     {post.status === "published" ? "Publié" : "Brouillon"}
                   </span>
+                  {post.editorial && (
+                    <span className="rounded-full bg-foreground px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] text-background">
+                      Rédaction
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 text-[11.5px] text-muted-foreground">
                   {post.category} · {post.views || 0} vues

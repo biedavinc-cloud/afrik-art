@@ -1,7 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { DICTIONARIES } from "@/lib/dictionaries";
+import { DICTIONARIES, LANGUAGE_CODES } from "@/lib/dictionaries";
 
 const STORAGE_KEY = "afrikart.lang";
+
+// Langues servies par la plateforme.
+const SUPPORTED = new Set(LANGUAGE_CODES);
 
 // Pays où le français est langue d'usage : un visiteur dont le navigateur est
 // réglé sur une autre langue y est tout de même accueilli en français.
@@ -11,8 +14,13 @@ const FRANCOPHONE_COUNTRIES = new Set([
   "DZ", "MA", "TN", "SC", "MU",
 ]);
 
-// Anglais par défaut ; français si le navigateur est en français ou si le
-// visiteur se trouve dans un pays francophone.
+const LUSOPHONE_COUNTRIES = new Set([
+  "AO", "MZ", "CV", "GW", "ST", "TL", "PT", "BR",
+]);
+
+const SWAHILI_COUNTRIES = new Set(["TZ", "KE", "UG", "SS"]);
+
+// Ordre : langue du navigateur, puis pays d'usage, puis anglais.
 function detectLanguage() {
   if (typeof navigator === "undefined") return "fr";
   const tags =
@@ -22,8 +30,12 @@ function detectLanguage() {
 
   for (const tag of tags) {
     const [code, region] = String(tag).toLowerCase().split("-");
-    if (code === "fr") return "fr";
-    if (code !== "en" && region && FRANCOPHONE_COUNTRIES.has(region.toUpperCase())) return "fr";
+    if (SUPPORTED.has(code)) return code;
+    if (!region) continue;
+    const country = region.toUpperCase();
+    if (FRANCOPHONE_COUNTRIES.has(country)) return "fr";
+    if (LUSOPHONE_COUNTRIES.has(country)) return "pt";
+    if (SWAHILI_COUNTRIES.has(country)) return "sw";
   }
   return "en";
 }
@@ -54,7 +66,7 @@ export function LanguageProvider({ children }) {
   // choix mémorisé du visiteur, sinon détection par langue et pays.
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "fr" || stored === "en") {
+    if (stored && SUPPORTED.has(stored)) {
       setLangState(stored);
       return;
     }
@@ -67,7 +79,7 @@ export function LanguageProvider({ children }) {
 
   // Seul un changement explicite est mémorisé : la détection ne fige pas la langue.
   const setLang = useCallback((next) => {
-    if (next !== "fr" && next !== "en") return;
+    if (!SUPPORTED.has(next)) return;
     window.localStorage.setItem(STORAGE_KEY, next);
     setLangState(next);
   }, []);

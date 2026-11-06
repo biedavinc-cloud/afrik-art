@@ -22,6 +22,8 @@ const POST_INPUT = z.object({
   cover_url: z.string().max(500).optional(),
   category: z.string().max(60).optional(),
   status: z.enum(["draft", "published"]).optional(),
+  editorial: z.boolean().optional(),
+  author_name: z.string().max(80).optional(),
 });
 
 // ---------- Blog ----------
@@ -31,18 +33,22 @@ export const listBlogPosts = createServerFn({ method: "GET" })
     z.object({
       q: z.string().max(120).optional(),
       category: z.string().max(60).optional(),
-      limit: z.number().max(60).optional(),
+      limit: z.number().min(1).max(24).optional(),
+      offset: z.number().min(0).max(2000).optional(),
     })
   )
   .handler(async ({ data, context }) => {
     const base44 = context.getBase44();
-    const res = await base44.entities.BlogPost.filter(
-      { status: "published" },
-      { sort: "-published_at", limit: data.limit || 40 }
-    );
+    const [res, facetsRes] = await Promise.all([
+      base44.entities.BlogPost.filter(
+        { status: "published", ...(data.category ? { category: data.category } : {}) },
+        { sort: "-published_at", limit: 60 }
+      ),
+      base44.entities.BlogPost.filter({ status: "published" }, { limit: 60 }),
+    ]);
+
     const q = (data.q || "").toLowerCase().trim();
-    const items = asItems(res).filter((p) => {
-      if (data.category && p.category !== data.category) return false;
+    const matching = asItems(res).filter((p) => {
       if (!q) return true;
       return [p.title, p.excerpt, p.content, p.author_name, p.category]
         .filter(Boolean)
@@ -50,11 +56,15 @@ export const listBlogPosts = createServerFn({ method: "GET" })
         .toLowerCase()
         .includes(q);
     });
-    const all = asItems(res);
+
+    const limit = data.limit || 9;
+    const offset = data.offset || 0;
+
     return {
-      items,
-      total: items.length,
-      categories: [...new Set(all.map((p) => p.category).filter(Boolean))].sort(),
+      items: matching.slice(offset, offset + limit),
+      total: matching.length,
+      has_more: offset + limit < matching.length,
+      categories: [...new Set(asItems(facetsRes).map((p) => p.category).filter(Boolean))].sort(),
     };
   });
 
@@ -103,8 +113,13 @@ export const saveBlogPost = createServerFn({ method: "POST" })
       status: data.status || "draft",
       author_user_id: context.user.id,
       author_profile_id: profile?.id || "",
-      author_name: profile?.display_name || context.user.full_name || "Équipe Afrik Art",
+      author_name:
+        data.author_name?.trim() ||
+        profile?.display_name ||
+        context.user.full_name ||
+        "Équipe Afrik Art",
       author_slug: profile?.slug || "",
+      editorial: context.user.role === "admin" ? Boolean(data.editorial) : false,
     };
 
     if (data.id) {

@@ -21,7 +21,7 @@ export default function LanguageSwitcher({ dark = false }) {
             onClick={() => setLang(l.code)}
             aria-pressed={active}
             className={cn(
-              "rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors",
+              "rounded-full px-2 py-1 text-[10.5px] font-medium uppercase tracking-[0.04em] transition-colors",
               active
                 ? dark
                   ? "bg-background text-foreground"
