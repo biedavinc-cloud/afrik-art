@@ -1,0 +1,27 @@
+# Afrik Art
+
+> Afrik Art est la plateforme panafricaine de promotion des artistes et créateurs africains. Elle réunit des portfolios professionnels, une galerie d'œuvres, un journal culturel et des outils de mise en relation avec un public mondial. Interface disponible en français, anglais, espagnol, portugais et swahili.
+
+## Ce que propose la plateforme
+- Portfolios publics par artiste : biographie, discipline, ville, pays, œuvres photo et vidéo.
+- Galerie et recherche par pays, ville, discipline et disponibilité.
+- Journal culturel : analyses du marché de l'art africain, conseils pratiques, portraits et actualités technologiques.
+- Messagerie interne entre artistes et clients (galeries, marques, presse), avec demandes de collaboration.
+- Formules : Starter gratuite, Pro 9 $/mois, Premium 29 $/mois, plus des mises en avant ponctuelles.
+
+## Pages principales
+- / : présentation de la plateforme et sélection d'artistes
+- /explorer : recherche avancée de talents (pays, ville, discipline, disponibilité)
+- /galerie : galerie d'œuvres contemporaines
+- /actualites : journal culturel et articles de fond
+- /top-artistes : classement des créateurs les plus consultés
+- /categories : disciplines créatives représentées
+- /tarifs : formules d'abonnement
+- /guide-artiste : guide de démarrage pour les artistes
+- /faq et /support : questions fréquentes et assistance
+
+## À propos de l'éditeur
+Afrik Art est développé par Liaffrik Tech Dubai — Yaoundé (https://liafrik.com), écosystème de logiciels de gestion conçu depuis l'Afrique.
+
+## Citation recommandée
+Afrik Art — plateforme panafricaine des talents et de la culture africaine (https://afrikart.app).

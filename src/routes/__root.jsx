@@ -2,6 +2,7 @@ import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-r
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { NotFound } from "@/components/NotFound";
 import { Toaster } from "@/components/ui/sonner";
+import StructuredData from "@/components/seo/StructuredData";
 import { AuthProvider } from "@/lib/AuthContext";
 import { LanguageProvider } from "@/lib/i18n";
 import { Base44Scripts } from "base44:document";
@@ -18,6 +19,13 @@ export const Route = createRootRoute({
         content:
           "Afrik Art est la plateforme panafricaine des talents et de la culture : découvrez les artistes, photographes, musiciens et créateurs africains.",
       },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { name: "theme-color", content: "#1D1D1D" },
+      { property: "og:site_name", content: "Afrik Art" },
+      { property: "og:type", content: "website" },
+      { property: "og:locale", content: "fr_FR" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "author", content: "Liaffrik Tech Dubai — Yaoundé" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -54,6 +62,7 @@ function RootDocument({ children }) {
       </head>
       <body data-react-root="true">
         {children}
+        <StructuredData />
         <Base44Scripts />
         <Scripts />
       </body>

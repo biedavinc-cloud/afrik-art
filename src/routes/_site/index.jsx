@@ -5,6 +5,7 @@ import CategoryStrip from "@/components/home/CategoryStrip";
 import ArtistRail from "@/components/home/ArtistRail";
 import HowItWorks from "@/components/home/HowItWorks";
 import MissionBlock from "@/components/home/MissionBlock";
+import CtaSection from "@/components/home/CtaSection";
 import PlanCards from "@/components/PlanCards";
 import { getHomeData } from "@/lib/server-fns";
 import { demoCategories } from "@/lib/demoContent";
@@ -114,27 +115,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-        <div className="relative overflow-hidden rounded-2xl bg-foreground px-7 py-14 text-background lg:px-16 lg:py-20">
-          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full border border-background/15" />
-          <div className="absolute -bottom-24 right-24 h-64 w-64 rounded-full border border-background/10" />
-          <div className="relative max-w-xl">
-            <h2 className="text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold leading-tight">
-              {t("home.cta.title")}
-            </h2>
-            <p className="mt-4 text-[14.5px] leading-relaxed text-background/70">
-              {t("home.cta.text")}
-            </p>
-            <Link
-              to="/register"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-[13.5px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              {t("home.cta.button")}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CtaSection />
     </>
   );
 }

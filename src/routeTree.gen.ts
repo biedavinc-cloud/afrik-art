@@ -45,6 +45,7 @@ import { Route as AuthedAppParametresRouteImport } from './routes/_authed/_app/p
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin.index'
 import { Route as AuthedAdminArtistesRouteImport } from './routes/_authed/admin.artistes'
 import { Route as AuthedAdminCategoriesRouteImport } from './routes/_authed/admin.categories'
+import { Route as AuthedAdminIntegrationsRouteImport } from './routes/_authed/admin.integrations'
 import { Route as AuthedAdminMonetisationRouteImport } from './routes/_authed/admin.monetisation'
 import { Route as AuthedAdminPaiementsRouteImport } from './routes/_authed/admin.paiements'
 import { Route as AuthedAdminSignalementsRouteImport } from './routes/_authed/admin.signalements'
@@ -236,6 +237,11 @@ const AuthedAdminCategoriesRoute = AuthedAdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
+const AuthedAdminIntegrationsRoute = AuthedAdminIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => AuthedAdminRoute,
+} as any)
 const AuthedAdminMonetisationRoute = AuthedAdminMonetisationRouteImport.update({
   id: '/monetisation',
   path: '/monetisation',
@@ -333,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/parametres': typeof AuthedAppParametresRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
+  '/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/admin/paiements': typeof AuthedAdminPaiementsRoute
   '/admin/signalements': typeof AuthedAdminSignalementsRoute
@@ -378,6 +385,7 @@ export interface FileRoutesByTo {
   '/parametres': typeof AuthedAppParametresRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
+  '/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/admin/paiements': typeof AuthedAdminPaiementsRoute
   '/admin/signalements': typeof AuthedAdminSignalementsRoute
@@ -429,6 +437,7 @@ export interface FileRoutesById {
   '/_authed/_app/parametres': typeof AuthedAppParametresRoute
   '/_authed/admin/artistes': typeof AuthedAdminArtistesRoute
   '/_authed/admin/categories': typeof AuthedAdminCategoriesRoute
+  '/_authed/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/_authed/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/_authed/admin/paiements': typeof AuthedAdminPaiementsRoute
   '/_authed/admin/signalements': typeof AuthedAdminSignalementsRoute
@@ -478,6 +487,7 @@ export interface FileRouteTypes {
     | '/parametres'
     | '/admin/artistes'
     | '/admin/categories'
+    | '/admin/integrations'
     | '/admin/monetisation'
     | '/admin/paiements'
     | '/admin/signalements'
@@ -523,6 +533,7 @@ export interface FileRouteTypes {
     | '/parametres'
     | '/admin/artistes'
     | '/admin/categories'
+    | '/admin/integrations'
     | '/admin/monetisation'
     | '/admin/paiements'
     | '/admin/signalements'
@@ -573,6 +584,7 @@ export interface FileRouteTypes {
     | '/_authed/_app/parametres'
     | '/_authed/admin/artistes'
     | '/_authed/admin/categories'
+    | '/_authed/admin/integrations'
     | '/_authed/admin/monetisation'
     | '/_authed/admin/paiements'
     | '/_authed/admin/signalements'
@@ -854,6 +866,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminCategoriesRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
+    '/_authed/admin/integrations': {
+      id: '/_authed/admin/integrations'
+      path: '/integrations'
+      fullPath: '/admin/integrations'
+      preLoaderRoute: typeof AuthedAdminIntegrationsRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
     '/_authed/admin/monetisation': {
       id: '/_authed/admin/monetisation'
       path: '/monetisation'
@@ -964,6 +983,7 @@ const AuthedAppRouteWithChildren = AuthedAppRoute._addFileChildren(
 interface AuthedAdminRouteChildren {
   AuthedAdminArtistesRoute: typeof AuthedAdminArtistesRoute
   AuthedAdminCategoriesRoute: typeof AuthedAdminCategoriesRoute
+  AuthedAdminIntegrationsRoute: typeof AuthedAdminIntegrationsRoute
   AuthedAdminMonetisationRoute: typeof AuthedAdminMonetisationRoute
   AuthedAdminPaiementsRoute: typeof AuthedAdminPaiementsRoute
   AuthedAdminSignalementsRoute: typeof AuthedAdminSignalementsRoute
@@ -974,6 +994,7 @@ interface AuthedAdminRouteChildren {
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
   AuthedAdminArtistesRoute: AuthedAdminArtistesRoute,
   AuthedAdminCategoriesRoute: AuthedAdminCategoriesRoute,
+  AuthedAdminIntegrationsRoute: AuthedAdminIntegrationsRoute,
   AuthedAdminMonetisationRoute: AuthedAdminMonetisationRoute,
   AuthedAdminPaiementsRoute: AuthedAdminPaiementsRoute,
   AuthedAdminSignalementsRoute: AuthedAdminSignalementsRoute,

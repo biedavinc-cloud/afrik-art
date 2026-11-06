@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Afrik Art — plateforme panafricaine des talents et de la culture.
+# Toutes les pages publiques (profils, galerie, journal, disciplines) sont indexables.
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /messagerie
+Disallow: /parametres
+Disallow: /onboarding
+Disallow: /login
+Disallow: /register

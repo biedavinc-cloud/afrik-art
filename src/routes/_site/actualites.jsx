@@ -31,6 +31,10 @@ function excerpt(post) {
   return post.excerpt || (post.content || "").slice(0, 160);
 }
 
+function readMinutes(post) {
+  return Math.max(2, Math.round(((post.content || "").split(/\s+/).length || 0) / 220));
+}
+
 function NewsPage() {
   const data = Route.useLoaderData();
   const { categories } = data;
@@ -189,7 +193,16 @@ function NewsPage() {
                   <p className="mt-2 line-clamp-2 text-[12.5px] leading-relaxed text-muted-foreground">
                     {excerpt(post)}
                   </p>
-                  <p className="mt-auto pt-4 text-[11.5px] text-muted-foreground">{post.author_name}</p>
+                  <p className="mt-auto flex items-center gap-2 pt-4 text-[11.5px] text-muted-foreground">
+                    <span>{post.author_name}</span>
+                    <span className="text-border">·</span>
+                    <span>{readMinutes(post)} min</span>
+                    {post.editorial && (
+                      <span className="rounded-full bg-foreground px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-background">
+                        Rédaction
+                      </span>
+                    )}
+                  </p>
                 </div>
               </Link>
             ))}

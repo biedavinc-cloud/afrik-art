@@ -1,0 +1,91 @@
+{
+  "name": "Integration",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "ai",
+        "payment"
+      ],
+      "enumColors": [
+        "purple",
+        "green"
+      ],
+      "description": "Famille de connecteur : assistant IA ou prestataire de paiement"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Identifiant technique du prestataire (gemini, payunit, cinetpay, ...)"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "test",
+        "live"
+      ],
+      "enumColors": [
+        "yellow",
+        "green"
+      ],
+      "default": "test"
+    },
+    "api_key": {
+      "type": "string",
+      "description": "Cl\u00e9 priv\u00e9e du prestataire \u2014 jamais expos\u00e9e hors administration"
+    },
+    "public_key": {
+      "type": "string"
+    },
+    "secret_key": {
+      "type": "string"
+    },
+    "merchant_id": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string",
+      "description": "Mod\u00e8le utilis\u00e9 pour l'assistant IA"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "sort": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "kind",
+    "provider"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

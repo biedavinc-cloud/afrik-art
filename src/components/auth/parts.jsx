@@ -37,10 +37,10 @@ export function GoogleButton({ returnTo, onError }) {
       type="button"
       variant="outline"
       className="mb-6 h-12 w-full text-sm font-medium"
-      onClick={() => signInWithProvider("google", returnTo).catch((err) => onError(err.message || "Unable to sign in with Google"))}
+      onClick={() => signInWithProvider("google", returnTo).catch((err) => onError(err.message || "Connexion Google impossible"))}
     >
       <GoogleIcon className="mr-2 h-5 w-5" />
-      Continue with Google
+      Continuer avec Google
     </Button>
   );
 }
@@ -52,7 +52,7 @@ export function OrDivider() {
         <div className="w-full border-t border-border" />
       </div>
       <div className="relative flex justify-center text-xs uppercase">
-        <span className="bg-card px-3 text-muted-foreground">or</span>
+        <span className="bg-background px-3 text-muted-foreground">ou</span>
       </div>
     </div>
   );

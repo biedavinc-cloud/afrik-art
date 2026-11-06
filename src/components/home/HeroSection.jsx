@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Image } from "@/components/ui/image";
+import ArtisticBackdrop from "@/components/art/ArtisticBackdrop";
 import { useI18n } from "@/lib/i18n";
 
 export default function HeroSection() {
@@ -15,6 +16,7 @@ export default function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/10" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 to-transparent" />
+      <ArtisticBackdrop variant="dark" />
 
       <div className="relative mx-auto flex min-h-[86vh] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 lg:px-8 lg:pb-24">
         <div className="max-w-3xl fade-up">

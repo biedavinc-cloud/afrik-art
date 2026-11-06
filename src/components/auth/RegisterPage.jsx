@@ -84,7 +84,7 @@ export function RegisterPage() {
 
   if (step === "already_verified") {
     return (
-      <AuthLayout icon={UserPlus} title="Create your account" subtitle="Sign up to get started">
+      <AuthLayout icon={UserPlus} title="Créer votre compte" subtitle="Ouvrez votre profil public en quelques minutes.">
         <p className="mb-4 text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{email}</span> is already verified. Sign in to continue.
         </p>
@@ -97,7 +97,7 @@ export function RegisterPage() {
 
   if (step === "otp") {
     return (
-      <AuthLayout icon={UserPlus} title="Create your account" subtitle="Sign up to get started">
+      <AuthLayout icon={UserPlus} title="Créer votre compte" subtitle="Ouvrez votre profil public en quelques minutes.">
         <form onSubmit={verify}>
           <p className="mb-4 text-sm text-muted-foreground">
             We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>.
@@ -133,34 +133,34 @@ export function RegisterPage() {
       <AuthError>{error}</AuthError>
       <form onSubmit={register} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="register-email">Email</Label>
+          <Label htmlFor="register-email">Adresse e-mail</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-email" type="email" autoComplete="email" autoFocus placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="register-password">Password</Label>
+          <Label htmlFor="register-password">Mot de passe</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-password" type="password" autoComplete="new-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="register-confirm">Confirm password</Label>
+          <Label htmlFor="register-confirm">Confirmer le mot de passe</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-confirm" type="password" autoComplete="new-password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
-        <SubmitButton busy={busy} busyLabel="Creating account...">
-          Create account
+        <SubmitButton busy={busy} busyLabel="Création du compte…">
+          Créer mon compte
         </SubmitButton>
       </form>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        Vous avez déjà un compte ?{" "}
         <AuthLink to="/login" returnTo={returnTo}>
-          Log in
+          Se connecter
         </AuthLink>
       </p>
     </AuthLayout>

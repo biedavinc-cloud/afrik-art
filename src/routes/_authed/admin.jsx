@@ -6,6 +6,7 @@ import {
   Flag,
   LayoutDashboard,
   Menu,
+  Plug,
   ShieldAlert,
   Tags,
   UserCog,
@@ -14,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import AssistantWidget from "@/components/ai/AssistantWidget";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authed/admin")({
@@ -21,14 +23,30 @@ export const Route = createFileRoute("/_authed/admin")({
   component: AdminLayout,
 });
 
-const NAV = [
-  { label: "Vue d'ensemble", to: "/admin", icon: LayoutDashboard },
-  { label: "Artistes", to: "/admin/artistes", icon: Users },
-  { label: "Utilisateurs", to: "/admin/utilisateurs", icon: UserCog },
-  { label: "Paiements", to: "/admin/paiements", icon: CreditCard },
-  { label: "Monétisation", to: "/admin/monetisation", icon: Wallet },
-  { label: "Catégories", to: "/admin/categories", icon: Tags },
-  { label: "Signalements", to: "/admin/signalements", icon: Flag },
+const GROUPS = [
+  {
+    label: "Pilotage",
+    items: [
+      { label: "Vue d'ensemble", to: "/admin", icon: LayoutDashboard },
+      { label: "Artistes", to: "/admin/artistes", icon: Users },
+      { label: "Utilisateurs", to: "/admin/utilisateurs", icon: UserCog },
+    ],
+  },
+  {
+    label: "Commerce",
+    items: [
+      { label: "Paiements", to: "/admin/paiements", icon: CreditCard },
+      { label: "Monétisation", to: "/admin/monetisation", icon: Wallet },
+      { label: "Connecteurs", to: "/admin/integrations", icon: Plug },
+    ],
+  },
+  {
+    label: "Contenu",
+    items: [
+      { label: "Catégories", to: "/admin/categories", icon: Tags },
+      { label: "Signalements", to: "/admin/signalements", icon: Flag },
+    ],
+  },
 ];
 
 function AdminLayout() {
@@ -62,10 +80,14 @@ function AdminLayout() {
     );
   }
 
+  const current = GROUPS.flatMap((g) => g.items).find(
+    (i) => i.to === location.pathname || location.pathname.startsWith(`${i.to}/`)
+  );
+
   return (
     <div className="min-h-screen bg-secondary/30">
-      <div className="border-b border-border bg-background">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 lg:px-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setOpen((v) => !v)}
@@ -74,48 +96,82 @@ function AdminLayout() {
             >
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-[11px] font-semibold text-background">
-              AA
+            <Link to="/admin" className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-[11px] font-semibold text-background">
+                AA
+              </span>
+              <span className="text-[13.5px] font-medium">Afrik Art</span>
+            </Link>
+            <span className="hidden h-5 w-px bg-border sm:block" />
+            <span className="hidden rounded-full bg-foreground/5 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-foreground/60 sm:block">
+              Superadmin
             </span>
-            <span className="text-[13.5px] font-medium">Superadmin</span>
           </div>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Espace artiste
-          </Link>
-        </div>
-      </div>
 
-      <div className="mx-auto flex max-w-7xl gap-8 px-5 py-8 lg:px-8">
-        <aside className={cn("w-full shrink-0 lg:block lg:w-56", open ? "block" : "hidden")}>
-          <nav className="space-y-1">
-            {NAV.map((item) => {
-              const active = location.pathname === item.to;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors",
-                    active
-                      ? "bg-foreground text-background"
-                      : "text-foreground/70 hover:bg-background hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4" strokeWidth={1.7} />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="flex items-center gap-4">
+            <span className="hidden text-[11.5px] text-muted-foreground md:block">
+              {user.email}
+            </span>
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-[12px] font-medium text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Espace artiste
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto flex max-w-7xl gap-10 px-5 py-8 lg:px-8 lg:py-10">
+        <aside
+          className={cn(
+            "w-full shrink-0 lg:block lg:w-56",
+            open ? "block" : "hidden"
+          )}
+        >
+          <div className="lg:sticky lg:top-24">
+            <p className="px-3 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+              Superadmin
+            </p>
+            <nav className="mt-3 space-y-6">
+              {GROUPS.map((group) => (
+                <div key={group.label}>
+                  <p className="px-3 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
+                    {group.label}
+                  </p>
+                  <div className="mt-2 space-y-1">
+                    {group.items.map((item) => {
+                      const active = item.to === location.pathname;
+                      return (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setOpen(false)}
+                          className={cn(
+                            "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors",
+                            active
+                              ? "bg-foreground text-background shadow-sm"
+                              : "text-foreground/65 hover:bg-background hover:text-foreground"
+                          )}
+                        >
+                          <item.icon className="h-4 w-4" strokeWidth={1.7} />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </nav>
+          </div>
         </aside>
+
         <div className="min-w-0 flex-1">
           <Outlet />
         </div>
       </div>
+
+      <AssistantWidget page="/admin" />
     </div>
   );
 }

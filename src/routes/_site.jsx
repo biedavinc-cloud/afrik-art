@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import AssistantWidget from "@/components/ai/AssistantWidget";
 
 export const Route = createFileRoute("/_site")({
   component: SiteLayout,
@@ -14,6 +15,7 @@ function SiteLayout() {
         <Outlet />
       </main>
       <SiteFooter />
+      <AssistantWidget page="site public" />
     </div>
   );
 }
