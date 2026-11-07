@@ -122,10 +122,11 @@ function SettingsPage() {
         </p>
       </div>
 
-      <section className="rounded-2xl border border-border bg-background p-6">
+      <section className="fade-up rounded-2xl border border-border bg-background p-6">
         <p className="flex items-center gap-2 text-[14px] font-medium">
           <UserRound className="h-4 w-4 text-primary" /> Compte
         </p>
+        <span className="mt-4 block h-px w-10 bg-accent" />
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <Label>Nom du compte</Label>
@@ -141,7 +142,7 @@ function SettingsPage() {
         </p>
       </section>
 
-      <section className="rounded-2xl border border-border bg-background p-6">
+      <section className="fade-up rounded-2xl border border-border bg-background p-6">
         <p className="flex items-center gap-2 text-[14px] font-medium">
           <Mail className="h-4 w-4 text-primary" /> Coordonnées publiques
         </p>
@@ -186,7 +187,7 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-background p-6">
+      <section className="fade-up rounded-2xl border border-border bg-background p-6">
         <p className="flex items-center gap-2 text-[14px] font-medium">
           <Bell className="h-4 w-4 text-primary" /> Notifications
         </p>
@@ -213,7 +214,7 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-background p-6">
+      <section className="fade-up rounded-2xl border border-border bg-background p-6">
         <p className="flex items-center gap-2 text-[14px] font-medium">
           {form.is_published ? <Eye className="h-4 w-4 text-primary" /> : <EyeOff className="h-4 w-4 text-primary" />}
           Publication du profil
@@ -239,7 +240,7 @@ function SettingsPage() {
         </button>
       </section>
 
-      <section className="rounded-2xl border border-border bg-background p-6">
+      <section className="fade-up rounded-2xl border border-border bg-background p-6">
         <p className="flex items-center gap-2 text-[14px] font-medium">
           <Lock className="h-4 w-4 text-primary" /> Sécurité
         </p>

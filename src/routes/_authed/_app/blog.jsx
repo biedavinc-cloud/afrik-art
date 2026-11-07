@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Crown,
@@ -25,6 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { deleteBlogPost, myBlogPosts, saveBlogPost } from "@/lib/content-fns";
+import ImageUpload from "@/components/dashboard/ImageUpload";
+import LinkInserter from "@/components/blog/LinkInserter";
 
 export const Route = createFileRoute("/_authed/_app/blog")({
   head: () => ({ meta: [{ title: "Mon blog | Afrik Art" }] }),
@@ -63,6 +65,7 @@ function MyBlogPage() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [plan, setPlan] = useState("starter");
+  const contentRef = useRef(null);
 
   // Le journal est réservé à la formule Premium (l'administration y a accès).
   const premiumLocked = !isAdmin && plan !== "premium";
@@ -159,7 +162,7 @@ function MyBlogPage() {
           </p>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-border bg-background p-6">
+        <div className="fade-up space-y-4 rounded-2xl border border-border bg-background p-6">
           <div>
             <Label htmlFor="b-title">Titre</Label>
             <Input
@@ -187,16 +190,13 @@ function MyBlogPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="b-cover">Image de couverture (URL)</Label>
-              <Input
-                id="b-cover"
-                value={form.cover_url}
-                onChange={(e) => setForm({ ...form, cover_url: e.target.value })}
-                placeholder="https://…"
-                className="mt-1.5"
-              />
-            </div>
+            <ImageUpload
+              label="Image de couverture"
+              value={form.cover_url}
+              onChange={(url) => setForm({ ...form, cover_url: url })}
+              ratio="aspect-[16/10]"
+              hint="Format paysage recommandé (1600 × 1000 px)."
+            />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -242,14 +242,21 @@ function MyBlogPage() {
             <Label htmlFor="b-content">Texte de l'article</Label>
             <Textarea
               id="b-content"
+              ref={contentRef}
               rows={16}
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}
               placeholder={"Commencez à écrire…\n\nUtilisez « ## » pour un intertitre et « - » pour une liste."}
               className="mt-1.5"
             />
+            <LinkInserter
+              textareaRef={contentRef}
+              value={form.content}
+              onChange={(next) => setForm((f) => ({ ...f, content: next }))}
+            />
             <p className="mt-1.5 text-[11px] text-muted-foreground">
-              Une ligne vide sépare les paragraphes. « ## » crée un intertitre.
+              Une ligne vide sépare les paragraphes. « ## » crée un intertitre et les liens
+              insérés deviennent cliquables dans l'article.
             </p>
             <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <ShieldCheck className="h-3 w-3 text-accent" />

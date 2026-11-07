@@ -95,15 +95,21 @@ export default function AppShell({ children, profile: injected }) {
                 Profil public <ExternalLink className="h-3 w-3" />
               </Link>
             )}
+            <Link
+              to="/parametres"
+              className="hidden items-center gap-1.5 rounded-full border border-border px-4 py-2 text-[12px] font-medium transition-colors hover:border-accent/60 hover:bg-secondary sm:inline-flex"
+            >
+              <Settings className="h-3.5 w-3.5" /> Paramètres
+            </Link>
             <button
               onClick={() => logout()}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-              aria-label="Se déconnecter"
+              className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-[12px] font-medium text-foreground/70 transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-3.5 w-3.5" /> Déconnexion
             </button>
           </div>
         </div>
+        <div className="hairline-gold h-px w-full" />
       </div>
 
       <div className="mx-auto flex max-w-7xl gap-8 px-5 py-8 lg:px-8">

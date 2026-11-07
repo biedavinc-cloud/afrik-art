@@ -1,21 +1,33 @@
-const URL_RE = /(https?:\/\/[^\s)]+)/g;
+// Liens de deux formes acceptées : [texte](https://…) saisi depuis l'éditeur,
+// et URL brute détectée automatiquement.
+const LINK_RE = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s)]+)/g;
 
 function withLinks(text) {
-  return text.split(URL_RE).map((part, i) =>
-    part.match(/^https?:\/\//) ? (
+  const nodes = [];
+  let last = 0;
+  let match;
+  LINK_RE.lastIndex = 0;
+
+  while ((match = LINK_RE.exec(text)) !== null) {
+    if (match.index > last) nodes.push(text.slice(last, match.index));
+    const href = match[2] || match[3];
+    const label = match[1] || href.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    nodes.push(
       <a
-        key={i}
-        href={part}
+        key={match.index}
+        href={href}
         target="_blank"
         rel="noreferrer noopener"
-        className="font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
+        className="font-medium text-primary underline decoration-primary/30 underline-offset-2 transition-colors hover:decoration-primary"
       >
-        {part.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+        {label}
       </a>
-    ) : (
-      part
-    )
-  );
+    );
+    last = LINK_RE.lastIndex;
+  }
+
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
 }
 
 function parse(content) {

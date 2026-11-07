@@ -1,4 +1,4 @@
-import { Mail, UserPlus } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
@@ -142,7 +142,6 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
-      icon={UserPlus}
       title="Créer votre compte"
       subtitle="Ouvrez votre profil public en quelques minutes."
     >

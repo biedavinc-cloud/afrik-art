@@ -90,6 +90,35 @@
   .surface-teal {
     background-color: hsl(var(--teal-deep));
   }
+
+  /* Trait doré qui se dessine au survol des liens de navigation. */
+  .nav-underline::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -8px;
+    height: 2px;
+    background: hsl(var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .nav-underline:hover::after {
+    transform: scaleX(1);
+  }
+
+  /* Filet doré lumineux, utilisé comme signature sur les blocs premium. */
+  .hairline-gold {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--accent) / 0),
+      hsl(var(--accent) / 0.9),
+      hsl(var(--accent) / 0)
+    );
+    background-size: 200% 100%;
+    animation: sheen 7s linear infinite;
+  }
 }
 
 @layer utilities {

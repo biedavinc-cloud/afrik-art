@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Menu, X, Search } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Settings, UserRound, X, Search } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useI18n } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { user, isAuthenticated, navigateToLogin } = useAuth();
+  const { user, isAuthenticated, navigateToLogin, logout } = useAuth();
   const { t } = useI18n();
   const location = useLocation();
 
@@ -57,7 +65,7 @@ export default function SiteHeader() {
                 to={item.to}
                 className={cn(
                   "relative text-[13.5px] font-medium text-foreground/70 transition-colors hover:text-foreground",
-                  active && "text-foreground"
+                  active ? "text-foreground" : "nav-underline"
                 )}
               >
                 {item.label}
@@ -83,12 +91,35 @@ export default function SiteHeader() {
           </div>
 
           {isAuthenticated ? (
-            <Link
-              to="/dashboard"
-              className="hidden rounded-full bg-foreground px-5 py-2.5 text-[13px] font-medium text-background transition-colors hover:bg-primary sm:block"
-            >
-              {user?.full_name ? user.full_name.split(" ")[0] : t("header.space")}
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="hidden items-center gap-2 rounded-full border border-border px-3 py-2 text-[13px] font-medium transition-colors hover:border-accent/60 hover:bg-secondary sm:flex">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-[10px] font-semibold uppercase text-background">
+                  {(user?.full_name || user?.email || "A").charAt(0)}
+                </span>
+                {user?.full_name ? user.full_name.split(" ")[0] : t("header.space")}
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="truncate text-[11px] font-normal text-muted-foreground">
+                  {user?.email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard" className="cursor-pointer">
+                    <UserRound className="mr-2 h-4 w-4" /> Mon espace
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/parametres" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" /> Paramètres
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => logout()} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" /> Se déconnecter
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <button
@@ -147,13 +178,31 @@ export default function SiteHeader() {
 
           <div className="mt-4 flex flex-col gap-2.5">
             {isAuthenticated ? (
-              <Link
-                to="/dashboard"
-                onClick={() => setOpen(false)}
-                className="rounded-full bg-foreground px-5 py-3 text-center text-[14px] font-medium text-background"
-              >
-                {t("header.space")}
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full bg-foreground px-5 py-3 text-center text-[14px] font-medium text-background"
+                >
+                  {t("header.space")}
+                </Link>
+                <Link
+                  to="/parametres"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full border border-border px-5 py-3 text-center text-[14px] font-medium"
+                >
+                  Paramètres
+                </Link>
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    logout();
+                  }}
+                  className="rounded-full border border-border px-5 py-3 text-center text-[14px] font-medium text-destructive"
+                >
+                  Se déconnecter
+                </button>
+              </>
             ) : (
               <>
                 <Link

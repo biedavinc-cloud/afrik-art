@@ -4,7 +4,7 @@ import ArtisticBackdrop from "@/components/art/ArtisticBackdrop";
 
 // Écran d'authentification en deux volets : un panneau éditorial illustré
 // (identité Afrik Art) et le formulaire, sur fond sobre.
-export function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
+export function AuthLayout({ title, subtitle, footer, children }) {
   return (
     <div className="grid min-h-screen bg-background text-foreground lg:grid-cols-[1.05fr_1fr]">
       <aside className="relative hidden overflow-hidden bg-foreground lg:block">
@@ -73,11 +73,7 @@ export function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
             <span className="text-[14px] font-semibold">Afrik Art</span>
           </Link>
 
-          {Icon && (
-            <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-secondary/60 text-foreground/70">
-              <Icon className="h-5 w-5" strokeWidth={1.7} />
-            </span>
-          )}
+          <span className="mb-5 block h-px w-10 bg-accent" />
 
           <h1 className="font-heading text-[clamp(1.6rem,3vw,2.1rem)] font-semibold leading-tight tracking-tight">
             {title}
