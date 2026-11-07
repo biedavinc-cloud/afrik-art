@@ -22,6 +22,10 @@
     "reference_id": {
       "type": "string"
     },
+    "provider": {
+      "type": "string",
+      "description": "Prestataire de paiement charg\u00e9 d'encaisser ce r\u00e8glement"
+    },
     "amount": {
       "type": "number"
     },

@@ -1,15 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import CategoryIcon from "@/components/CategoryIcon";
-import { base44 } from "@/api/base44Client";
+import { getPublicCategories } from "@/lib/server-fns";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_site/categories")({
-  loader: async () => {
-    const res = await base44.entities.Category.list({ sort: "sort", limit: 60 });
-    const items = Array.isArray(res) ? res : res?.items || [];
-    return { categories: items.filter((c) => c.active !== false) };
-  },
+  loader: async () => ({ categories: await getPublicCategories() }),
   head: () => ({
     meta: [
       { title: "Catégories artistiques | Afrik Art" },

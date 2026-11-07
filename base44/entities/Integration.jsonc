@@ -16,7 +16,7 @@
     },
     "provider": {
       "type": "string",
-      "description": "Identifiant technique du prestataire (gemini, payunit, cinetpay, ...)"
+      "description": "Identifiant technique du prestataire (payunit, cinetpay, ...)"
     },
     "display_name": {
       "type": "string"
@@ -24,6 +24,11 @@
     "enabled": {
       "type": "boolean",
       "default": false
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false,
+      "description": "Prestataire utilis\u00e9 par d\u00e9faut pour encaisser les abonnements"
     },
     "mode": {
       "type": "string",
@@ -39,7 +44,7 @@
     },
     "api_key": {
       "type": "string",
-      "description": "Cl\u00e9 priv\u00e9e du prestataire \u2014 jamais expos\u00e9e hors administration"
+      "description": "Cl\u00e9 ou jeton technique du prestataire \u2014 jamais expos\u00e9 hors administration"
     },
     "public_key": {
       "type": "string"

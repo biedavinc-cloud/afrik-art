@@ -6,6 +6,7 @@ import { base44 } from "@/api/base44Client";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 import { requestSubscription } from "@/lib/server-fns";
 import { cn } from "@/lib/utils";
+import { PROVIDER_LABEL } from "@/lib/psp-catalog";
 
 export const Route = createFileRoute("/_authed/dashboard/abonnement")({
   component: SubscriptionPage,
@@ -48,7 +49,9 @@ function SubscriptionPage() {
         await refresh();
       } else {
         toast.success(
-          "Demande enregistrée. Votre formule sera activée dès confirmation du paiement."
+          res.provider
+            ? `Demande enregistrée. Règlement via ${res.provider} ; activation dès confirmation.`
+            : "Demande enregistrée. Votre formule sera activée dès confirmation du paiement."
         );
       }
       await load();
@@ -174,6 +177,7 @@ function SubscriptionPage() {
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
                     {new Date(p.created_date).toLocaleDateString("fr-FR")} ·{" "}
                     {p.type === "boost" ? "Mise en avant" : "Abonnement"}
+                    {p.provider ? ` · via ${PROVIDER_LABEL(p.provider)}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-4">

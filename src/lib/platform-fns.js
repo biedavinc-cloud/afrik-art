@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth-middleware";
-import { AI_MODELS } from "@/lib/psp-catalog";
+import { AI_MODELS, missingRequiredFields, providerByKey } from "@/lib/psp-catalog";
 
 const DEFAULT_MODEL = AI_MODELS[0].key;
 
@@ -44,10 +44,14 @@ export const getIntegrations = createServerFn({ method: "GET" })
           provider: p.provider,
           enabled: Boolean(p.enabled),
           mode: p.mode || "test",
-          has_secret: Boolean(p.secret_key || p.api_key),
-          secret_hint: tail(p.secret_key || p.api_key),
-          public_key: p.public_key || "",
-          merchant_id: p.merchant_id || "",
+          is_default: Boolean(p.is_default),
+          // Les valeurs restent côté serveur : on ne renvoie que leur présence
+          // et leurs quatre derniers caractères.
+          filled: Object.fromEntries(
+            ["api_key", "public_key", "secret_key", "merchant_id"]
+              .filter((key) => p[key])
+              .map((key) => [key, tail(p[key])])
+          ),
         })),
     };
   });
@@ -81,42 +85,86 @@ export const saveAiIntegration = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const CREDENTIAL_FIELDS = ["api_key", "public_key", "secret_key", "merchant_id"];
+
 export const savePaymentIntegration = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(
     z.object({
       provider: z.string().min(2).max(40),
-      displayName: z.string().max(60),
       enabled: z.boolean(),
       mode: z.enum(["test", "live"]),
-      publicKey: z.string().max(300).optional(),
-      secretKey: z.string().max(300).optional(),
-      merchantId: z.string().max(120).optional(),
+      isDefault: z.boolean().optional(),
+      fields: z
+        .object({
+          api_key: z.string().max(300).optional(),
+          public_key: z.string().max(300).optional(),
+          secret_key: z.string().max(300).optional(),
+          merchant_id: z.string().max(120).optional(),
+        })
+        .optional(),
     })
   )
   .handler(async ({ data, context }) => {
     assertAdmin(context.user);
     const svc = context.getBase44().asServiceRole;
+
+    const provider = providerByKey(data.provider);
+    if (!provider) {
+      const error = new Error("Prestataire de paiement inconnu.");
+      error.status = 400;
+      throw error;
+    }
+
     const existing = await findIntegration(svc, "payment", data.provider);
+
+    // Fusion des valeurs déjà enregistrées et de celles saisies à l'instant,
+    // afin de vérifier que tous les champs obligatoires sont bien présents.
+    const typed = Object.fromEntries(
+      CREDENTIAL_FIELDS.map((key) => [key, (data.fields?.[key] || "").trim()])
+    );
+    const merged = Object.fromEntries(
+      CREDENTIAL_FIELDS.map((key) => [key, typed[key] || existing?.[key] || ""])
+    );
+
+    const missing = missingRequiredFields(provider, merged);
+    if (data.enabled && missing.length > 0) {
+      const error = new Error(`Champs obligatoires manquants : ${missing.join(", ")}.`);
+      error.status = 400;
+      throw error;
+    }
 
     const patch = {
       kind: "payment",
-      provider: data.provider,
-      display_name: data.displayName,
+      provider: provider.provider,
+      display_name: provider.name,
       enabled: data.enabled,
       mode: data.mode,
-      public_key: data.publicKey || "",
-      merchant_id: data.merchantId || "",
     };
-    if (data.secretKey) {
-      patch.secret_key = data.secretKey;
-      patch.api_key = data.secretKey;
+    CREDENTIAL_FIELDS.forEach((key) => {
+      if (typed[key]) patch[key] = typed[key];
+    });
+
+    const isDefault = Boolean(data.isDefault ?? existing?.is_default);
+    if (isDefault && !data.enabled) {
+      const error = new Error("Activez le prestataire avant d'en faire le prestataire par défaut.");
+      error.status = 400;
+      throw error;
     }
+
+    if (isDefault) {
+      await svc.entities.Integration.updateMany(
+        { kind: "payment" },
+        { $set: { is_default: false } }
+      );
+    }
+    patch.is_default = isDefault;
+    patch.sort = isDefault ? 0 : 1;
 
     if (existing) await svc.entities.Integration.update(existing.id, patch);
     else await svc.entities.Integration.create(patch);
 
-    return { ok: true };
+    return { ok: true, is_default: isDefault };
   });
 
 const SYSTEM_PROMPT = `Tu es l'assistant officiel d'Afrik Art, la plateforme panafricaine de promotion des artistes et créateurs africains.

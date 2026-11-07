@@ -211,7 +211,7 @@ function NewsPage() {
             Les artistes publient leurs récits depuis leur espace personnel.
           </p>
           <Link
-            to="/dashboard/blog"
+            to="/blog"
             className="mt-6 inline-block rounded-full bg-foreground px-5 py-2.5 text-[12.5px] font-medium text-background"
           >
             Écrire le premier article
@@ -234,7 +234,7 @@ function NewsPage() {
                   ligne, photographie et outils numériques.
                 </p>
                 <Link
-                  to="/dashboard/blog"
+                  to="/blog"
                   className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-foreground hover:text-primary"
                 >
                   Proposer un article <ArrowRight className="h-3.5 w-3.5" />

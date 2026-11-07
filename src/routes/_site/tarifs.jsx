@@ -1,25 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import PlanCards from "@/components/PlanCards";
 import { BOOST_PACKAGES, DEFAULT_PLANS, localizedPlan } from "@/lib/plans";
-import { base44 } from "@/api/base44Client";
+import { getPublicPlans } from "@/lib/server-fns";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_site/tarifs")({
   loader: async () => {
-    const res = await base44.entities.PlanConfig.list({ sort: "sort", limit: 20 });
-    const items = Array.isArray(res) ? res : res?.items || [];
-    const plans = items
-      .filter((p) => p.active !== false)
-      .map((p) => ({
-        key: p.key,
-        name: p.name,
-        price: p.price,
-        tagline: p.tagline,
-        mediaLimit: p.media_limit,
-        categoriesLimit: p.categories_limit,
-        features: p.features || [],
-        badge: p.key === "starter" ? null : p.name,
-      }));
+    const plans = await getPublicPlans();
     return { plans: plans.length ? plans : DEFAULT_PLANS };
   },
   head: () => ({

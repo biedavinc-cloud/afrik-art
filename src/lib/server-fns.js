@@ -27,6 +27,14 @@ async function loadRanked(base44) {
   }));
 }
 
+// Prestataire de paiement actif : celui marqué par défaut, sinon le premier actif.
+async function activePaymentProvider(svc) {
+  const rows = asPage(
+    await svc.entities.Integration.filter({ kind: "payment", enabled: true }, { limit: 20 })
+  );
+  return rows.find((r) => r.is_default) || rows[0] || null;
+}
+
 function score(profile, q) {
   let s = 0;
   if (profile.plan === "premium") s += 30;
@@ -109,6 +117,34 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async ({ co
     plans,
     totalArtists: profiles.length,
   };
+});
+
+// Données publiques des pages rendues côté serveur : le client base44 du
+// navigateur n'est pas configuré pendant le rendu serveur, ces lectures
+// doivent donc passer par une fonction serveur.
+export const getPublicCategories = createServerFn({ method: "GET" }).handler(
+  async ({ context }) => {
+    const res = await context
+      .getBase44()
+      .entities.Category.list({ sort: "sort", limit: 60 });
+    return asPage(res).filter((c) => c.active !== false);
+  }
+);
+
+export const getPublicPlans = createServerFn({ method: "GET" }).handler(async ({ context }) => {
+  const res = await context.getBase44().entities.PlanConfig.list({ sort: "sort", limit: 20 });
+  return asPage(res)
+    .filter((p) => p.active !== false)
+    .map((p) => ({
+      key: p.key,
+      name: p.name,
+      price: p.price,
+      tagline: p.tagline,
+      mediaLimit: p.media_limit,
+      categoriesLimit: p.categories_limit,
+      features: p.features || [],
+      badge: p.key === "starter" ? null : p.name,
+    }));
 });
 
 export const searchArtists = createServerFn({ method: "GET" })
@@ -314,17 +350,20 @@ export const requestSubscription = createServerFn({ method: "POST" })
       status: "pending",
     });
 
+    const psp = await activePaymentProvider(context.getBase44().asServiceRole);
+
     await base44.entities.Payment.create({
       owner_email: user.email,
       type: "subscription",
       label: `Abonnement ${config?.name || data.plan} — 1 mois`,
       reference_id: sub.id,
+      provider: psp?.provider || "",
       amount: price,
       currency: "USD",
       status: "pending",
     });
 
-    return { immediate: false, plan: data.plan, price };
+    return { immediate: false, plan: data.plan, price, provider: psp?.display_name || null };
   });
 
 export const requestBoost = createServerFn({ method: "POST" })
@@ -360,17 +399,20 @@ export const requestBoost = createServerFn({ method: "POST" })
       visits: 0,
     });
 
+    const psp = await activePaymentProvider(context.getBase44().asServiceRole);
+
     await base44.entities.Payment.create({
       owner_email: user.email,
       type: "boost",
       label: `Mise en avant ${pack.label}`,
       reference_id: promo.id,
+      provider: psp?.provider || "",
       amount: pack.price,
       currency: "USD",
       status: "pending",
     });
 
-    return { ok: true, price: pack.price };
+    return { ok: true, price: pack.price, provider: psp?.display_name || null };
   });
 
 export const getAdminOverview = createServerFn({ method: "GET" })

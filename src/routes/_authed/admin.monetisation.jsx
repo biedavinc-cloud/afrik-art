@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PROVIDER_LABEL } from "@/lib/psp-catalog";
 
 export const Route = createFileRoute("/_authed/admin/monetisation")({
   component: AdminMonetisation,
@@ -271,6 +272,7 @@ function AdminMonetisation() {
                   <p className="truncate text-[12.5px]">{p.label}</p>
                   <p className="text-[11px] text-muted-foreground">
                     {p.owner_email || "—"} · {new Date(p.created_date).toLocaleDateString("fr-FR")}
+                    {p.provider ? ` · ${PROVIDER_LABEL(p.provider)}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

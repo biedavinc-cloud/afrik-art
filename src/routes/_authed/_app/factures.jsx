@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Download, Loader2, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { listMyInvoices } from "@/lib/content-fns";
+import { PROVIDER_LABEL } from "@/lib/psp-catalog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authed/_app/factures")({
@@ -62,6 +63,9 @@ function InvoicesPage() {
       doc.text(`Date : ${formatDate(payment.created_date)}`, 20, 65);
       doc.text(`Client : ${payment.owner_email || email}`, 20, 71);
       doc.text(`Statut : ${STATUS[payment.status]?.label || payment.status}`, 20, 77);
+      if (payment.provider) {
+        doc.text(`Canal de paiement : ${PROVIDER_LABEL(payment.provider)}`, 20, 83);
+      }
 
       doc.setDrawColor(220);
       doc.line(20, 86, 190, 86);
@@ -144,6 +148,7 @@ function InvoicesPage() {
                 </p>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
                   {TYPE[invoice.type] || invoice.type} · AA-{invoice.id.slice(0, 8).toUpperCase()}
+                  {invoice.provider ? ` · via ${PROVIDER_LABEL(invoice.provider)}` : ""}
                 </p>
               </div>
               <p className="text-[12.5px] text-muted-foreground">{formatDate(invoice.created_date)}</p>

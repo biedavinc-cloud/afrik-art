@@ -8,8 +8,9 @@ import {
   saveAiIntegration,
   savePaymentIntegration,
 } from "@/lib/platform-fns";
-import { AI_MODELS, PAYMENT_PROVIDERS } from "@/lib/psp-catalog";
+import { AI_MODELS, PAYMENT_PROVIDERS, PROVIDER_LABEL } from "@/lib/psp-catalog";
 import ProviderCard from "@/components/admin/ProviderCard";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authed/admin/integrations")({
   loader: () => getIntegrations(),
@@ -63,6 +64,8 @@ function IntegrationsPage() {
   }
 
   const connected = payments.filter((p) => p.enabled).length;
+  const defaultConfig = payments.find((p) => p.enabled && p.is_default);
+  const defaultProvider = defaultConfig ? PROVIDER_LABEL(defaultConfig.provider) : "";
 
   return (
     <div className="space-y-10">
@@ -164,14 +167,28 @@ function IntegrationsPage() {
             <div>
               <p className="text-[14px] font-medium">Prestataires de paiement</p>
               <p className="text-[12.5px] text-muted-foreground">
-                {connected} actif{connected > 1 ? "s" : ""} sur {PAYMENT_PROVIDERS.length}
+                {connected} actif{connected > 1 ? "s" : ""} sur {PAYMENT_PROVIDERS.length} · Mobile
+                Money et cartes africaines
               </p>
             </div>
           </div>
           <p className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5" /> Clés chiffrées côté serveur
+            <ShieldCheck className="h-3.5 w-3.5" /> Clés conservées côté serveur
           </p>
         </div>
+
+        <p
+          className={cn(
+            "mt-4 rounded-xl px-4 py-3 text-[12px] leading-relaxed",
+            defaultProvider
+              ? "bg-secondary/50 text-foreground/70"
+              : "bg-accent/10 text-foreground/80"
+          )}
+        >
+          {defaultProvider
+            ? `Les abonnements et mises en avant sont rattachés à ${defaultProvider}. Les clés saisies ici servent au règlement Mobile Money ou carte de ce prestataire.`
+            : "Aucun prestataire par défaut : les demandes d'abonnement restent traitées manuellement. Configurez les clés d'un prestataire, activez-le, puis cochez « Utiliser pour les abonnements »."}
+        </p>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {PAYMENT_PROVIDERS.map((provider) => (

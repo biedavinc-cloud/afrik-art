@@ -29,7 +29,7 @@ const NAV = [
   { label: "Demandes", to: "/dashboard/demandes", icon: Inbox },
   { label: "Mon profil", to: "/dashboard/profil", icon: UserRound },
   { label: "Portfolio", to: "/dashboard/portfolio", icon: Images },
-  { label: "Blog", to: "/dashboard/blog", icon: PenLine },
+  { label: "Blog", to: "/blog", icon: PenLine },
   { label: "Promotion", to: "/centre-promotion", icon: Megaphone },
   { label: "Abonnement", to: "/dashboard/abonnement", icon: CreditCard },
   { label: "Visibilité", to: "/dashboard/visibilite", icon: Sparkles },
