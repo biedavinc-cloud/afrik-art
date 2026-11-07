@@ -1,7 +1,14 @@
-import { Lock, LogIn, Mail } from "lucide-react";
+import { LogIn, Mail } from "lucide-react";
 import { useState } from "react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
-import { AuthError, AuthLink, GoogleButton, OrDivider, SubmitButton } from "@/components/auth/parts";
+import {
+  AuthError,
+  AuthLink,
+  GoogleButton,
+  OrDivider,
+  PasswordField,
+  SubmitButton,
+} from "@/components/auth/parts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MfaFlow } from "@/components/auth/MfaFlow";
@@ -60,10 +67,14 @@ export function LoginPage() {
               Mot de passe oublié ?
             </AuthLink>
           </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="login-password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pl-10" required />
-          </div>
+          <PasswordField
+            id="login-password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
         <SubmitButton busy={busy} busyLabel="Connexion…">
           Se connecter

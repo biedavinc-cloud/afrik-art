@@ -1,11 +1,19 @@
-import { Lock, Mail, UserPlus } from "lucide-react";
+import { Mail, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { MfaFlow } from "@/components/auth/MfaFlow";
 import { MfaScreen } from "@/components/auth/MfaParts";
-import { AuthError, AuthLink, GoogleButton, OrDivider, SubmitButton } from "@/components/auth/parts";
+import {
+  AuthError,
+  AuthLink,
+  GoogleButton,
+  OrDivider,
+  PasswordField,
+  PasswordStrength,
+  SubmitButton,
+} from "@/components/auth/parts";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
@@ -33,7 +41,11 @@ export function RegisterPage() {
     e.preventDefault();
     setError("");
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Choisissez un mot de passe d'au moins 8 caractères.");
       return;
     }
     setBusy(true);
@@ -41,7 +53,7 @@ export function RegisterPage() {
       await base44.auth.register({ email, password });
       setStep("otp");
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err.message || "La création du compte a échoué.");
     } finally {
       setBusy(false);
     }
@@ -63,7 +75,7 @@ export function RegisterPage() {
       // Verified server-side but the answer never arrived: the code is spent and
       // there is no token, so the only way forward is a normal sign-in.
       if (isAlreadyVerified(err)) setStep("already_verified");
-      else setError(err.message || "Invalid verification code");
+      else setError(err.message || "Code de vérification invalide.");
       setBusy(false);
     }
   }
@@ -72,10 +84,10 @@ export function RegisterPage() {
     setError("");
     try {
       await base44.auth.resendOtp(email);
-      toast("Code sent", { description: "Check your email for the new code." });
+      toast("Code envoyé", { description: "Consultez votre boîte mail pour le nouveau code." });
     } catch (err) {
       if (isAlreadyVerified(err)) setStep("already_verified");
-      else setError(err.message || "Failed to resend code");
+      else setError(err.message || "Impossible de renvoyer le code.");
     }
   }
 
@@ -86,10 +98,11 @@ export function RegisterPage() {
     return (
       <AuthLayout icon={UserPlus} title="Créer votre compte" subtitle="Ouvrez votre profil public en quelques minutes.">
         <p className="mb-4 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{email}</span> is already verified. Sign in to continue.
+          <span className="font-medium text-foreground">{email}</span> est déjà vérifié. Connectez-vous
+          pour continuer.
         </p>
         <AuthLink to="/login" returnTo={returnTo} className="inline-flex h-12 w-full items-center justify-center rounded-md bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          Sign in
+          Se connecter
         </AuthLink>
       </AuthLayout>
     );
@@ -100,7 +113,8 @@ export function RegisterPage() {
       <AuthLayout icon={UserPlus} title="Créer votre compte" subtitle="Ouvrez votre profil public en quelques minutes.">
         <form onSubmit={verify}>
           <p className="mb-4 text-sm text-muted-foreground">
-            We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>.
+            Nous avons envoyé un code à 6 chiffres à{" "}
+            <span className="font-medium text-foreground">{email}</span>.
           </p>
           <AuthError>{error}</AuthError>
           <div className="mb-6 flex justify-center">
@@ -112,13 +126,13 @@ export function RegisterPage() {
               </InputOTPGroup>
             </InputOTP>
           </div>
-          <SubmitButton busy={busy} busyLabel="Verifying..." disabled={busy || otpCode.length < 6}>
-            Verify
+          <SubmitButton busy={busy} busyLabel="Vérification…" disabled={busy || otpCode.length < 6}>
+            Vérifier mon adresse
           </SubmitButton>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Didn't receive the code?{" "}
+            Code non reçu ?{" "}
             <button type="button" onClick={resend} className="font-medium text-primary hover:underline">
-              Resend
+              Renvoyer le code
             </button>
           </p>
         </form>
@@ -127,7 +141,11 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout icon={UserPlus} title="Create your account" subtitle="Sign up to get started">
+    <AuthLayout
+      icon={UserPlus}
+      title="Créer votre compte"
+      subtitle="Ouvrez votre profil public en quelques minutes."
+    >
       <GoogleButton returnTo={returnTo} onError={setError} />
       <OrDivider />
       <AuthError>{error}</AuthError>
@@ -141,17 +159,28 @@ export function RegisterPage() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="register-password">Mot de passe</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="register-password" type="password" autoComplete="new-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pl-10" disabled={busy} required />
-          </div>
+          <PasswordField
+            id="register-password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={busy}
+            required
+          />
+          <PasswordStrength value={password} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="register-confirm">Confirmer le mot de passe</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="register-confirm" type="password" autoComplete="new-password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12 pl-10" disabled={busy} required />
-          </div>
+          <PasswordField
+            id="register-confirm"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            disabled={busy}
+            required
+          />
         </div>
         <SubmitButton busy={busy} busyLabel="Création du compte…">
           Créer mon compte

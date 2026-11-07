@@ -6,6 +6,7 @@ import {
   Flag,
   LayoutDashboard,
   Menu,
+  Newspaper,
   Plug,
   ShieldAlert,
   Tags,
@@ -43,6 +44,7 @@ const GROUPS = [
   {
     label: "Contenu",
     items: [
+      { label: "Journal", to: "/admin/blog", icon: Newspaper },
       { label: "Catégories", to: "/admin/categories", icon: Tags },
       { label: "Signalements", to: "/admin/signalements", icon: Flag },
     ],

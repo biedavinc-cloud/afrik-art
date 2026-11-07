@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Send, Sparkles, X } from "lucide-react";
+import { Loader2, Send, X } from "lucide-react";
+import AfricaMark from "@/components/ai/AfricaMark";
 import { askAssistant } from "@/lib/platform-fns";
 import { cn } from "@/lib/utils";
 
@@ -64,11 +65,17 @@ export default function AssistantWidget({ page = "", tone = "light" }) {
         onClick={() => setOpen((v) => !v)}
         aria-label="Ouvrir l'assistant Afrik Art"
         className={cn(
-          "fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-foreground text-background shadow-[0_18px_40px_-12px_rgba(0,0,0,0.55)] ring-1 ring-accent/40 transition-transform hover:scale-105",
+          "group fixed bottom-5 right-5 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-foreground shadow-[0_20px_45px_-12px_rgba(0,0,0,0.6)] ring-1 ring-accent/40 transition-transform hover:scale-105",
           open && "scale-0 opacity-0"
         )}
       >
-        <Sparkles className="h-6 w-6 text-accent" strokeWidth={1.7} />
+        <span className="pointer-events-none absolute -inset-1 rounded-full bg-accent/20 blur-md" />
+        <span className="pointer-events-none absolute inset-0 rounded-full border border-accent/35 anim-aurora-slow" />
+        <AfricaMark className="relative h-9 w-9 text-accent" strokeWidth={2.6} glow />
+        <span className="absolute right-1 top-1 flex h-2.5 w-2.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
+        </span>
       </button>
 
       {open && (
@@ -76,13 +83,21 @@ export default function AssistantWidget({ page = "", tone = "light" }) {
           <div className="relative overflow-hidden bg-foreground px-4 py-4 text-background">
             <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-accent/25 blur-2xl" />
             <div className="relative flex items-start justify-between gap-3">
-              <div>
-                <p className="flex items-center gap-1.5 text-[13px] font-medium">
-                  <Sparkles className="h-3.5 w-3.5 text-accent" /> Assistant Afrik Art
-                </p>
-                <p className="mt-0.5 text-[11px] text-background/60">
-                  Portfolio, formules, visibilité — posez votre question.
-                </p>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent/10">
+                  <AfricaMark className="h-5 w-5 text-accent" strokeWidth={3} />
+                </span>
+                <div>
+                  <p className="flex items-center gap-1.5 text-[13px] font-medium">
+                    Assistant Afrik Art
+                    <span className="flex items-center gap-1 text-[10px] font-normal text-background/50">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> en ligne
+                    </span>
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-background/60">
+                    Portfolio, formules, visibilité — posez votre question.
+                  </p>
+                </div>
               </div>
               <button
                 type="button"

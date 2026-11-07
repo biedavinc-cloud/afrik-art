@@ -3,7 +3,7 @@ import { AlertTriangle, Lock } from "lucide-react";
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { AuthLayout } from "@/components/auth/AuthLayout";
-import { AuthError, SubmitButton } from "@/components/auth/parts";
+import { AuthError, PasswordField, PasswordStrength, SubmitButton } from "@/components/auth/parts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -20,7 +20,11 @@ export function ResetPasswordPage() {
     e.preventDefault();
     setError("");
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Choisissez un mot de passe d'au moins 8 caractères.");
       return;
     }
     setBusy(true);
@@ -28,7 +32,7 @@ export function ResetPasswordPage() {
       await base44.auth.resetPassword({ resetToken: token, newPassword: password });
       window.location.href = "/login";
     } catch (err) {
-      setError(err.message || "Failed to reset password");
+      setError(err.message || "La réinitialisation a échoué.");
       setBusy(false);
     }
   }
@@ -50,25 +54,39 @@ export function ResetPasswordPage() {
     );
   }
   return (
-    <AuthLayout icon={Lock} title="New password" subtitle="Enter your new password below">
+    <AuthLayout
+      icon={Lock}
+      title="Nouveau mot de passe"
+      subtitle="Choisissez un mot de passe solide et unique."
+    >
       <AuthError>{error}</AuthError>
       <form onSubmit={submit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="reset-password">New password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="reset-password" type="password" autoComplete="new-password" autoFocus placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pl-10" required />
-          </div>
+          <Label htmlFor="reset-password">Nouveau mot de passe</Label>
+          <PasswordField
+            id="reset-password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoFocus
+            required
+          />
+          <PasswordStrength value={password} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="reset-confirm">Confirm password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="reset-confirm" type="password" autoComplete="new-password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12 pl-10" required />
-          </div>
+          <Label htmlFor="reset-confirm">Confirmer le mot de passe</Label>
+          <PasswordField
+            id="reset-confirm"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+          />
         </div>
-        <SubmitButton busy={busy} busyLabel="Resetting...">
-          Reset password
+        <SubmitButton busy={busy} busyLabel="Réinitialisation…">
+          Réinitialiser le mot de passe
         </SubmitButton>
       </form>
     </AuthLayout>

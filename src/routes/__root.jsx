@@ -2,6 +2,7 @@ import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-r
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
 import { NotFound } from "@/components/NotFound";
 import { Toaster } from "@/components/ui/sonner";
+import CookieConsent from "@/components/CookieConsent";
 import StructuredData from "@/components/seo/StructuredData";
 import { AuthProvider } from "@/lib/AuthContext";
 import { LanguageProvider } from "@/lib/i18n";
@@ -49,6 +50,7 @@ function RootComponent() {
       <LanguageProvider>
         <Outlet />
         <Toaster />
+        <CookieConsent />
       </LanguageProvider>
     </AuthProvider>
   );

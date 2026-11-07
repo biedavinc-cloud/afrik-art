@@ -25,6 +25,7 @@ import { Route as SiteCategoriesRouteImport } from './routes/_site/categories'
 import { Route as SiteConditionsRouteImport } from './routes/_site/conditions'
 import { Route as SiteConfidentialiteRouteImport } from './routes/_site/confidentialite'
 import { Route as SiteContactArtisteRouteImport } from './routes/_site/contact-artiste'
+import { Route as SiteCookiesRouteImport } from './routes/_site/cookies'
 import { Route as SiteDroitsAuteurRouteImport } from './routes/_site/droits-auteur'
 import { Route as SiteExplorerRouteImport } from './routes/_site/explorer'
 import { Route as SiteFaqRouteImport } from './routes/_site/faq'
@@ -43,6 +44,7 @@ import { Route as AuthedAppMessagerieRouteImport } from './routes/_authed/_app/m
 import { Route as AuthedAppParametresRouteImport } from './routes/_authed/_app/parametres'
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin.index'
 import { Route as AuthedAdminArtistesRouteImport } from './routes/_authed/admin.artistes'
+import { Route as AuthedAdminBlogRouteImport } from './routes/_authed/admin.blog'
 import { Route as AuthedAdminCategoriesRouteImport } from './routes/_authed/admin.categories'
 import { Route as AuthedAdminIntegrationsRouteImport } from './routes/_authed/admin.integrations'
 import { Route as AuthedAdminMonetisationRouteImport } from './routes/_authed/admin.monetisation'
@@ -136,6 +138,11 @@ const SiteContactArtisteRoute = SiteContactArtisteRouteImport.update({
   path: '/contact-artiste',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteCookiesRoute = SiteCookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteDroitsAuteurRoute = SiteDroitsAuteurRouteImport.update({
   id: '/droits-auteur',
   path: '/droits-auteur',
@@ -225,6 +232,11 @@ const AuthedAdminIndexRoute = AuthedAdminIndexRouteImport.update({
 const AuthedAdminArtistesRoute = AuthedAdminArtistesRouteImport.update({
   id: '/artistes',
   path: '/artistes',
+  getParentRoute: () => AuthedAdminRoute,
+} as any)
+const AuthedAdminBlogRoute = AuthedAdminBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
 const AuthedAdminCategoriesRoute = AuthedAdminCategoriesRouteImport.update({
@@ -320,6 +332,7 @@ export interface FileRoutesByFullPath {
   '/conditions': typeof SiteConditionsRoute
   '/confidentialite': typeof SiteConfidentialiteRoute
   '/contact-artiste': typeof SiteContactArtisteRoute
+  '/cookies': typeof SiteCookiesRoute
   '/droits-auteur': typeof SiteDroitsAuteurRoute
   '/explorer': typeof SiteExplorerRoute
   '/faq': typeof SiteFaqRoute
@@ -337,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/messagerie': typeof AuthedAppMessagerieRoute
   '/parametres': typeof AuthedAppParametresRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
+  '/admin/blog': typeof AuthedAdminBlogRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
   '/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -366,6 +380,7 @@ export interface FileRoutesByTo {
   '/conditions': typeof SiteConditionsRoute
   '/confidentialite': typeof SiteConfidentialiteRoute
   '/contact-artiste': typeof SiteContactArtisteRoute
+  '/cookies': typeof SiteCookiesRoute
   '/droits-auteur': typeof SiteDroitsAuteurRoute
   '/explorer': typeof SiteExplorerRoute
   '/faq': typeof SiteFaqRoute
@@ -383,6 +398,7 @@ export interface FileRoutesByTo {
   '/messagerie': typeof AuthedAppMessagerieRoute
   '/parametres': typeof AuthedAppParametresRoute
   '/admin/artistes': typeof AuthedAdminArtistesRoute
+  '/admin/blog': typeof AuthedAdminBlogRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
   '/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -417,6 +433,7 @@ export interface FileRoutesById {
   '/_site/conditions': typeof SiteConditionsRoute
   '/_site/confidentialite': typeof SiteConfidentialiteRoute
   '/_site/contact-artiste': typeof SiteContactArtisteRoute
+  '/_site/cookies': typeof SiteCookiesRoute
   '/_site/droits-auteur': typeof SiteDroitsAuteurRoute
   '/_site/explorer': typeof SiteExplorerRoute
   '/_site/faq': typeof SiteFaqRoute
@@ -435,6 +452,7 @@ export interface FileRoutesById {
   '/_authed/_app/messagerie': typeof AuthedAppMessagerieRoute
   '/_authed/_app/parametres': typeof AuthedAppParametresRoute
   '/_authed/admin/artistes': typeof AuthedAdminArtistesRoute
+  '/_authed/admin/blog': typeof AuthedAdminBlogRoute
   '/_authed/admin/categories': typeof AuthedAdminCategoriesRoute
   '/_authed/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/_authed/admin/monetisation': typeof AuthedAdminMonetisationRoute
@@ -468,6 +486,7 @@ export interface FileRouteTypes {
     | '/conditions'
     | '/confidentialite'
     | '/contact-artiste'
+    | '/cookies'
     | '/droits-auteur'
     | '/explorer'
     | '/faq'
@@ -485,6 +504,7 @@ export interface FileRouteTypes {
     | '/messagerie'
     | '/parametres'
     | '/admin/artistes'
+    | '/admin/blog'
     | '/admin/categories'
     | '/admin/integrations'
     | '/admin/monetisation'
@@ -514,6 +534,7 @@ export interface FileRouteTypes {
     | '/conditions'
     | '/confidentialite'
     | '/contact-artiste'
+    | '/cookies'
     | '/droits-auteur'
     | '/explorer'
     | '/faq'
@@ -531,6 +552,7 @@ export interface FileRouteTypes {
     | '/messagerie'
     | '/parametres'
     | '/admin/artistes'
+    | '/admin/blog'
     | '/admin/categories'
     | '/admin/integrations'
     | '/admin/monetisation'
@@ -564,6 +586,7 @@ export interface FileRouteTypes {
     | '/_site/conditions'
     | '/_site/confidentialite'
     | '/_site/contact-artiste'
+    | '/_site/cookies'
     | '/_site/droits-auteur'
     | '/_site/explorer'
     | '/_site/faq'
@@ -582,6 +605,7 @@ export interface FileRouteTypes {
     | '/_authed/_app/messagerie'
     | '/_authed/_app/parametres'
     | '/_authed/admin/artistes'
+    | '/_authed/admin/blog'
     | '/_authed/admin/categories'
     | '/_authed/admin/integrations'
     | '/_authed/admin/monetisation'
@@ -726,6 +750,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteContactArtisteRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/cookies': {
+      id: '/_site/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof SiteCookiesRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/droits-auteur': {
       id: '/_site/droits-auteur'
       path: '/droits-auteur'
@@ -850,6 +881,13 @@ declare module '@tanstack/react-router' {
       path: '/artistes'
       fullPath: '/admin/artistes'
       preLoaderRoute: typeof AuthedAdminArtistesRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/admin/blog': {
+      id: '/_authed/admin/blog'
+      path: '/blog'
+      fullPath: '/admin/blog'
+      preLoaderRoute: typeof AuthedAdminBlogRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
     '/_authed/admin/categories': {
@@ -982,6 +1020,7 @@ const AuthedAppRouteWithChildren = AuthedAppRoute._addFileChildren(
 
 interface AuthedAdminRouteChildren {
   AuthedAdminArtistesRoute: typeof AuthedAdminArtistesRoute
+  AuthedAdminBlogRoute: typeof AuthedAdminBlogRoute
   AuthedAdminCategoriesRoute: typeof AuthedAdminCategoriesRoute
   AuthedAdminIntegrationsRoute: typeof AuthedAdminIntegrationsRoute
   AuthedAdminMonetisationRoute: typeof AuthedAdminMonetisationRoute
@@ -993,6 +1032,7 @@ interface AuthedAdminRouteChildren {
 
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
   AuthedAdminArtistesRoute: AuthedAdminArtistesRoute,
+  AuthedAdminBlogRoute: AuthedAdminBlogRoute,
   AuthedAdminCategoriesRoute: AuthedAdminCategoriesRoute,
   AuthedAdminIntegrationsRoute: AuthedAdminIntegrationsRoute,
   AuthedAdminMonetisationRoute: AuthedAdminMonetisationRoute,
@@ -1050,6 +1090,7 @@ interface SiteRouteChildren {
   SiteConditionsRoute: typeof SiteConditionsRoute
   SiteConfidentialiteRoute: typeof SiteConfidentialiteRoute
   SiteContactArtisteRoute: typeof SiteContactArtisteRoute
+  SiteCookiesRoute: typeof SiteCookiesRoute
   SiteDroitsAuteurRoute: typeof SiteDroitsAuteurRoute
   SiteExplorerRoute: typeof SiteExplorerRoute
   SiteFaqRoute: typeof SiteFaqRoute
@@ -1070,6 +1111,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteConditionsRoute: SiteConditionsRoute,
   SiteConfidentialiteRoute: SiteConfidentialiteRoute,
   SiteContactArtisteRoute: SiteContactArtisteRoute,
+  SiteCookiesRoute: SiteCookiesRoute,
   SiteDroitsAuteurRoute: SiteDroitsAuteurRoute,
   SiteExplorerRoute: SiteExplorerRoute,
   SiteFaqRoute: SiteFaqRoute,

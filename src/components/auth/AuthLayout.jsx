@@ -4,16 +4,16 @@ import ArtisticBackdrop from "@/components/art/ArtisticBackdrop";
 
 // Écran d'authentification en deux volets : un panneau éditorial illustré
 // (identité Afrik Art) et le formulaire, sur fond sobre.
-export function AuthLayout({ title, subtitle, footer, children }) {
+export function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
   return (
     <div className="grid min-h-screen bg-background text-foreground lg:grid-cols-[1.05fr_1fr]">
       <aside className="relative hidden overflow-hidden bg-foreground lg:block">
         <Image
-          src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&w=1400&q=85"
+          src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&w=1800&q=88"
           alt="Détail d'une œuvre peinte aux tons chauds"
           className="absolute inset-0 h-full w-full object-cover opacity-45"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-black/60 to-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/60 to-black/90" />
         <ArtisticBackdrop variant="dark" />
 
         <div className="relative flex h-full flex-col justify-between p-12 xl:p-16">
@@ -64,13 +64,20 @@ export function AuthLayout({ title, subtitle, footer, children }) {
       </aside>
 
       <main className="relative flex items-center justify-center px-5 py-12 sm:px-10">
-        <div className="w-full max-w-sm">
-          <Link to="/" className="mb-10 flex items-center gap-2.5 lg:hidden">
+        <div className="pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-accent/5 blur-3xl anim-aurora" />
+        <div className="relative w-full max-w-sm">
+          <Link to="/" className="mb-9 flex items-center gap-2.5 lg:hidden">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-[12px] font-semibold text-primary-foreground">
               AA
             </span>
             <span className="text-[14px] font-semibold">Afrik Art</span>
           </Link>
+
+          {Icon && (
+            <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-secondary/60 text-foreground/70">
+              <Icon className="h-5 w-5" strokeWidth={1.7} />
+            </span>
+          )}
 
           <h1 className="font-heading text-[clamp(1.6rem,3vw,2.1rem)] font-semibold leading-tight tracking-tight">
             {title}
@@ -79,8 +86,14 @@ export function AuthLayout({ title, subtitle, footer, children }) {
             <p className="mt-2 text-[13.5px] leading-relaxed text-muted-foreground">{subtitle}</p>
           )}
 
-          <div className="mt-8">{children}</div>
+          <div className="fade-up mt-8">{children}</div>
+
           {footer && <div className="mt-7 text-center text-[12.5px] text-muted-foreground">{footer}</div>}
+
+          <p className="mt-9 flex items-center justify-center gap-1.5 text-[10.5px] uppercase tracking-[0.16em] text-muted-foreground/70">
+            <span className="h-1 w-1 rounded-full bg-emerald-500" /> Connexion sécurisée · données
+            chiffrées
+          </p>
         </div>
       </main>
     </div>

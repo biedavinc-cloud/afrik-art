@@ -1,6 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Eye, EyeOff, Loader2, PenLine, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Crown,
+  Eye,
+  EyeOff,
+  Loader2,
+  PenLine,
+  Plus,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,10 +62,15 @@ function MyBlogPage() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [plan, setPlan] = useState("starter");
+
+  // Le journal est réservé à la formule Premium (l'administration y a accès).
+  const premiumLocked = !isAdmin && plan !== "premium";
 
   async function load() {
     const res = await myBlogPosts();
     setPosts(res.items || []);
+    setPlan(res.plan || "starter");
     setLoading(false);
   }
 
@@ -67,6 +82,10 @@ function MyBlogPage() {
   }, []);
 
   function startNew() {
+    if (premiumLocked) {
+      toast.error("La rédaction d'articles est réservée à la formule Premium.");
+      return;
+    }
     setEditing("new");
     setForm(EMPTY);
   }
@@ -232,6 +251,11 @@ function MyBlogPage() {
             <p className="mt-1.5 text-[11px] text-muted-foreground">
               Une ligne vide sépare les paragraphes. « ## » crée un intertitre.
             </p>
+            <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <ShieldCheck className="h-3 w-3 text-accent" />
+              Chaque article est contrôlé automatiquement : les propos liés aux drogues, à la
+              violence ou à la fraude sont refusés et l'article est retiré du journal.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-2 border-t border-border pt-4">
@@ -266,13 +290,48 @@ function MyBlogPage() {
             Écrivez depuis votre compte. Vos publications sont visibles par tous les visiteurs.
           </p>
         </div>
-        <button
-          onClick={startNew}
-          className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-[12.5px] font-medium text-background"
-        >
-          <Plus className="h-4 w-4" /> Nouvel article
-        </button>
+        {premiumLocked ? (
+          <Link
+            to="/dashboard/abonnement"
+            className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-[12.5px] font-semibold text-accent-foreground"
+          >
+            <Crown className="h-4 w-4" /> Passer à Premium
+          </Link>
+        ) : (
+          <button
+            onClick={startNew}
+            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-[12.5px] font-medium text-background"
+          >
+            <Plus className="h-4 w-4" /> Nouvel article
+          </button>
+        )}
       </div>
+
+      {premiumLocked && (
+        <div className="fade-up overflow-hidden rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/10 via-background to-secondary/40 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="max-w-xl">
+              <p className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-accent">
+                <Crown className="h-3.5 w-3.5" /> Formule Premium
+              </p>
+              <h2 className="mt-2 text-[17px] font-semibold">
+                Le journal est réservé aux artistes Premium
+              </h2>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
+                Racontez votre pratique, vos voyages, une exposition : vos articles sont lus par des
+                collectionneurs, des journalistes et le grand public. Activez Premium pour ouvrir
+                votre plume et votre visibilité éditoriale.
+              </p>
+            </div>
+            <Link
+              to="/dashboard/abonnement"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-[12.5px] font-medium text-background"
+            >
+              Activer Premium
+            </Link>
+          </div>
+        </div>
+      )}
 
       {posts.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border py-20 text-center">

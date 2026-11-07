@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth-middleware";
+import { moderationMessage, scanText } from "@/lib/moderation";
 
 const asItems = (res) => (Array.isArray(res) ? res : res?.items || []);
 
@@ -87,11 +88,38 @@ export const myBlogPosts = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
     const base44 = context.getBase44();
-    const res = await base44.entities.BlogPost.filter(
-      { author_user_id: context.user.id },
-      { sort: "-created_date", limit: 100 }
-    );
-    return { items: asItems(res) };
+    const [res, profiles] = await Promise.all([
+      base44.entities.BlogPost.filter(
+        { author_user_id: context.user.id },
+        { sort: "-created_date", limit: 100 }
+      ),
+      base44.entities.ArtistProfile.filter({ user_id: context.user.id }, { limit: 1 }),
+    ]);
+    return {
+      items: asItems(res),
+      plan: asItems(profiles)[0]?.plan || "starter",
+      isAdmin: context.user.role === "admin",
+    };
+  });
+
+// Lecture réservée au Superadmin : tous les articles, brouillons compris.
+export const adminListBlogPosts = createServerFn({ method: "GET" })
+  .middleware([requireUser])
+  .validator(z.object({ q: z.string().max(120).optional() }).optional())
+  .handler(async ({ data, context }) => {
+    if (context.user.role !== "admin") throw new Error("Accès réservé à l'administration.");
+    const base44 = context.getBase44();
+    const res = await base44.entities.BlogPost.list({ sort: "-created_date", limit: 200 });
+    const q = (data?.q || "").toLowerCase().trim();
+    const items = asItems(res).filter((p) => {
+      if (!q) return true;
+      return [p.title, p.author_name, p.category, p.excerpt]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(q);
+    });
+    return { items };
   });
 
 export const saveBlogPost = createServerFn({ method: "POST" })
@@ -99,37 +127,59 @@ export const saveBlogPost = createServerFn({ method: "POST" })
   .validator(POST_INPUT)
   .handler(async ({ data, context }) => {
     const base44 = context.getBase44();
+    const isAdmin = context.user.role === "admin";
     const profiles = asItems(
       await base44.entities.ArtistProfile.filter({ user_id: context.user.id }, { limit: 1 })
     );
     const profile = profiles[0];
 
-    const base = {
+    // Le journal est une contrepartie de la formule Premium (accès illimité
+    // pour l'administration, qui alimente la rédaction officielle).
+    if (!isAdmin && profile?.plan !== "premium") {
+      throw new Error(
+        "La rédaction d'articles est réservée à la formule Premium. Activez Premium dans votre espace pour publier dans le journal."
+      );
+    }
+
+    // Modération automatique : le texte est contrôlé avant toute écriture.
+    const hits = scanText([data.title, data.excerpt || "", data.content].join("\n"));
+    if (hits.length) {
+      if (data.id) {
+        const existing = await base44.entities.BlogPost.get(data.id);
+        if (existing.author_user_id === context.user.id || isAdmin) {
+          await base44.entities.BlogPost.delete(existing.id);
+        }
+        throw new Error(
+          `${moderationMessage(hits)} L'article a été retiré automatiquement du journal.`
+        );
+      }
+      throw new Error(moderationMessage(hits));
+    }
+
+    const content = {
       title: data.title,
       excerpt: data.excerpt || data.content.slice(0, 160),
       content: data.content,
       cover_url: data.cover_url || "",
       category: data.category || "Culture",
       status: data.status || "draft",
-      author_user_id: context.user.id,
-      author_profile_id: profile?.id || "",
-      author_name:
-        data.author_name?.trim() ||
-        profile?.display_name ||
-        context.user.full_name ||
-        "Équipe Afrik Art",
-      author_slug: profile?.slug || "",
-      editorial: context.user.role === "admin" ? Boolean(data.editorial) : false,
+      editorial: isAdmin ? Boolean(data.editorial) : false,
     };
 
     if (data.id) {
       const existing = await base44.entities.BlogPost.get(data.id);
-      if (existing.author_user_id !== context.user.id && context.user.role !== "admin") {
+      if (existing.author_user_id !== context.user.id && !isAdmin) {
         throw new Error("Cet article ne vous appartient pas.");
       }
       const updated = await base44.entities.BlogPost.update(data.id, {
-        ...base,
-        ...(base.status === "published" && !existing.published_at
+        ...content,
+        author_name:
+          data.author_name?.trim() ||
+          existing.author_name ||
+          profile?.display_name ||
+          context.user.full_name ||
+          "Équipe Afrik Art",
+        ...(content.status === "published" && !existing.published_at
           ? { published_at: new Date().toISOString() }
           : {}),
       });
@@ -137,9 +187,17 @@ export const saveBlogPost = createServerFn({ method: "POST" })
     }
 
     const created = await base44.entities.BlogPost.create({
-      ...base,
+      ...content,
+      author_user_id: context.user.id,
+      author_profile_id: profile?.id || "",
+      author_name:
+        data.author_name?.trim() ||
+        (isAdmin
+          ? "La rédaction Afrik Art"
+          : profile?.display_name || context.user.full_name || "Équipe Afrik Art"),
+      author_slug: profile?.slug || "",
       slug: `${toSlug(data.title)}-${Math.random().toString(36).slice(2, 6)}`,
-      published_at: base.status === "published" ? new Date().toISOString() : "",
+      published_at: content.status === "published" ? new Date().toISOString() : "",
       views: 0,
     });
     return { ok: true, post: created };

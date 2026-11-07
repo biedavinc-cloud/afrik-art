@@ -63,6 +63,7 @@ export default function SiteFooter() {
               {[
                 { label: t("footer.terms"), to: "/conditions" },
                 { label: t("footer.privacy"), to: "/confidentialite" },
+                { label: "Cookies", to: "/cookies" },
                 { label: t("footer.rights"), to: "/droits-auteur" },
               ].map((l) => (
                 <li key={l.to}>
