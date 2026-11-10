@@ -18,9 +18,7 @@ export function AuthLayout({ title, subtitle, footer, children }) {
 
         <div className="relative flex h-full flex-col justify-between p-12 xl:p-16">
           <Link to="/" className="group flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-[13px] font-semibold tracking-tight text-primary-foreground">
-              AA
-            </span>
+            <img src="/logo-white.png" alt="Afrik Art" width="40" height="40" className="h-10 w-10 object-contain" />
             <span className="flex flex-col leading-none">
               <span className="text-[15px] font-semibold text-white">Afrik Art</span>
               <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.26em] text-white/50">
@@ -67,9 +65,7 @@ export function AuthLayout({ title, subtitle, footer, children }) {
         <div className="pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-accent/5 blur-3xl anim-aurora" />
         <div className="relative w-full max-w-sm">
           <Link to="/" className="mb-9 flex items-center gap-2.5 lg:hidden">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-[12px] font-semibold text-primary-foreground">
-              AA
-            </span>
+            <img src="/logo.png" alt="Afrik Art" width="36" height="36" className="h-9 w-9 object-contain" />
             <span className="text-[14px] font-semibold">Afrik Art</span>
           </Link>
 

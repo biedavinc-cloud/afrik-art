@@ -42,9 +42,13 @@ export default function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-5 lg:h-20 lg:px-8">
         <Link to="/" className="group flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-[13px] font-semibold tracking-tight text-primary-foreground transition-colors group-hover:bg-foreground group-hover:text-background">
-            AA
-          </span>
+          <img
+            src="/logo.png"
+            alt="Afrik Art"
+            width="36"
+            height="36"
+            className="h-9 w-9 object-contain transition-opacity group-hover:opacity-70"
+          />
           <span className="hidden flex-col leading-none sm:flex">
             <span className="text-[15px] font-semibold tracking-tight">{t("brand.name")}</span>
             <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
