@@ -2,6 +2,7 @@ import { base44 } from '@/api/base44Client';
 import { getAppParams } from '@/lib/app-params';
 
 const appId = () => getAppParams().appId;
+const API_BASE = import.meta.env.VITE_BASE44_SERVER_URL ?? "";
 
 // The app's own MFA: sign-in challenge, enrollment and factor management, against the app's
 // /api/apps/<id>/auth/mfa routes. Credentials stay in memory, never in the URL or storage.
@@ -24,7 +25,7 @@ export class MfaError extends Error {
 
 function authPath(suffix) {
   if (!/^[a-f0-9]{24}$/i.test(appId())) throw new Error('Invalid app ID');
-  return `/api/apps/${appId()}/auth/${suffix}`;
+  return `${API_BASE}/api/apps/${appId()}/auth/${suffix}`;
 }
 
 async function request(suffix, { method = 'POST', body, token, headers } = {}) {
@@ -99,7 +100,7 @@ const isInAppBrowser = () => /LinkedIn|Twitter/i.test(navigator.userAgent);
 
 // The app's sign-in settings: auth_config holds mfa_policy and the enabled sign-in methods.
 export async function loadSignInOptions() {
-  const response = await fetch(`/api/apps/public/login-info/by-id/${appId()}`);
+  const response = await fetch(`${API_BASE}/api/apps/public/login-info/by-id/${appId()}`);
   if (!response.ok) throw new Error('Unable to load sign-in options');
   return response.json();
 }
@@ -126,7 +127,7 @@ export async function signInWithProvider(provider, returnTo, { manage = false } 
   const path = provider === 'sso'
     ? (workspaceSso ? `/api/apps/${info.organization_id}/${appId()}/auth/sso/login` : `/api/apps/${appId()}/auth/sso/login`)
     : `/api/apps/auth${provider === 'google' ? '' : `/${provider}`}/login`;
-  const url = new URL(path, window.location.origin);
+  const url = new URL(path, API_BASE || window.location.origin);
   url.search = new URLSearchParams({
     from_url: new URL(returnTo, window.location.origin).href,
     ...(workspaceSso ? {} : { app_id: appId() }),

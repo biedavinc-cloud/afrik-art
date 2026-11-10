@@ -47,3 +47,21 @@ Comptes super admin de la plateforme (rôle `admin` dans l'entité `User` de Bas
 - webdxb1@gmail.com
 
 Le rôle se donne depuis l'espace Superadmin > Utilisateurs (`/admin/utilisateurs`) ou depuis le tableau de bord Base44. Cette liste est informative : elle ne donne aucun droit par elle-même.
+
+## Déploiement sur Cloudflare Workers (hors plateforme Base44)
+
+Sur Base44, la plateforme ajoute à chaque requête les en-têtes `Base44-App-Id`, `Base44-Api-Url`, etc.
+Sur Cloudflare ils n'existent pas : `src/lib/base44-client.server.js` construit alors le client à partir
+de la configuration ci-dessous. Sans elle, le serveur répond « Base44-App-Id header is required ».
+
+À définir dans Cloudflare (Workers > projet > Settings > Variables and Secrets, **et** dans
+Settings > Build > Variables and secrets, car les variables `VITE_*` sont lues au moment du build) :
+
+| Nom | Type | Rôle |
+| --- | --- | --- |
+| `VITE_BASE44_APP_ID` | variable de **build** | identifiant de l'app Base44 (24 caractères hexadécimaux) |
+| `VITE_BASE44_SERVER_URL` | variable de **build** | `https://base44.app` (API Base44 appelée par le navigateur et le serveur) |
+| `BASE44_SERVICE_TOKEN` | **secret** du Worker, optionnel | jeton « service role », requis uniquement par les fonctions admin/paiement (`asServiceRole`) |
+
+Build command : `npm run build` · Deploy command : `npx wrangler deploy`.
+Sur Base44 (`base44 deploy`) rien de tout cela n'est nécessaire : le comportement est inchangé.

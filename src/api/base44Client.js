@@ -3,4 +3,4 @@ import { getAppParams } from "@/lib/app-params";
 
 const { appId, token, functionsVersion, appBaseUrl } = getAppParams();
 
-export const base44 = createClient({ appId, token: token ?? undefined, functionsVersion, serverUrl: "", appBaseUrl });
+export const base44 = createClient({ appId, token: token ?? undefined, functionsVersion, serverUrl: import.meta.env.VITE_BASE44_SERVER_URL ?? "", appBaseUrl });

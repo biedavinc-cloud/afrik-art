@@ -1,4 +1,5 @@
-import { createClientFromRequest, getAccessToken } from "@base44/sdk";
+import { getAccessToken } from "@base44/sdk";
+import { createBase44ClientForRequest } from "@/lib/base44-client.server";
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest, setResponseStatus } from "@tanstack/react-start/server";
 
@@ -9,7 +10,7 @@ import { getRequest, setResponseStatus } from "@tanstack/react-start/server";
 // visitor's Authorization header makes the client act as that visitor.
 const withGetBase44 = (next, request = getRequest()) => {
   let client;
-  return next({ context: { getBase44: () => (client ??= createClientFromRequest(request)) } });
+  return next({ context: { getBase44: () => (client ??= createBase44ClientForRequest(request)) } });
 };
 
 // Applied to every server function by src/start.js: sends the visitor's Base44

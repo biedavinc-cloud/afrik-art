@@ -2,10 +2,11 @@ import { base44 } from "@/api/base44Client";
 import { getAppParams } from "@/lib/app-params";
 
 const appId = () => getAppParams().appId;
+const API_BASE = import.meta.env.VITE_BASE44_SERVER_URL ?? "";
 
 function authPath(suffix) {
   if (!/^[a-f0-9]{24}$/i.test(appId())) throw new Error("Invalid app ID");
-  return `/api/apps/${appId()}/auth/${suffix}`;
+  return `${API_BASE}/api/apps/${appId()}/auth/${suffix}`;
 }
 
 async function post(suffix, body, token) {
@@ -39,7 +40,7 @@ export async function continueMfa(result, returnTo) {
 
 // provider: "google" | "microsoft" | "facebook" | "apple"
 export async function loginWithSocial(provider, returnTo) {
-  const response = await fetch(`/api/apps/public/login-info/by-id/${appId()}`);
+  const response = await fetch(`${API_BASE}/api/apps/public/login-info/by-id/${appId()}`);
   if (!response.ok) throw new Error("Unable to load sign-in options");
   const info = await response.json();
   if (info.auth_config?.mfa_policy !== "required") return base44.auth.loginWithProvider(provider, returnTo);
