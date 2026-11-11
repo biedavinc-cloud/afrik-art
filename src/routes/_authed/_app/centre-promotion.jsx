@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Check, Loader2, Megaphone, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Image } from "@/components/ui/image";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { BOOST_PACKAGES } from "@/lib/plans";
 import { requestBoost } from "@/lib/server-fns";
 import { useAuth } from "@/lib/AuthContext";
@@ -30,13 +30,13 @@ function PromotionCenterPage() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const profiles = asItems(await base44.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 }));
+      const profiles = asItems(await api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 }));
       const p = profiles[0] || null;
       setProfile(p);
       if (p) {
         const [arts, pr] = await Promise.all([
-          base44.entities.Artwork.filter({ profile_id: p.id }, { sort: "sort", limit: 60 }),
-          base44.entities.Promotion.filter({ profile_id: p.id }, { sort: "-created_date", limit: 20 }),
+          api.entities.Artwork.filter({ profile_id: p.id }, { sort: "sort", limit: 60 }),
+          api.entities.Promotion.filter({ profile_id: p.id }, { sort: "-created_date", limit: 20 }),
         ]);
         setArtworks(asItems(arts));
         setPromos(asItems(pr));
@@ -58,7 +58,7 @@ function PromotionCenterPage() {
         artworks.map((art) => {
           const index = selected.indexOf(art.id);
           const sort = index === -1 ? 100 + artworks.indexOf(art) : index;
-          return sort === art.sort ? null : base44.entities.Artwork.update(art.id, { sort });
+          return sort === art.sort ? null : api.entities.Artwork.update(art.id, { sort });
         })
       );
       toast.success("Sélection enregistrée : ces œuvres apparaissent en premier.");
@@ -75,7 +75,7 @@ function PromotionCenterPage() {
     try {
       const res = await requestBoost({ data: { profileId: profile.id, hours } });
       toast.success(`Mise en avant demandée — ${res.price} USD. Activation après paiement.`);
-      const pr = await base44.entities.Promotion.filter(
+      const pr = await api.entities.Promotion.filter(
         { profile_id: profile.id },
         { sort: "-created_date", limit: 20 }
       );

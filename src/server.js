@@ -1,13 +1,12 @@
-// Base44 managed file: error-capture v1. Keep it as it is, and keep it as `main` in wrangler.jsonc; Base44
-// replaces it with newer versions. The Worker's entry: TanStack Start's default one, which also reports a
-// page's loader and beforeLoad errors to Base44. What a visitor gets back is unchanged.
+// Point d'entrée du Worker : le gestionnaire standard de TanStack Start. Les erreurs de chargement
+// d'une page sont écrites dans les logs Cloudflare (Workers > Observabilité) ; le visiteur reçoit la même réponse.
 import { createStartHandler, defaultStreamHandler } from "@tanstack/react-start/server";
-import { recordRouteError } from "@/lib/error-capture.server";
 
-// Runs once the router has loaded the page.
 const handler = createStartHandler((ctx) => {
   for (const match of ctx.router.state.matches) {
-    if (match.status === "error") recordRouteError(ctx.request, match.error, match.routeId);
+    if (match.status === "error") {
+      console.error(`[route] ${match.routeId} :`, match.error?.stack || match.error);
+    }
   }
   return defaultStreamHandler(ctx);
 });

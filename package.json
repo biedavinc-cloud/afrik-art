@@ -1,5 +1,5 @@
 {
-  "name": "base44-tanstack-app",
+  "name": "afrik-art",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,8 +11,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@base44/sdk": "^0.8.59",
-    "@base44/vite-plugin": "^1.0.52",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.9.1",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -44,9 +42,6 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@stripe/react-stripe-js": "^3.10.0",
     "@stripe/stripe-js": "^5.2.0",
-    "@tanstack/ai": "^0.54.0",
-    "@tanstack/ai-openai": "^0.22.6",
-    "@tanstack/ai-react": "^0.24.1",
     "@tanstack/react-query": "^5.84.1",
     "@tanstack/react-router": "^1.170.0",
     "@tanstack/react-router-ssr-query": "1.167.3",

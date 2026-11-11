@@ -6,7 +6,6 @@ import CookieConsent from "@/components/CookieConsent";
 import StructuredData from "@/components/seo/StructuredData";
 import { AuthProvider } from "@/lib/AuthContext";
 import { LanguageProvider } from "@/lib/i18n";
-import { Base44Scripts } from "base44:document";
 import appCss from "@/index.css?url";
 
 export const Route = createRootRoute({
@@ -67,7 +66,6 @@ function RootDocument({ children }) {
       <body data-react-root="true">
         {children}
         <StructuredData />
-        <Base44Scripts />
         <Scripts />
       </body>
     </html>

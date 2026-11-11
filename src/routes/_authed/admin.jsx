@@ -99,9 +99,7 @@ function AdminLayout() {
               {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
             <Link to="/admin" className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-foreground text-[11px] font-semibold text-background">
-                AA
-              </span>
+              <img src="/logo.png" alt="Afrik Art" width="32" height="32" className="h-8 w-8 object-contain" />
               <span className="text-[13.5px] font-medium">Afrik Art</span>
             </Link>
             <span className="hidden h-5 w-px bg-border sm:block" />

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Image } from "@/components/ui/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,8 +30,8 @@ function PortfolioPage() {
   async function load() {
     if (!profile) return;
     const [artRes, planRes] = await Promise.all([
-      base44.entities.Artwork.filter({ profile_id: profile.id }, { limit: 300, sort: "sort" }),
-      base44.entities.PlanConfig.list({ limit: 20 }),
+      api.entities.Artwork.filter({ profile_id: profile.id }, { limit: 300, sort: "sort" }),
+      api.entities.PlanConfig.list({ limit: 20 }),
     ]);
     const arts = Array.isArray(artRes) ? artRes : artRes?.items || [];
     const plans = Array.isArray(planRes) ? planRes : planRes?.items || [];
@@ -63,8 +63,8 @@ function PortfolioPage() {
           toast.error(`${file.name} dépasse 10 Mo et a été ignoré.`);
           continue;
         }
-        const res = await base44.integrations.Core.UploadPublicFile({ file });
-        await base44.entities.Artwork.create({
+        const res = await api.integrations.Core.UploadPublicFile({ file });
+        await api.entities.Artwork.create({
           profile_id: profile.id,
           owner_user_id: profile.user_id || "",
           title: file.name.replace(/\.[^.]+$/, ""),
@@ -86,7 +86,7 @@ function PortfolioPage() {
 
   async function remove(id) {
     if (!window.confirm("Supprimer définitivement ce média ?")) return;
-    await base44.entities.Artwork.delete(id);
+    await api.entities.Artwork.delete(id);
     setArtworks((a) => a.filter((x) => x.id !== id));
     toast.success("Média supprimé.");
   }
@@ -200,7 +200,7 @@ function AddVideoDialog({ profile, onAdded, remaining = 0, limit = 3 }) {
     }
     setBusy(true);
     try {
-      await base44.entities.Artwork.create({
+      await api.entities.Artwork.create({
         profile_id: profile.id,
         owner_user_id: profile.user_id || "",
         title: form.title,

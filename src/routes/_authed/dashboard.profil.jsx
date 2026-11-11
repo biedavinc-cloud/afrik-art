@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import ImageUpload from "@/components/dashboard/ImageUpload";
 import ProfileFields from "@/components/dashboard/ProfileFields";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
@@ -10,8 +10,8 @@ import { useDashboard } from "@/components/dashboard/DashboardContext";
 export const Route = createFileRoute("/_authed/dashboard/profil")({
   loader: async () => {
     const [catRes, planRes] = await Promise.all([
-      base44.entities.Category.list({ sort: "sort", limit: 60 }),
-      base44.entities.PlanConfig.list({ limit: 20 }),
+      api.entities.Category.list({ sort: "sort", limit: 60 }),
+      api.entities.PlanConfig.list({ limit: 20 }),
     ]);
     const toItems = (r) => (Array.isArray(r) ? r : r?.items || []);
     return {
@@ -41,7 +41,7 @@ function ProfilePage() {
     e.preventDefault();
     setBusy(true);
     try {
-      await base44.entities.ArtistProfile.update(profile.id, {
+      await api.entities.ArtistProfile.update(profile.id, {
         display_name: form.display_name,
         tagline: form.tagline,
         bio: form.bio,

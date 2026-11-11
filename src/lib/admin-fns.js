@@ -14,11 +14,11 @@ export const getSuperadminUsers = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
     assertAdmin(context);
-    const base44 = context.getBase44();
+    const api = context.getApi();
 
     const [users, profilesRes] = await Promise.all([
-      base44.entities.User.list(),
-      base44.entities.ArtistProfile.list({ limit: 500 }),
+      api.entities.User.list(),
+      api.entities.ArtistProfile.list({ limit: 500 }),
     ]);
 
     const byUser = new Map(asPage(profilesRes).map((p) => [p.user_id, p]));
@@ -69,7 +69,7 @@ export const setUserRole = createServerFn({ method: "POST" })
       throw new Error("Vous ne pouvez pas retirer votre propre rôle superadmin.");
     }
     await context
-      .getBase44()
+      .getApi()
       .asServiceRole.entities.User.update(data.userId, { role: data.role });
     return { ok: true };
   });
@@ -84,7 +84,7 @@ export const inviteAppUser = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     assertAdmin(context);
-    await context.getBase44().asServiceRole.users.inviteUser(data.email, data.role);
+    await context.getApi().asServiceRole.users.inviteUser(data.email, data.role);
     return { ok: true };
   });
 
@@ -92,12 +92,12 @@ export const getSuperadminPayments = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
     assertAdmin(context);
-    const base44 = context.getBase44();
+    const api = context.getApi();
 
     const [paymentsRes, subsRes, promosRes] = await Promise.all([
-      base44.entities.Payment.list({ limit: 300, sort: "-created_date" }),
-      base44.entities.Subscription.list({ limit: 300 }),
-      base44.entities.Promotion.list({ limit: 300 }),
+      api.entities.Payment.list({ limit: 300, sort: "-created_date" }),
+      api.entities.Subscription.list({ limit: 300 }),
+      api.entities.Promotion.list({ limit: 300 }),
     ]);
 
     const payments = asPage(paymentsRes).map((p) => {
@@ -143,43 +143,43 @@ export const settlePayment = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     assertAdmin(context);
-    const base44 = context.getBase44().asServiceRole;
-    const payment = await base44.entities.Payment.get(data.paymentId);
+    const api = context.getApi().asServiceRole;
+    const payment = await api.entities.Payment.get(data.paymentId);
     const now = new Date();
 
     if (data.outcome === "failed") {
-      await base44.entities.Payment.update(payment.id, { status: "failed" });
+      await api.entities.Payment.update(payment.id, { status: "failed" });
 
       if (payment.type === "subscription" && payment.reference_id) {
-        await base44.entities.Subscription.update(payment.reference_id, {
+        await api.entities.Subscription.update(payment.reference_id, {
           status: "canceled",
         });
       }
       if (payment.type === "boost" && payment.reference_id) {
-        await base44.entities.Promotion.update(payment.reference_id, {
+        await api.entities.Promotion.update(payment.reference_id, {
           status: "canceled",
         });
       }
       return { ok: true, status: "failed" };
     }
 
-    await base44.entities.Payment.update(payment.id, {
+    await api.entities.Payment.update(payment.id, {
       status: "paid",
       paid_at: now.toISOString(),
     });
 
     if (payment.type === "subscription" && payment.reference_id) {
-      const sub = await base44.entities.Subscription.get(payment.reference_id);
+      const sub = await api.entities.Subscription.get(payment.reference_id);
       const ends = new Date(now.getTime() + 30 * 24 * 3600 * 1000);
 
-      await base44.entities.Subscription.update(sub.id, {
+      await api.entities.Subscription.update(sub.id, {
         status: "active",
         started_at: now.toISOString(),
         ends_at: ends.toISOString(),
       });
 
       if (sub.profile_id) {
-        await base44.entities.ArtistProfile.update(sub.profile_id, {
+        await api.entities.ArtistProfile.update(sub.profile_id, {
           plan: sub.plan,
           plan_status: "active",
           plan_ends_at: ends.toISOString(),
@@ -188,17 +188,17 @@ export const settlePayment = createServerFn({ method: "POST" })
     }
 
     if (payment.type === "boost" && payment.reference_id) {
-      const promo = await base44.entities.Promotion.get(payment.reference_id);
+      const promo = await api.entities.Promotion.get(payment.reference_id);
       const ends = new Date(now.getTime() + (promo.duration_hours || 24) * 3600 * 1000);
 
-      await base44.entities.Promotion.update(promo.id, {
+      await api.entities.Promotion.update(promo.id, {
         status: "active",
         starts_at: now.toISOString(),
         ends_at: ends.toISOString(),
       });
 
       if (promo.profile_id) {
-        await base44.entities.ArtistProfile.update(promo.profile_id, {
+        await api.entities.ArtistProfile.update(promo.profile_id, {
           featured_until: ends.toISOString(),
         });
       }

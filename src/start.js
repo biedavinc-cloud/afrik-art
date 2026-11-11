@@ -1,10 +1,9 @@
 import { createStart } from "@tanstack/react-start";
-import { authMiddleware, base44RequestMiddleware } from "@/lib/auth-middleware";
-import { errorCaptureFunctionMiddleware, errorCaptureRequestMiddleware } from "@/lib/error-capture";
+import { apiRequestMiddleware, authMiddleware, csrfMiddleware } from "@/lib/auth-middleware";
 
-// Every server function and server route gets `context.getBase44()`, acting as the visitor.
-// Error capture goes first, so it sees what the other middlewares and the handlers throw.
+// Chaque fonction serveur et chaque route serveur reçoit `context.getApi()`, avec les droits du visiteur.
+// Le contrôle CSRF passe en premier.
 export const startInstance = createStart(() => ({
-  requestMiddleware: [errorCaptureRequestMiddleware, base44RequestMiddleware],
-  functionMiddleware: [errorCaptureFunctionMiddleware, authMiddleware],
+  requestMiddleware: [csrfMiddleware, apiRequestMiddleware],
+  functionMiddleware: [authMiddleware],
 }));

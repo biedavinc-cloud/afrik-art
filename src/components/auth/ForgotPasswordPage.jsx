@@ -1,6 +1,6 @@
 import { ArrowLeft, Mail } from "lucide-react";
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthLink, SubmitButton } from "@/components/auth/parts";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ export function ForgotPasswordPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      await base44.auth.resetPasswordRequest(email);
+      await api.auth.resetPasswordRequest(email);
     } catch {
       // Same outcome either way.
     } finally {

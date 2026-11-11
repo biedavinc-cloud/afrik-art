@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { BadgeCheck, Ban, CheckCircle2, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,7 +22,7 @@ function AdminArtists() {
   const [q, setQ] = useState("");
 
   const load = useCallback(async () => {
-    const res = await base44.entities.ArtistProfile.list({ sort: "-created_date", limit: 300 });
+    const res = await api.entities.ArtistProfile.list({ sort: "-created_date", limit: 300 });
     setItems(Array.isArray(res) ? res : res?.items || []);
     setLoading(false);
   }, []);
@@ -32,7 +32,7 @@ function AdminArtists() {
   }, [load]);
 
   async function update(id, patch) {
-    await base44.entities.ArtistProfile.update(id, patch);
+    await api.entities.ArtistProfile.update(id, patch);
     setItems((all) => all.map((p) => (p.id === id ? { ...p, ...patch } : p)));
     toast.success("Profil mis à jour.");
   }

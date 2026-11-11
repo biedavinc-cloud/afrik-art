@@ -13,7 +13,6 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as MfaRouteImport } from './routes/mfa'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthedAppRouteImport } from './routes/_authed/_app'
@@ -21,6 +20,7 @@ import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedOnboardingRouteImport } from './routes/_authed/onboarding'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteActualitesRouteImport } from './routes/_site/actualites'
 import { Route as SiteCategoriesRouteImport } from './routes/_site/categories'
 import { Route as SiteConditionsRouteImport } from './routes/_site/conditions'
 import { Route as SiteConfidentialiteRouteImport } from './routes/_site/confidentialite'
@@ -35,8 +35,9 @@ import { Route as SiteRechercheRouteImport } from './routes/_site/recherche'
 import { Route as SiteSupportRouteImport } from './routes/_site/support'
 import { Route as SiteTarifsRouteImport } from './routes/_site/tarifs'
 import { Route as SiteTopArtistesRouteImport } from './routes/_site/top-artistes'
-import { Route as ApiProbeRouteImport } from './routes/api/probe'
-import { Route as ApiTimeRouteImport } from './routes/api/time'
+import { Route as ApiDbRouteImport } from './routes/api/db'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as FilesSplatRouteImport } from './routes/files.$'
 import { Route as AuthedAppBlogRouteImport } from './routes/_authed/_app/blog'
 import { Route as AuthedAppCentrePromotionRouteImport } from './routes/_authed/_app/centre-promotion'
 import { Route as AuthedAppFacturesRouteImport } from './routes/_authed/_app/factures'
@@ -60,6 +61,8 @@ import { Route as AuthedDashboardVisibiliteRouteImport } from './routes/_authed/
 import { Route as SiteActualitesIndexRouteImport } from './routes/_site/actualites.index'
 import { Route as SiteActualitesSlugRouteImport } from './routes/_site/actualites.$slug'
 import { Route as SiteTalentsSlugRouteImport } from './routes/_site/talents.$slug'
+import { Route as ApiAuthActionRouteImport } from './routes/api/auth.$action'
+import { Route as ApiFilesUploadRouteImport } from './routes/api/files.upload'
 
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
@@ -77,11 +80,6 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MfaRoute = MfaRouteImport.update({
-  id: '/mfa',
-  path: '/mfa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -116,6 +114,11 @@ const AuthedOnboardingRoute = AuthedOnboardingRouteImport.update({
 const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteActualitesRoute = SiteActualitesRouteImport.update({
+  id: '/actualites',
+  path: '/actualites',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteCategoriesRoute = SiteCategoriesRouteImport.update({
@@ -188,14 +191,19 @@ const SiteTopArtistesRoute = SiteTopArtistesRouteImport.update({
   path: '/top-artistes',
   getParentRoute: () => SiteRoute,
 } as any)
-const ApiProbeRoute = ApiProbeRouteImport.update({
-  id: '/api/probe',
-  path: '/api/probe',
+const ApiDbRoute = ApiDbRouteImport.update({
+  id: '/api/db',
+  path: '/api/db',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiTimeRoute = ApiTimeRouteImport.update({
-  id: '/api/time',
-  path: '/api/time',
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FilesSplatRoute = FilesSplatRouteImport.update({
+  id: '/files/$',
+  path: '/files/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedAppBlogRoute = AuthedAppBlogRouteImport.update({
@@ -303,31 +311,41 @@ const AuthedDashboardVisibiliteRoute =
     getParentRoute: () => AuthedDashboardRoute,
   } as any)
 const SiteActualitesIndexRoute = SiteActualitesIndexRouteImport.update({
-  id: '/actualites/',
-  path: '/actualites/',
-  getParentRoute: () => SiteRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => SiteActualitesRoute,
 } as any)
 const SiteActualitesSlugRoute = SiteActualitesSlugRouteImport.update({
-  id: '/actualites/$slug',
-  path: '/actualites/$slug',
-  getParentRoute: () => SiteRoute,
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SiteActualitesRoute,
 } as any)
 const SiteTalentsSlugRoute = SiteTalentsSlugRouteImport.update({
   id: '/talents/$slug',
   path: '/talents/$slug',
   getParentRoute: () => SiteRoute,
 } as any)
+const ApiAuthActionRoute = ApiAuthActionRouteImport.update({
+  id: '/api/auth/$action',
+  path: '/api/auth/$action',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFilesUploadRoute = ApiFilesUploadRouteImport.update({
+  id: '/api/files/upload',
+  path: '/api/files/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
-  '/mfa': typeof MfaRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthedAdminRouteWithChildren
   '/dashboard': typeof AuthedDashboardRouteWithChildren
   '/onboarding': typeof AuthedOnboardingRoute
+  '/actualites': typeof SiteActualitesRouteWithChildren
   '/categories': typeof SiteCategoriesRoute
   '/conditions': typeof SiteConditionsRoute
   '/confidentialite': typeof SiteConfidentialiteRoute
@@ -342,8 +360,9 @@ export interface FileRoutesByFullPath {
   '/support': typeof SiteSupportRoute
   '/tarifs': typeof SiteTarifsRoute
   '/top-artistes': typeof SiteTopArtistesRoute
-  '/api/probe': typeof ApiProbeRoute
-  '/api/time': typeof ApiTimeRoute
+  '/api/db': typeof ApiDbRoute
+  '/api/health': typeof ApiHealthRoute
+  '/files/$': typeof FilesSplatRoute
   '/blog': typeof AuthedAppBlogRoute
   '/centre-promotion': typeof AuthedAppCentrePromotionRoute
   '/factures': typeof AuthedAppFacturesRoute
@@ -364,6 +383,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/visibilite': typeof AuthedDashboardVisibiliteRoute
   '/actualites/$slug': typeof SiteActualitesSlugRoute
   '/talents/$slug': typeof SiteTalentsSlugRoute
+  '/api/auth/$action': typeof ApiAuthActionRoute
+  '/api/files/upload': typeof ApiFilesUploadRoute
   '/admin/': typeof AuthedAdminIndexRoute
   '/dashboard/': typeof AuthedDashboardIndexRoute
   '/actualites/': typeof SiteActualitesIndexRoute
@@ -372,7 +393,6 @@ export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
-  '/mfa': typeof MfaRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/onboarding': typeof AuthedOnboardingRoute
@@ -390,8 +410,9 @@ export interface FileRoutesByTo {
   '/support': typeof SiteSupportRoute
   '/tarifs': typeof SiteTarifsRoute
   '/top-artistes': typeof SiteTopArtistesRoute
-  '/api/probe': typeof ApiProbeRoute
-  '/api/time': typeof ApiTimeRoute
+  '/api/db': typeof ApiDbRoute
+  '/api/health': typeof ApiHealthRoute
+  '/files/$': typeof FilesSplatRoute
   '/blog': typeof AuthedAppBlogRoute
   '/centre-promotion': typeof AuthedAppCentrePromotionRoute
   '/factures': typeof AuthedAppFacturesRoute
@@ -412,6 +433,8 @@ export interface FileRoutesByTo {
   '/dashboard/visibilite': typeof AuthedDashboardVisibiliteRoute
   '/actualites/$slug': typeof SiteActualitesSlugRoute
   '/talents/$slug': typeof SiteTalentsSlugRoute
+  '/api/auth/$action': typeof ApiAuthActionRoute
+  '/api/files/upload': typeof ApiFilesUploadRoute
   '/admin': typeof AuthedAdminIndexRoute
   '/dashboard': typeof AuthedDashboardIndexRoute
   '/actualites': typeof SiteActualitesIndexRoute
@@ -422,13 +445,13 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
-  '/mfa': typeof MfaRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authed/_app': typeof AuthedAppRouteWithChildren
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
   '/_authed/dashboard': typeof AuthedDashboardRouteWithChildren
   '/_authed/onboarding': typeof AuthedOnboardingRoute
+  '/_site/actualites': typeof SiteActualitesRouteWithChildren
   '/_site/categories': typeof SiteCategoriesRoute
   '/_site/conditions': typeof SiteConditionsRoute
   '/_site/confidentialite': typeof SiteConfidentialiteRoute
@@ -443,8 +466,9 @@ export interface FileRoutesById {
   '/_site/support': typeof SiteSupportRoute
   '/_site/tarifs': typeof SiteTarifsRoute
   '/_site/top-artistes': typeof SiteTopArtistesRoute
-  '/api/probe': typeof ApiProbeRoute
-  '/api/time': typeof ApiTimeRoute
+  '/api/db': typeof ApiDbRoute
+  '/api/health': typeof ApiHealthRoute
+  '/files/$': typeof FilesSplatRoute
   '/_site/': typeof SiteIndexRoute
   '/_authed/_app/blog': typeof AuthedAppBlogRoute
   '/_authed/_app/centre-promotion': typeof AuthedAppCentrePromotionRoute
@@ -466,6 +490,8 @@ export interface FileRoutesById {
   '/_authed/dashboard/visibilite': typeof AuthedDashboardVisibiliteRoute
   '/_site/actualites/$slug': typeof SiteActualitesSlugRoute
   '/_site/talents/$slug': typeof SiteTalentsSlugRoute
+  '/api/auth/$action': typeof ApiAuthActionRoute
+  '/api/files/upload': typeof ApiFilesUploadRoute
   '/_authed/admin/': typeof AuthedAdminIndexRoute
   '/_authed/dashboard/': typeof AuthedDashboardIndexRoute
   '/_site/actualites/': typeof SiteActualitesIndexRoute
@@ -476,12 +502,12 @@ export interface FileRouteTypes {
     | '/'
     | '/forgot-password'
     | '/login'
-    | '/mfa'
     | '/register'
     | '/reset-password'
     | '/admin'
     | '/dashboard'
     | '/onboarding'
+    | '/actualites'
     | '/categories'
     | '/conditions'
     | '/confidentialite'
@@ -496,8 +522,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/tarifs'
     | '/top-artistes'
-    | '/api/probe'
-    | '/api/time'
+    | '/api/db'
+    | '/api/health'
+    | '/files/$'
     | '/blog'
     | '/centre-promotion'
     | '/factures'
@@ -518,6 +545,8 @@ export interface FileRouteTypes {
     | '/dashboard/visibilite'
     | '/actualites/$slug'
     | '/talents/$slug'
+    | '/api/auth/$action'
+    | '/api/files/upload'
     | '/admin/'
     | '/dashboard/'
     | '/actualites/'
@@ -526,7 +555,6 @@ export interface FileRouteTypes {
     | '/'
     | '/forgot-password'
     | '/login'
-    | '/mfa'
     | '/register'
     | '/reset-password'
     | '/onboarding'
@@ -544,8 +572,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/tarifs'
     | '/top-artistes'
-    | '/api/probe'
-    | '/api/time'
+    | '/api/db'
+    | '/api/health'
+    | '/files/$'
     | '/blog'
     | '/centre-promotion'
     | '/factures'
@@ -566,6 +595,8 @@ export interface FileRouteTypes {
     | '/dashboard/visibilite'
     | '/actualites/$slug'
     | '/talents/$slug'
+    | '/api/auth/$action'
+    | '/api/files/upload'
     | '/admin'
     | '/dashboard'
     | '/actualites'
@@ -575,13 +606,13 @@ export interface FileRouteTypes {
     | '/_site'
     | '/forgot-password'
     | '/login'
-    | '/mfa'
     | '/register'
     | '/reset-password'
     | '/_authed/_app'
     | '/_authed/admin'
     | '/_authed/dashboard'
     | '/_authed/onboarding'
+    | '/_site/actualites'
     | '/_site/categories'
     | '/_site/conditions'
     | '/_site/confidentialite'
@@ -596,8 +627,9 @@ export interface FileRouteTypes {
     | '/_site/support'
     | '/_site/tarifs'
     | '/_site/top-artistes'
-    | '/api/probe'
-    | '/api/time'
+    | '/api/db'
+    | '/api/health'
+    | '/files/$'
     | '/_site/'
     | '/_authed/_app/blog'
     | '/_authed/_app/centre-promotion'
@@ -619,6 +651,8 @@ export interface FileRouteTypes {
     | '/_authed/dashboard/visibilite'
     | '/_site/actualites/$slug'
     | '/_site/talents/$slug'
+    | '/api/auth/$action'
+    | '/api/files/upload'
     | '/_authed/admin/'
     | '/_authed/dashboard/'
     | '/_site/actualites/'
@@ -629,11 +663,13 @@ export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
-  MfaRoute: typeof MfaRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  ApiProbeRoute: typeof ApiProbeRoute
-  ApiTimeRoute: typeof ApiTimeRoute
+  ApiDbRoute: typeof ApiDbRoute
+  ApiHealthRoute: typeof ApiHealthRoute
+  FilesSplatRoute: typeof FilesSplatRoute
+  ApiAuthActionRoute: typeof ApiAuthActionRoute
+  ApiFilesUploadRoute: typeof ApiFilesUploadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -664,13 +700,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mfa': {
-      id: '/mfa'
-      path: '/mfa'
-      fullPath: '/mfa'
-      preLoaderRoute: typeof MfaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -720,6 +749,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof SiteIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/actualites': {
+      id: '/_site/actualites'
+      path: '/actualites'
+      fullPath: '/actualites'
+      preLoaderRoute: typeof SiteActualitesRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/categories': {
@@ -820,18 +856,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteTopArtistesRouteImport
       parentRoute: typeof SiteRoute
     }
-    '/api/probe': {
-      id: '/api/probe'
-      path: '/api/probe'
-      fullPath: '/api/probe'
-      preLoaderRoute: typeof ApiProbeRouteImport
+    '/api/db': {
+      id: '/api/db'
+      path: '/api/db'
+      fullPath: '/api/db'
+      preLoaderRoute: typeof ApiDbRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/time': {
-      id: '/api/time'
-      path: '/api/time'
-      fullPath: '/api/time'
-      preLoaderRoute: typeof ApiTimeRouteImport
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/files/$': {
+      id: '/files/$'
+      path: '/files/$'
+      fullPath: '/files/$'
+      preLoaderRoute: typeof FilesSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/_app/blog': {
@@ -976,17 +1019,17 @@ declare module '@tanstack/react-router' {
     }
     '/_site/actualites/': {
       id: '/_site/actualites/'
-      path: '/actualites'
+      path: '/'
       fullPath: '/actualites/'
       preLoaderRoute: typeof SiteActualitesIndexRouteImport
-      parentRoute: typeof SiteRoute
+      parentRoute: typeof SiteActualitesRoute
     }
     '/_site/actualites/$slug': {
       id: '/_site/actualites/$slug'
-      path: '/actualites/$slug'
+      path: '/$slug'
       fullPath: '/actualites/$slug'
       preLoaderRoute: typeof SiteActualitesSlugRouteImport
-      parentRoute: typeof SiteRoute
+      parentRoute: typeof SiteActualitesRoute
     }
     '/_site/talents/$slug': {
       id: '/_site/talents/$slug'
@@ -994,6 +1037,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/talents/$slug'
       preLoaderRoute: typeof SiteTalentsSlugRouteImport
       parentRoute: typeof SiteRoute
+    }
+    '/api/auth/$action': {
+      id: '/api/auth/$action'
+      path: '/api/auth/$action'
+      fullPath: '/api/auth/$action'
+      preLoaderRoute: typeof ApiAuthActionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/files/upload': {
+      id: '/api/files/upload'
+      path: '/api/files/upload'
+      fullPath: '/api/files/upload'
+      preLoaderRoute: typeof ApiFilesUploadRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -1085,7 +1142,22 @@ const AuthedRouteChildren: AuthedRouteChildren = {
 const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
+interface SiteActualitesRouteChildren {
+  SiteActualitesSlugRoute: typeof SiteActualitesSlugRoute
+  SiteActualitesIndexRoute: typeof SiteActualitesIndexRoute
+}
+
+const SiteActualitesRouteChildren: SiteActualitesRouteChildren = {
+  SiteActualitesSlugRoute: SiteActualitesSlugRoute,
+  SiteActualitesIndexRoute: SiteActualitesIndexRoute,
+}
+
+const SiteActualitesRouteWithChildren = SiteActualitesRoute._addFileChildren(
+  SiteActualitesRouteChildren,
+)
+
 interface SiteRouteChildren {
+  SiteActualitesRoute: typeof SiteActualitesRouteWithChildren
   SiteCategoriesRoute: typeof SiteCategoriesRoute
   SiteConditionsRoute: typeof SiteConditionsRoute
   SiteConfidentialiteRoute: typeof SiteConfidentialiteRoute
@@ -1101,12 +1173,11 @@ interface SiteRouteChildren {
   SiteTarifsRoute: typeof SiteTarifsRoute
   SiteTopArtistesRoute: typeof SiteTopArtistesRoute
   SiteIndexRoute: typeof SiteIndexRoute
-  SiteActualitesSlugRoute: typeof SiteActualitesSlugRoute
   SiteTalentsSlugRoute: typeof SiteTalentsSlugRoute
-  SiteActualitesIndexRoute: typeof SiteActualitesIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteActualitesRoute: SiteActualitesRouteWithChildren,
   SiteCategoriesRoute: SiteCategoriesRoute,
   SiteConditionsRoute: SiteConditionsRoute,
   SiteConfidentialiteRoute: SiteConfidentialiteRoute,
@@ -1122,9 +1193,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteTarifsRoute: SiteTarifsRoute,
   SiteTopArtistesRoute: SiteTopArtistesRoute,
   SiteIndexRoute: SiteIndexRoute,
-  SiteActualitesSlugRoute: SiteActualitesSlugRoute,
   SiteTalentsSlugRoute: SiteTalentsSlugRoute,
-  SiteActualitesIndexRoute: SiteActualitesIndexRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
@@ -1134,11 +1203,13 @@ const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
-  MfaRoute: MfaRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  ApiProbeRoute: ApiProbeRoute,
-  ApiTimeRoute: ApiTimeRoute,
+  ApiDbRoute: ApiDbRoute,
+  ApiHealthRoute: ApiHealthRoute,
+  FilesSplatRoute: FilesSplatRoute,
+  ApiAuthActionRoute: ApiAuthActionRoute,
+  ApiFilesUploadRoute: ApiFilesUploadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

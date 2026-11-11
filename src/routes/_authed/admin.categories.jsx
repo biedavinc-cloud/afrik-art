@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { slugify } from "@/lib/slug";
@@ -17,7 +17,7 @@ function AdminCategories() {
   const [form, setForm] = useState({ name: "", description: "", icon: "sparkles" });
 
   const load = useCallback(async () => {
-    const res = await base44.entities.Category.list({ sort: "sort", limit: 100 });
+    const res = await api.entities.Category.list({ sort: "sort", limit: 100 });
     setItems(Array.isArray(res) ? res : res?.items || []);
     setLoading(false);
   }, []);
@@ -30,7 +30,7 @@ function AdminCategories() {
     e.preventDefault();
     if (!form.name.trim()) return;
     try {
-      await base44.entities.Category.create({
+      await api.entities.Category.create({
         name: form.name.trim(),
         slug: slugify(form.name),
         description: form.description,
@@ -47,13 +47,13 @@ function AdminCategories() {
   }
 
   async function toggle(item) {
-    await base44.entities.Category.update(item.id, { active: !item.active });
+    await api.entities.Category.update(item.id, { active: !item.active });
     setItems((all) => all.map((c) => (c.id === item.id ? { ...c, active: !c.active } : c)));
   }
 
   async function remove(item) {
     if (!window.confirm(`Supprimer la catégorie « ${item.name} » ?`)) return;
-    await base44.entities.Category.delete(item.id);
+    await api.entities.Category.delete(item.id);
     setItems((all) => all.filter((c) => c.id !== item.id));
     toast.success("Catégorie supprimée.");
   }

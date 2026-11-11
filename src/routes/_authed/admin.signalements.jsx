@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 
 export const Route = createFileRoute("/_authed/admin/signalements")({
   component: AdminReports,
@@ -21,7 +21,7 @@ function AdminReports() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const res = await base44.entities.Report.list({ sort: "-created_date", limit: 100 });
+    const res = await api.entities.Report.list({ sort: "-created_date", limit: 100 });
     setItems(Array.isArray(res) ? res : res?.items || []);
     setLoading(false);
   }, []);
@@ -31,14 +31,14 @@ function AdminReports() {
   }, [load]);
 
   async function setStatus(id, status) {
-    await base44.entities.Report.update(id, { status });
+    await api.entities.Report.update(id, { status });
     setItems((all) => all.map((r) => (r.id === id ? { ...r, status } : r)));
     toast.success("Signalement mis à jour.");
   }
 
   async function suspend(profileId) {
     if (!profileId) return;
-    await base44.entities.ArtistProfile.update(profileId, { status: "suspended" });
+    await api.entities.ArtistProfile.update(profileId, { status: "suspended" });
     toast.success("Profil suspendu.");
   }
 

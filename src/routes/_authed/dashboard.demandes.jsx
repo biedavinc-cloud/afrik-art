@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Archive, Loader2, Mail, MailOpen } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 
 export const Route = createFileRoute("/_authed/dashboard/demandes")({
@@ -26,7 +26,7 @@ function RequestsPage() {
 
   const load = useCallback(async () => {
     if (!user) return;
-    const res = await base44.entities.ContactRequest.filter(
+    const res = await api.entities.ContactRequest.filter(
       { artist_user_id: user.id },
       { sort: "-created_date", limit: 100 }
     );
@@ -39,7 +39,7 @@ function RequestsPage() {
   }, [load]);
 
   async function setStatus(id, status) {
-    await base44.entities.ContactRequest.update(id, { status });
+    await api.entities.ContactRequest.update(id, { status });
     setItems((all) => all.map((i) => (i.id === id ? { ...i, status } : i)));
   }
 

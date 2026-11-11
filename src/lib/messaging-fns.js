@@ -5,10 +5,10 @@ import { requireUser } from "@/lib/auth-middleware";
 const asItems = (res) => (Array.isArray(res) ? res : res?.items || []);
 const nowIso = () => new Date().toISOString();
 
-async function sendMail(base44, { to, subject, html }) {
+async function sendMail(api, { to, subject, html }) {
   if (!to) return false;
   try {
-    await base44.integrations.Core.SendEmail({ to, subject, html, category: "transactional" });
+    await api.integrations.Core.SendEmail({ to, subject, html, category: "transactional" });
     return true;
   } catch {
     return false;
@@ -21,7 +21,7 @@ function artistEmailTemplate(thread) {
       <h2 style="color:#e31d2b;margin-bottom:4px">Nouveau message client</h2>
       <p><strong>${thread.client_name}</strong> vous a contacté depuis Afrik Art.</p>
       <p style="margin:16px 0;padding:16px;background:#f7f7f7;border-radius:10px;white-space:pre-line">${thread.last_message}</p>
-      <p>Répondez directement depuis votre espace : <a href="https://app.base44.app/messagerie">ouvrir la messagerie</a></p>
+      <p>Répondez directement depuis votre espace : <a href="https://afrik.cloud/messagerie">ouvrir la messagerie</a></p>
       <p style="color:#666;font-size:12px">Email du client : ${thread.client_email}${
         thread.client_phone ? ` · Téléphone : ${thread.client_phone}` : ""
       }</p>
@@ -37,16 +37,16 @@ function clientEmailTemplate(thread, artistName) {
     </div>`;
 }
 
-async function artistContact(base44, artistUserId) {
+async function artistContact(api, artistUserId) {
   try {
-    return await base44.entities.User.get(artistUserId);
+    return await api.entities.User.get(artistUserId);
   } catch {
     return null;
   }
 }
 
-async function assertMember(base44, threadId, userId) {
-  const thread = await base44.entities.MessageThread.get(threadId);
+async function assertMember(api, threadId, userId) {
+  const thread = await api.entities.MessageThread.get(threadId);
   if (thread.artist_user_id !== userId && thread.client_user_id !== userId) {
     throw new Error("Cette conversation ne vous appartient pas.");
   }
@@ -70,7 +70,7 @@ export const startConversation = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
-    const service = context.getBase44().asServiceRole;
+    const service = context.getApi().asServiceRole;
     const profile = await service.entities.ArtistProfile.get(data.profileId);
     if (!profile) throw new Error("Profil introuvable.");
     if (profile.accepting_contact === false) {
@@ -79,7 +79,7 @@ export const startConversation = createServerFn({ method: "POST" })
 
     let clientUserId = "";
     try {
-      const me = await context.getBase44().auth.me();
+      const me = await context.getApi().auth.me();
       clientUserId = me?.id || "";
     } catch {
       clientUserId = "";
@@ -145,11 +145,11 @@ export const startConversation = createServerFn({ method: "POST" })
 export const listThreads = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const userId = context.user.id;
     const [asArtist, asClient] = await Promise.all([
-      base44.entities.MessageThread.filter({ artist_user_id: userId }, { limit: 200 }),
-      base44.entities.MessageThread.filter({ client_user_id: userId }, { limit: 200 }),
+      api.entities.MessageThread.filter({ artist_user_id: userId }, { limit: 200 }),
+      api.entities.MessageThread.filter({ client_user_id: userId }, { limit: 200 }),
     ]);
     const seen = new Set();
     const threads = [...asItems(asArtist), ...asItems(asClient)]
@@ -162,11 +162,11 @@ export const listThreads = createServerFn({ method: "GET" })
 export const getUnreadCount = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const userId = context.user.id;
     const [asArtist, asClient] = await Promise.all([
-      base44.entities.MessageThread.filter({ artist_user_id: userId }, { limit: 200 }),
-      base44.entities.MessageThread.filter({ client_user_id: userId }, { limit: 200 }),
+      api.entities.MessageThread.filter({ artist_user_id: userId }, { limit: 200 }),
+      api.entities.MessageThread.filter({ client_user_id: userId }, { limit: 200 }),
     ]);
     const unread =
       asItems(asArtist).reduce((n, t) => n + (t.artist_unread || 0), 0) +
@@ -178,18 +178,18 @@ export const getThreadMessages = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(z.object({ threadId: z.string().max(80) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const thread = await assertMember(base44, data.threadId, context.user.id);
+    const api = context.getApi();
+    const thread = await assertMember(api, data.threadId, context.user.id);
 
-    const res = await base44.entities.Message.filter(
+    const res = await api.entities.Message.filter(
       { thread_id: thread.id },
       { sort: "created_date", limit: 200 }
     );
     const messages = asItems(res);
 
     const isArtist = thread.artist_user_id === context.user.id;
-    await base44.entities.MessageThread.update(thread.id, isArtist ? { artist_unread: 0 } : { client_unread: 0 });
-    await base44.entities.Message.updateMany(
+    await api.entities.MessageThread.update(thread.id, isArtist ? { artist_unread: 0 } : { client_unread: 0 });
+    await api.entities.Message.updateMany(
       { thread_id: thread.id, read_by_artist: false },
       { $set: isArtist ? { read_by_artist: true } : { read_by_client: true } }
     );
@@ -204,11 +204,11 @@ export const replyToThread = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(z.object({ threadId: z.string().max(80), body: z.string().min(1).max(4000) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const thread = await assertMember(base44, data.threadId, context.user.id);
+    const api = context.getApi();
+    const thread = await assertMember(api, data.threadId, context.user.id);
     const isArtist = thread.artist_user_id === context.user.id;
 
-    const message = await base44.entities.Message.create({
+    const message = await api.entities.Message.create({
       thread_id: thread.id,
       profile_id: thread.profile_id,
       artist_user_id: thread.artist_user_id,
@@ -221,7 +221,7 @@ export const replyToThread = createServerFn({ method: "POST" })
       read_by_client: !isArtist,
     });
 
-    await base44.entities.MessageThread.update(thread.id, {
+    await api.entities.MessageThread.update(thread.id, {
       last_message: data.body,
       last_message_at: nowIso(),
       status: "open",
@@ -233,15 +233,15 @@ export const replyToThread = createServerFn({ method: "POST" })
     let emailed = false;
     if (isArtist) {
       if (thread.client_email) {
-        emailed = await sendMail(base44.asServiceRole, {
+        emailed = await sendMail(api.asServiceRole, {
           to: thread.client_email,
           subject: `Réponse de ${thread.artist_name} sur Afrik Art`,
           html: clientEmailTemplate({ last_message: data.body }, thread.artist_name),
         });
       }
     } else {
-      const owner = await artistContact(base44.asServiceRole, thread.artist_user_id);
-      emailed = await sendMail(base44.asServiceRole, {
+      const owner = await artistContact(api.asServiceRole, thread.artist_user_id);
+      emailed = await sendMail(api.asServiceRole, {
         to: owner?.email,
         subject: `${message.sender_name} vous a répondu sur Afrik Art`,
         html: artistEmailTemplate({ ...thread, last_message: data.body }),
@@ -255,9 +255,9 @@ export const setThreadStatus = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(z.object({ threadId: z.string().max(80), status: z.enum(["open", "archived"]) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    await assertMember(base44, data.threadId, context.user.id);
-    await base44.entities.MessageThread.update(data.threadId, { status: data.status });
+    const api = context.getApi();
+    await assertMember(api, data.threadId, context.user.id);
+    await api.entities.MessageThread.update(data.threadId, { status: data.status });
     return { ok: true };
   });
 
@@ -265,11 +265,11 @@ export const setProfilePublished = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(z.object({ profileId: z.string().max(80), published: z.boolean() }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const profile = await base44.entities.ArtistProfile.get(data.profileId);
+    const api = context.getApi();
+    const profile = await api.entities.ArtistProfile.get(data.profileId);
     if (profile.user_id !== context.user.id && context.user.role !== "admin") {
       throw new Error("Ce profil ne vous appartient pas.");
     }
-    await base44.entities.ArtistProfile.update(profile.id, { is_published: data.published });
+    await api.entities.ArtistProfile.update(profile.id, { is_published: data.published });
     return { ok: true, published: data.published };
   });

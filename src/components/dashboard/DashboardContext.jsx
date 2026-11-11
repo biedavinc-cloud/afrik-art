@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 
 const Ctx = createContext(null);
@@ -16,7 +16,7 @@ export function DashboardProvider({ children }) {
       setLoading(false);
       return;
     }
-    const res = await base44.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 });
+    const res = await api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 });
     const items = Array.isArray(res) ? res : res?.items || [];
     setProfile(items[0] || null);
     setLoading(false);

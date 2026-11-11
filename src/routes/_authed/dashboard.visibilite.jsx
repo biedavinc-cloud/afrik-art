@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 import { requestBoost } from "@/lib/server-fns";
 import { BOOST_PACKAGES } from "@/lib/plans";
@@ -42,8 +42,8 @@ function VisibilityPage() {
   const load = useCallback(async () => {
     if (!profile) return;
     const [promoRes, catRes] = await Promise.all([
-      base44.entities.Promotion.filter({ profile_id: profile.id }, { sort: "-created_date", limit: 50 }),
-      base44.entities.Category.list({ sort: "sort", limit: 60 }),
+      api.entities.Promotion.filter({ profile_id: profile.id }, { sort: "-created_date", limit: 50 }),
+      api.entities.Category.list({ sort: "sort", limit: 60 }),
     ]);
     setPromos(Array.isArray(promoRes) ? promoRes : promoRes?.items || []);
     setCategories(Array.isArray(catRes) ? catRes : catRes?.items || []);

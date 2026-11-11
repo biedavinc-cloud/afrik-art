@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 import { requestSubscription } from "@/lib/server-fns";
 import { cn } from "@/lib/utils";
@@ -28,8 +28,8 @@ function SubscriptionPage() {
 
   const load = useCallback(async () => {
     const [planRes, payRes] = await Promise.all([
-      base44.entities.PlanConfig.list({ sort: "sort", limit: 20 }),
-      base44.entities.Payment.filter({}, { sort: "-created_date", limit: 50 }),
+      api.entities.PlanConfig.list({ sort: "sort", limit: 20 }),
+      api.entities.Payment.filter({}, { sort: "-created_date", limit: 50 }),
     ]);
     setPlans((Array.isArray(planRes) ? planRes : planRes?.items || []).filter((p) => p.active !== false));
     setPayments(Array.isArray(payRes) ? payRes : payRes?.items || []);

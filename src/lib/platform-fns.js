@@ -27,7 +27,7 @@ export const getIntegrations = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
     assertAdmin(context.user);
-    const svc = context.getBase44().asServiceRole;
+    const svc = context.getApi().asServiceRole;
     const items = asPage(await svc.entities.Integration.list({ limit: 100 }));
 
     const ai = items.find((i) => i.kind === "ai");
@@ -67,7 +67,7 @@ export const saveAiIntegration = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     assertAdmin(context.user);
-    const svc = context.getBase44().asServiceRole;
+    const svc = context.getApi().asServiceRole;
     const existing = await findIntegration(svc, "ai", "gemini");
 
     const patch = {
@@ -107,7 +107,7 @@ export const savePaymentIntegration = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     assertAdmin(context.user);
-    const svc = context.getBase44().asServiceRole;
+    const svc = context.getApi().asServiceRole;
 
     const provider = providerByKey(data.provider);
     if (!provider) {
@@ -188,7 +188,7 @@ export const askAssistant = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
-    const svc = context.getBase44().asServiceRole;
+    const svc = context.getApi().asServiceRole;
     const config = await findIntegration(svc, "ai", "gemini");
 
     if (!config?.enabled || !config?.api_key) {

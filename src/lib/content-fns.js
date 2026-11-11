@@ -39,13 +39,13 @@ export const listBlogPosts = createServerFn({ method: "GET" })
     })
   )
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const [res, facetsRes] = await Promise.all([
-      base44.entities.BlogPost.filter(
+      api.entities.BlogPost.filter(
         { status: "published", ...(data.category ? { category: data.category } : {}) },
         { sort: "-published_at", limit: 60 }
       ),
-      base44.entities.BlogPost.filter({ status: "published" }, { limit: 60 }),
+      api.entities.BlogPost.filter({ status: "published" }, { limit: 60 }),
     ]);
 
     const q = (data.q || "").toLowerCase().trim();
@@ -72,14 +72,14 @@ export const listBlogPosts = createServerFn({ method: "GET" })
 export const getBlogPost = createServerFn({ method: "GET" })
   .validator(z.object({ slug: z.string().max(120) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const found = asItems(
-      await base44.entities.BlogPost.filter({ slug: data.slug }, { limit: 1 })
+      await api.entities.BlogPost.filter({ slug: data.slug }, { limit: 1 })
     );
     const post = found[0];
     if (!post) return null;
     const related = asItems(
-      await base44.entities.BlogPost.filter({ status: "published" }, { sort: "-published_at", limit: 4 })
+      await api.entities.BlogPost.filter({ status: "published" }, { sort: "-published_at", limit: 4 })
     ).filter((p) => p.id !== post.id);
     return { post, related: related.slice(0, 3) };
   });
@@ -87,13 +87,13 @@ export const getBlogPost = createServerFn({ method: "GET" })
 export const myBlogPosts = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const [res, profiles] = await Promise.all([
-      base44.entities.BlogPost.filter(
+      api.entities.BlogPost.filter(
         { author_user_id: context.user.id },
         { sort: "-created_date", limit: 100 }
       ),
-      base44.entities.ArtistProfile.filter({ user_id: context.user.id }, { limit: 1 }),
+      api.entities.ArtistProfile.filter({ user_id: context.user.id }, { limit: 1 }),
     ]);
     return {
       items: asItems(res),
@@ -108,8 +108,8 @@ export const adminListBlogPosts = createServerFn({ method: "GET" })
   .validator(z.object({ q: z.string().max(120).optional() }).optional())
   .handler(async ({ data, context }) => {
     if (context.user.role !== "admin") throw new Error("Accès réservé à l'administration.");
-    const base44 = context.getBase44();
-    const res = await base44.entities.BlogPost.list({ sort: "-created_date", limit: 200 });
+    const api = context.getApi();
+    const res = await api.entities.BlogPost.list({ sort: "-created_date", limit: 200 });
     const q = (data?.q || "").toLowerCase().trim();
     const items = asItems(res).filter((p) => {
       if (!q) return true;
@@ -126,10 +126,10 @@ export const saveBlogPost = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(POST_INPUT)
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const isAdmin = context.user.role === "admin";
     const profiles = asItems(
-      await base44.entities.ArtistProfile.filter({ user_id: context.user.id }, { limit: 1 })
+      await api.entities.ArtistProfile.filter({ user_id: context.user.id }, { limit: 1 })
     );
     const profile = profiles[0];
 
@@ -145,9 +145,9 @@ export const saveBlogPost = createServerFn({ method: "POST" })
     const hits = scanText([data.title, data.excerpt || "", data.content].join("\n"));
     if (hits.length) {
       if (data.id) {
-        const existing = await base44.entities.BlogPost.get(data.id);
+        const existing = await api.entities.BlogPost.get(data.id);
         if (existing.author_user_id === context.user.id || isAdmin) {
-          await base44.entities.BlogPost.delete(existing.id);
+          await api.entities.BlogPost.delete(existing.id);
         }
         throw new Error(
           `${moderationMessage(hits)} L'article a été retiré automatiquement du journal.`
@@ -167,11 +167,11 @@ export const saveBlogPost = createServerFn({ method: "POST" })
     };
 
     if (data.id) {
-      const existing = await base44.entities.BlogPost.get(data.id);
+      const existing = await api.entities.BlogPost.get(data.id);
       if (existing.author_user_id !== context.user.id && !isAdmin) {
         throw new Error("Cet article ne vous appartient pas.");
       }
-      const updated = await base44.entities.BlogPost.update(data.id, {
+      const updated = await api.entities.BlogPost.update(data.id, {
         ...content,
         author_name:
           data.author_name?.trim() ||
@@ -186,7 +186,7 @@ export const saveBlogPost = createServerFn({ method: "POST" })
       return { ok: true, post: updated };
     }
 
-    const created = await base44.entities.BlogPost.create({
+    const created = await api.entities.BlogPost.create({
       ...content,
       author_user_id: context.user.id,
       author_profile_id: profile?.id || "",
@@ -207,12 +207,12 @@ export const deleteBlogPost = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(z.object({ id: z.string().max(80) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const post = await base44.entities.BlogPost.get(data.id);
+    const api = context.getApi();
+    const post = await api.entities.BlogPost.get(data.id);
     if (post.author_user_id !== context.user.id && context.user.role !== "admin") {
       throw new Error("Cet article ne vous appartient pas.");
     }
-    await base44.entities.BlogPost.delete(post.id);
+    await api.entities.BlogPost.delete(post.id);
     return { ok: true };
   });
 
@@ -228,10 +228,10 @@ export const listGallery = createServerFn({ method: "GET" })
     })
   )
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const [artworksRes, profilesRes] = await Promise.all([
-      base44.entities.Artwork.list({ sort: "-created_date", limit: data.limit || 90 }),
-      base44.entities.ArtistProfile.filter({ status: "active" }, { limit: 300 }),
+      api.entities.Artwork.list({ sort: "-created_date", limit: data.limit || 90 }),
+      api.entities.ArtistProfile.filter({ status: "active" }, { limit: 300 }),
     ]);
     const profiles = new Map(
       asItems(profilesRes)
@@ -276,8 +276,8 @@ export const listGallery = createServerFn({ method: "GET" })
 export const getTopArtists = createServerFn({ method: "GET" })
   .validator(z.object({ sort: z.enum(["views", "complete", "recent"]).optional() }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const res = await base44.entities.ArtistProfile.filter(
+    const api = context.getApi();
+    const res = await api.entities.ArtistProfile.filter(
       { status: "active" },
       { limit: 300 }
     );
@@ -318,8 +318,8 @@ export const createSupportTicket = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44().asServiceRole;
-    await base44.entities.SupportTicket.create({
+    const api = context.getApi().asServiceRole;
+    await api.entities.SupportTicket.create({
       name: data.name,
       email: data.email,
       category: data.category || "autre",
@@ -335,8 +335,8 @@ export const createSupportTicket = createServerFn({ method: "POST" })
 export const listMyInvoices = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
-    const base44 = context.getBase44();
-    const res = await base44.entities.Payment.filter(
+    const api = context.getApi();
+    const res = await api.entities.Payment.filter(
       { owner_email: context.user.email },
       { sort: "-created_date", limit: 200 }
     );

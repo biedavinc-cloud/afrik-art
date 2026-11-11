@@ -1,10 +1,8 @@
-import { Mail } from "lucide-react";
+import { Mail, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { AuthLayout } from "@/components/auth/AuthLayout";
-import { MfaFlow } from "@/components/auth/MfaFlow";
-import { MfaScreen } from "@/components/auth/MfaParts";
 import {
   AuthError,
   AuthLink,
@@ -35,7 +33,6 @@ export function RegisterPage() {
   const [step, setStep] = useState("form");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [mfaChallenge, setMfaChallenge] = useState(null);
 
   async function register(e) {
     e.preventDefault();
@@ -50,7 +47,7 @@ export function RegisterPage() {
     }
     setBusy(true);
     try {
-      await base44.auth.register({ email, password });
+      await api.auth.register({ email, password });
       setStep("otp");
     } catch (err) {
       setError(err.message || "La création du compte a échoué.");
@@ -64,12 +61,8 @@ export function RegisterPage() {
     setError("");
     setBusy(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
-      if (result?.mfa_required) {
-        setMfaChallenge(result);
-        return;
-      }
-      if (result?.access_token) base44.auth.setToken(result.access_token);
+      await api.auth.verifyOtp({ email, otpCode });
+      // Le serveur a ouvert la session (cookie) : rechargement complet pour repartir connecté.
       window.location.href = returnTo;
     } catch (err) {
       // Verified server-side but the answer never arrived: the code is spent and
@@ -83,7 +76,7 @@ export function RegisterPage() {
   async function resend() {
     setError("");
     try {
-      await base44.auth.resendOtp(email);
+      await api.auth.resendOtp(email);
       toast("Code envoyé", { description: "Consultez votre boîte mail pour le nouveau code." });
     } catch (err) {
       if (isAlreadyVerified(err)) setStep("already_verified");
@@ -92,7 +85,6 @@ export function RegisterPage() {
   }
 
   // The account is verified; the second sign-in step replaces the whole page and finishes signing in.
-  if (mfaChallenge) return <MfaScreen><MfaFlow challenge={mfaChallenge} returnTo={returnTo} /></MfaScreen>;
 
   if (step === "already_verified") {
     return (

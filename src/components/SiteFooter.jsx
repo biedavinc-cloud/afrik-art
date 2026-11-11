@@ -11,9 +11,7 @@ export default function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-[13px] font-semibold text-primary-foreground">
-                AA
-              </span>
+              <img src="/logo-white.png" alt="Afrik Art" width="36" height="36" className="h-9 w-9 object-contain" />
               <span className="text-[15px] font-semibold tracking-tight">{t("brand.name")}</span>
             </div>
             <p className="mt-5 max-w-xs text-[13.5px] leading-relaxed text-background/55">

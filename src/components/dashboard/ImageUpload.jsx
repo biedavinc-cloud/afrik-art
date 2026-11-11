@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { ImagePlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Image } from "@/components/ui/image";
 
 export default function ImageUpload({ value, onChange, label, ratio = "aspect-[4/3]", hint }) {
@@ -17,7 +17,7 @@ export default function ImageUpload({ value, onChange, label, ratio = "aspect-[4
     }
     setBusy(true);
     try {
-      const res = await base44.integrations.Core.UploadPublicFile({ file });
+      const res = await api.integrations.Core.UploadPublicFile({ file });
       onChange(res.file_url);
     } catch {
       toast.error("L'envoi a échoué. Réessayez.");

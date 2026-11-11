@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import ImageUpload from "@/components/dashboard/ImageUpload";
 import ProfileFields from "@/components/dashboard/ProfileFields";
@@ -10,7 +10,7 @@ import { makeSlug } from "@/lib/slug";
 
 export const Route = createFileRoute("/_authed/onboarding")({
   loader: async () => {
-    const res = await base44.entities.Category.list({ sort: "sort", limit: 60 });
+    const res = await api.entities.Category.list({ sort: "sort", limit: 60 });
     const items = Array.isArray(res) ? res : res?.items || [];
     return { categories: items.filter((c) => c.active !== false) };
   },
@@ -32,7 +32,7 @@ function OnboardingPage() {
   useEffect(() => {
     if (isLoadingAuth || !user) return;
     let active = true;
-    base44.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 }).then((res) => {
+    api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 }).then((res) => {
       if (!active) return;
       const items = Array.isArray(res) ? res : res?.items || [];
       if (items[0]) navigate({ to: "/dashboard" });
@@ -52,7 +52,7 @@ function OnboardingPage() {
     }
     setBusy(true);
     try {
-      await base44.entities.ArtistProfile.create({
+      await api.entities.ArtistProfile.create({
         user_id: user.id,
         display_name: form.display_name,
         slug: makeSlug(form.display_name),

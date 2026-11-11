@@ -1,35 +1,27 @@
 import { redirect } from "@tanstack/react-router";
 import { DefaultCatchBoundary } from "@/components/DefaultCatchBoundary";
-import { UserNotRegistered } from "@/components/auth/UserNotRegistered";
 import { authQuery } from "@/lib/AuthContext";
 
-class NotRegisteredError extends Error {}
-
 /**
- * The login gate for a pathless layout route (src/routes/_authed.jsx), which gates
- * every route under src/routes/_authed/ (their URLs carry no "_authed" segment):
+ * Barrière de connexion d'une route sans chemin (src/routes/_authed.jsx), qui protège toutes les routes de
+ * src/routes/_authed/ (leurs URL ne portent pas de segment « _authed ») :
  *
  *   createFileRoute("/_authed")({ ssr: false, beforeLoad: requireSignedIn, errorComponent: AuthGateError })
  *
- * TanStack Router's authenticated-routes pattern: beforeLoad reads the visitor from the
- * router context (the QueryClient's cached `authQuery`, shared with useAuth()), so a
- * child's loader never runs as an anonymous visitor. Signed out → /login with the way
- * back; signed in but not a user of this app → the not-registered screen. Children read
- * the visitor with `Route.useRouteContext().user`. `ssr: false` — the server is anonymous,
- * so these pages render in the browser only, and children inherit that.
+ * Schéma « routes authentifiées » de TanStack Router : beforeLoad lit le visiteur dans le contexte du routeur
+ * (le `authQuery` en cache, partagé avec useAuth()), donc le loader d'un enfant ne s'exécute jamais en anonyme.
+ * Déconnecté → /login avec le chemin de retour. Les enfants lisent le visiteur via `Route.useRouteContext().user`.
+ * `ssr: false` : le serveur est anonyme, ces pages ne s'affichent que dans le navigateur.
  */
 export async function requireSignedIn({ context, location }) {
-  // A /me outage (429, 503) is not a sign-out: it rejects here and reaches the error
-  // boundary, whose "Try again" asks the server again (a failed query caches nothing).
-  const { user, error } = await context.queryClient.ensureQueryData(authQuery);
+  // Une panne de /me (429, 503) n'est pas une déconnexion : elle est rejetée ici et atteint la page d'erreur,
+  // dont « Réessayer » interroge de nouveau le serveur (une requête en échec ne met rien en cache).
+  const { user } = await context.queryClient.ensureQueryData(authQuery);
   if (user) return { user };
-  // Thrown rather than returned so the children's loaders never run without a user.
-  if (error?.type === "user_not_registered") throw new NotRegisteredError(error.message);
-  // A document navigation on purpose: an app served behind the platform login gets the
-  // platform's /login, which reads from_url; the app's own /login page reads returnTo.
-  throw redirect({ to: "/login", search: { returnTo: location.href, from_url: location.href }, reloadDocument: true });
+  // Navigation complète volontaire : la page /login relit returnTo.
+  throw redirect({ to: "/login", search: { returnTo: location.href }, reloadDocument: true });
 }
 
 export function AuthGateError({ error }) {
-  return error instanceof NotRegisteredError ? <UserNotRegistered /> : <DefaultCatchBoundary error={error} />;
+  return <DefaultCatchBoundary error={error} />;
 }

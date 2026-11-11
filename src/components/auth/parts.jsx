@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "@/api/client";
 import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { GoogleIcon } from "./GoogleIcon";
-import { signInWithProvider } from "@/lib/authMfaFlow";
 import { returnToSearch } from "@/lib/authReturnTo";
 
 // Small pieces the auth pages share.
@@ -107,13 +107,36 @@ export function PasswordStrength({ value = "" }) {
   );
 }
 
+// La connexion Google n'est proposée que si le serveur l'a configurée (résultat mis en cache).
+let optionsPromise;
+function useGoogleEnabled() {
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    optionsPromise ??= api.auth.options().catch(() => ({ google: false }));
+    let live = true;
+    optionsPromise.then((o) => live && setEnabled(Boolean(o?.google)));
+    return () => {
+      live = false;
+    };
+  }, []);
+  return enabled;
+}
+
 export function GoogleButton({ returnTo, onError }) {
+  const enabled = useGoogleEnabled();
+  if (!enabled) return null;
   return (
     <Button
       type="button"
       variant="outline"
       className="mb-6 h-12 w-full text-sm font-medium"
-      onClick={() => signInWithProvider("google", returnTo).catch((err) => onError(err.message || "Connexion Google impossible"))}
+      onClick={() => {
+        try {
+          api.auth.loginWithGoogle(returnTo);
+        } catch (err) {
+          onError(err.message || "Connexion Google impossible");
+        }
+      }}
     >
       <GoogleIcon className="mr-2 h-5 w-5" />
       Continuer avec Google
@@ -122,6 +145,8 @@ export function GoogleButton({ returnTo, onError }) {
 }
 
 export function OrDivider() {
+  const enabled = useGoogleEnabled();
+  if (!enabled) return null;
   return (
     <div className="relative mb-6">
       <div className="absolute inset-0 flex items-center">

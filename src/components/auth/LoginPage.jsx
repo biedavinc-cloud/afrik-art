@@ -11,9 +11,7 @@ import {
 } from "@/components/auth/parts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MfaFlow } from "@/components/auth/MfaFlow";
-import { MfaScreen } from "@/components/auth/MfaParts";
-import { loginWithMfa } from "@/lib/authMfa";
+import { api } from "@/api/client";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 // The /login page. ?returnTo= (or the platform's ?from_url=) is where the visitor
@@ -22,30 +20,27 @@ export function LoginPage() {
   const returnTo = safeReturnTo();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => {
+    const code = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("error");
+    if (code === "google_failed") return "La connexion avec Google a échoué. Réessayez ou utilisez votre e-mail.";
+    if (code === "google_unavailable") return "La connexion avec Google n'est pas disponible pour le moment.";
+    return "";
+  });
   const [busy, setBusy] = useState(false);
-  const [mfaChallenge, setMfaChallenge] = useState(null);
 
   async function submit(e) {
     e.preventDefault();
     setError("");
     setBusy(true);
     try {
-      const result = await loginWithMfa(email, password);
-      if (result.mfa_required) {
-        setMfaChallenge(result);
-        return;
-      }
-      // A hard redirect: the app re-initializes with the new session.
+      await api.auth.login(email, password);
+      // Redirection complète : l'application repart avec la nouvelle session.
       window.location.href = returnTo;
     } catch (err) {
       setError(err.message || "Adresse e-mail ou mot de passe incorrect.");
       setBusy(false);
     }
   }
-
-  // The second sign-in step (authenticator app or text message) replaces the whole page.
-  if (mfaChallenge) return <MfaScreen><MfaFlow challenge={mfaChallenge} returnTo={returnTo} /></MfaScreen>;
 
   return (
     <AuthLayout icon={LogIn} title="Bon retour." subtitle="Connectez-vous pour retrouver votre espace et vos messages.">

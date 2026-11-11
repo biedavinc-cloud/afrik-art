@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, Lock } from "lucide-react";
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthError, PasswordField, PasswordStrength, SubmitButton } from "@/components/auth/parts";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ export function ResetPasswordPage() {
     }
     setBusy(true);
     try {
-      await base44.auth.resetPassword({ resetToken: token, newPassword: password });
+      await api.auth.resetPassword({ resetToken: token, newPassword: password });
       window.location.href = "/login";
     } catch (err) {
       setError(err.message || "La réinitialisation a échoué.");

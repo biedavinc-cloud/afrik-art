@@ -5,10 +5,10 @@ import { BOOST_PACKAGES, DEFAULT_PLANS } from "@/lib/plans";
 
 const asPage = (res) => (Array.isArray(res) ? res : res?.items || []);
 
-async function loadRanked(base44) {
+async function loadRanked(api) {
   const [profilesRes, promosRes] = await Promise.all([
-    base44.entities.ArtistProfile.filter({ status: "active" }, { limit: 300, sort: "-created_date" }),
-    base44.entities.Promotion.filter({ status: "active" }, { limit: 300 }),
+    api.entities.ArtistProfile.filter({ status: "active" }, { limit: 300, sort: "-created_date" }),
+    api.entities.Promotion.filter({ status: "active" }, { limit: 300 }),
   ]);
 
   const now = Date.now();
@@ -72,11 +72,11 @@ function score(profile, q) {
 }
 
 export const getHomeData = createServerFn({ method: "GET" }).handler(async ({ context }) => {
-  const base44 = context.getBase44();
+  const api = context.getApi();
   const [profiles, categoriesRes, plansRes] = await Promise.all([
-    loadRanked(base44),
-    base44.entities.Category.list({ sort: "sort", limit: 60 }),
-    base44.entities.PlanConfig.list({ sort: "sort", limit: 20 }),
+    loadRanked(api),
+    api.entities.Category.list({ sort: "sort", limit: 60 }),
+    api.entities.PlanConfig.list({ sort: "sort", limit: 20 }),
   ]);
 
   const categories = asPage(categoriesRes).filter((c) => c.active !== false);
@@ -119,20 +119,20 @@ export const getHomeData = createServerFn({ method: "GET" }).handler(async ({ co
   };
 });
 
-// Données publiques des pages rendues côté serveur : le client base44 du
+// Données publiques des pages rendues côté serveur : le client api du
 // navigateur n'est pas configuré pendant le rendu serveur, ces lectures
 // doivent donc passer par une fonction serveur.
 export const getPublicCategories = createServerFn({ method: "GET" }).handler(
   async ({ context }) => {
     const res = await context
-      .getBase44()
+      .getApi()
       .entities.Category.list({ sort: "sort", limit: 60 });
     return asPage(res).filter((c) => c.active !== false);
   }
 );
 
 export const getPublicPlans = createServerFn({ method: "GET" }).handler(async ({ context }) => {
-  const res = await context.getBase44().entities.PlanConfig.list({ sort: "sort", limit: 20 });
+  const res = await context.getApi().entities.PlanConfig.list({ sort: "sort", limit: 20 });
   return asPage(res)
     .filter((p) => p.active !== false)
     .map((p) => ({
@@ -161,8 +161,8 @@ export const searchArtists = createServerFn({ method: "GET" })
     })
   )
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const all = await loadRanked(base44);
+    const api = context.getApi();
+    const all = await loadRanked(api);
     const q = (data.q || "").toLowerCase().trim();
 
     const filtered = all.filter((p) => {
@@ -222,14 +222,14 @@ export const searchArtists = createServerFn({ method: "GET" })
 export const getPublicProfile = createServerFn({ method: "GET" })
   .validator(z.object({ slug: z.string().max(120) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const found = asPage(await base44.entities.ArtistProfile.filter({ slug: data.slug }, { limit: 1 }));
+    const api = context.getApi();
+    const found = asPage(await api.entities.ArtistProfile.filter({ slug: data.slug }, { limit: 1 }));
     const profile = found[0];
     if (!profile) return null;
 
     const [artworks, promos] = await Promise.all([
-      base44.entities.Artwork.filter({ profile_id: profile.id }, { limit: 100, sort: "sort" }),
-      base44.entities.Promotion.filter({ profile_id: profile.id, status: "active" }, { limit: 5 }),
+      api.entities.Artwork.filter({ profile_id: profile.id }, { limit: 100, sort: "sort" }),
+      api.entities.Promotion.filter({ profile_id: profile.id, status: "active" }, { limit: 5 }),
     ]);
 
     const activePromo = asPage(promos).find(
@@ -246,21 +246,21 @@ export const getPublicProfile = createServerFn({ method: "GET" })
 export const recordProfileView = createServerFn({ method: "POST" })
   .validator(z.object({ profileId: z.string().max(80) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44().asServiceRole;
-    const profile = await base44.entities.ArtistProfile.get(data.profileId);
-    await base44.entities.ArtistProfile.update(data.profileId, {
+    const api = context.getApi().asServiceRole;
+    const profile = await api.entities.ArtistProfile.get(data.profileId);
+    await api.entities.ArtistProfile.update(data.profileId, {
       views: (profile.views || 0) + 1,
     });
 
     const promos = asPage(
-      await base44.entities.Promotion.filter(
+      await api.entities.Promotion.filter(
         { profile_id: data.profileId, status: "active" },
         { limit: 5 }
       )
     );
     const current = promos.find((p) => new Date(p.ends_at || 0).getTime() > Date.now());
     if (current) {
-      await base44.entities.Promotion.update(current.id, {
+      await api.entities.Promotion.update(current.id, {
         visits: (current.visits || 0) + 1,
       });
     }
@@ -275,10 +275,10 @@ export const trackPromotionEvent = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44().asServiceRole;
-    const promo = await base44.entities.Promotion.get(data.promotionId);
+    const api = context.getApi().asServiceRole;
+    const promo = await api.entities.Promotion.get(data.promotionId);
     const field = data.type === "click" ? "clicks" : "impressions";
-    await base44.entities.Promotion.update(promo.id, {
+    await api.entities.Promotion.update(promo.id, {
       [field]: (promo[field] || 0) + 1,
     });
     return { ok: true };
@@ -298,10 +298,10 @@ export const sendContactRequest = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
-    const profile = await base44.entities.ArtistProfile.get(data.profileId);
+    const api = context.getApi();
+    const profile = await api.entities.ArtistProfile.get(data.profileId);
 
-    await base44.entities.ContactRequest.create({
+    await api.entities.ContactRequest.create({
       profile_id: profile.id,
       artist_user_id: profile.user_id || "",
       artist_name: profile.display_name,
@@ -320,22 +320,22 @@ export const requestSubscription = createServerFn({ method: "POST" })
   .middleware([requireUser])
   .validator(z.object({ plan: z.enum(["starter", "pro", "premium"]) }))
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const user = context.user;
 
     const profiles = asPage(
-      await base44.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 })
+      await api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 })
     );
     const profile = profiles[0];
     if (!profile) throw new Error("Profil artiste introuvable.");
 
-    const configs = asPage(await base44.entities.PlanConfig.list({ limit: 20 }));
+    const configs = asPage(await api.entities.PlanConfig.list({ limit: 20 }));
     const fallback = DEFAULT_PLANS.find((p) => p.key === data.plan);
     const config = configs.find((c) => c.key === data.plan);
     const price = Number(config?.price ?? fallback?.price ?? 0);
 
     if (price === 0) {
-      await base44.entities.ArtistProfile.update(profile.id, {
+      await api.entities.ArtistProfile.update(profile.id, {
         plan: "starter",
         plan_status: "active",
         plan_ends_at: "",
@@ -343,16 +343,16 @@ export const requestSubscription = createServerFn({ method: "POST" })
       return { immediate: true, plan: data.plan };
     }
 
-    const sub = await base44.entities.Subscription.create({
+    const sub = await api.entities.Subscription.create({
       profile_id: profile.id,
       plan: data.plan,
       price,
       status: "pending",
     });
 
-    const psp = await activePaymentProvider(context.getBase44().asServiceRole);
+    const psp = await activePaymentProvider(context.getApi().asServiceRole);
 
-    await base44.entities.Payment.create({
+    await api.entities.Payment.create({
       owner_email: user.email,
       type: "subscription",
       label: `Abonnement ${config?.name || data.plan} — 1 mois`,
@@ -377,15 +377,15 @@ export const requestBoost = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
-    const base44 = context.getBase44();
+    const api = context.getApi();
     const user = context.user;
-    const profile = await base44.entities.ArtistProfile.get(data.profileId);
+    const profile = await api.entities.ArtistProfile.get(data.profileId);
     if (profile.user_id !== user.id) throw new Error("Ce profil ne vous appartient pas.");
 
     const pack = BOOST_PACKAGES.find((p) => p.hours === data.hours);
     if (!pack) throw new Error("Durée de mise en avant invalide.");
 
-    const promo = await base44.entities.Promotion.create({
+    const promo = await api.entities.Promotion.create({
       profile_id: profile.id,
       artist_name: profile.display_name,
       duration_hours: pack.hours,
@@ -399,9 +399,9 @@ export const requestBoost = createServerFn({ method: "POST" })
       visits: 0,
     });
 
-    const psp = await activePaymentProvider(context.getBase44().asServiceRole);
+    const psp = await activePaymentProvider(context.getApi().asServiceRole);
 
-    await base44.entities.Payment.create({
+    await api.entities.Payment.create({
       owner_email: user.email,
       type: "boost",
       label: `Mise en avant ${pack.label}`,
@@ -419,16 +419,16 @@ export const getAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireUser])
   .handler(async ({ context }) => {
     if (context.user.role !== "admin") throw new Error("Accès réservé à l'administration.");
-    const base44 = context.getBase44();
+    const api = context.getApi();
 
     const [profiles, artworks, payments, subs, promos, reports, users] = await Promise.all([
-      base44.entities.ArtistProfile.list({ limit: 500 }),
-      base44.entities.Artwork.list({ limit: 1000 }),
-      base44.entities.Payment.list({ limit: 1000 }),
-      base44.entities.Subscription.list({ limit: 500 }),
-      base44.entities.Promotion.list({ limit: 500 }),
-      base44.entities.Report.list({ limit: 200 }),
-      base44.entities.User.list({ limit: 500 }),
+      api.entities.ArtistProfile.list({ limit: 500 }),
+      api.entities.Artwork.list({ limit: 1000 }),
+      api.entities.Payment.list({ limit: 1000 }),
+      api.entities.Subscription.list({ limit: 500 }),
+      api.entities.Promotion.list({ limit: 500 }),
+      api.entities.Report.list({ limit: 200 }),
+      api.entities.User.list({ limit: 500 }),
     ]);
 
     const profileList = asPage(profiles);

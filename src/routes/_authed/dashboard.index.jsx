@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, Eye, Images, Inbox, Sparkles } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 
 export const Route = createFileRoute("/_authed/dashboard/")({
@@ -17,10 +17,10 @@ function DashboardOverview() {
     let active = true;
     (async () => {
       const [newContacts, artworks, promos, plans] = await Promise.all([
-        base44.entities.ContactRequest.count({ artist_user_id: user.id, status: "new" }),
-        base44.entities.Artwork.count({ profile_id: profile.id }),
-        base44.entities.Promotion.filter({ profile_id: profile.id }, { limit: 20 }),
-        base44.entities.PlanConfig.list({ limit: 20 }),
+        api.entities.ContactRequest.count({ artist_user_id: user.id, status: "new" }),
+        api.entities.Artwork.count({ profile_id: profile.id }),
+        api.entities.Promotion.filter({ profile_id: profile.id }, { limit: 20 }),
+        api.entities.PlanConfig.list({ limit: 20 }),
       ]);
       if (!active) return;
       const planList = Array.isArray(plans) ? plans : plans?.items || [];

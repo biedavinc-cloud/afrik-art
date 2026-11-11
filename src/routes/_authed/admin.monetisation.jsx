@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PROVIDER_LABEL } from "@/lib/psp-catalog";
@@ -23,10 +23,10 @@ function AdminMonetisation() {
 
   const load = useCallback(async () => {
     const [planRes, subRes, promoRes, payRes] = await Promise.all([
-      base44.entities.PlanConfig.list({ sort: "sort", limit: 20 }),
-      base44.entities.Subscription.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Promotion.list({ sort: "-created_date", limit: 100 }),
-      base44.entities.Payment.list({ sort: "-created_date", limit: 200 }),
+      api.entities.PlanConfig.list({ sort: "sort", limit: 20 }),
+      api.entities.Subscription.list({ sort: "-created_date", limit: 100 }),
+      api.entities.Promotion.list({ sort: "-created_date", limit: 100 }),
+      api.entities.Payment.list({ sort: "-created_date", limit: 200 }),
     ]);
     setPlans(asItems(planRes));
     setSubs(asItems(subRes));
@@ -42,7 +42,7 @@ function AdminMonetisation() {
   async function savePlan(plan) {
     setSaving(plan.id);
     try {
-      await base44.entities.PlanConfig.update(plan.id, {
+      await api.entities.PlanConfig.update(plan.id, {
         price: Number(plan.price),
         media_limit: Number(plan.media_limit),
         categories_limit: Number(plan.categories_limit),
@@ -56,7 +56,7 @@ function AdminMonetisation() {
   }
 
   async function markPaid(payment, extra = {}) {
-    await base44.entities.Payment.update(payment.id, {
+    await api.entities.Payment.update(payment.id, {
       status: "paid",
       paid_at: new Date().toISOString(),
       ...extra,
@@ -64,16 +64,16 @@ function AdminMonetisation() {
   }
 
   async function activateSubscription(sub) {
-    const profile = await base44.entities.ArtistProfile.get(sub.profile_id).catch(() => null);
+    const profile = await api.entities.ArtistProfile.get(sub.profile_id).catch(() => null);
     const ends = new Date();
     ends.setMonth(ends.getMonth() + 1);
-    await base44.entities.Subscription.update(sub.id, {
+    await api.entities.Subscription.update(sub.id, {
       status: "active",
       started_at: new Date().toISOString(),
       ends_at: ends.toISOString(),
     });
     if (profile) {
-      await base44.entities.ArtistProfile.update(profile.id, {
+      await api.entities.ArtistProfile.update(profile.id, {
         plan: sub.plan,
         plan_status: "active",
         plan_ends_at: ends.toISOString(),
@@ -88,7 +88,7 @@ function AdminMonetisation() {
   async function activatePromotion(promo) {
     const starts = new Date();
     const ends = new Date(starts.getTime() + promo.duration_hours * 3600000);
-    await base44.entities.Promotion.update(promo.id, {
+    await api.entities.Promotion.update(promo.id, {
       status: "active",
       starts_at: starts.toISOString(),
       ends_at: ends.toISOString(),
@@ -100,7 +100,7 @@ function AdminMonetisation() {
   }
 
   async function cancelPromotion(promo) {
-    await base44.entities.Promotion.update(promo.id, { status: "canceled" });
+    await api.entities.Promotion.update(promo.id, { status: "canceled" });
     toast.success("Mise en avant annulée.");
     await load();
   }

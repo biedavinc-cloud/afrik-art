@@ -18,7 +18,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { getUnreadCount } from "@/lib/messaging-fns";
 import { cn } from "@/lib/utils";
@@ -50,7 +50,7 @@ export default function AppShell({ children, profile: injected }) {
 
   useEffect(() => {
     if (injected !== undefined || !user) return;
-    base44.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 })
+    api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 })
       .then((res) => setProfile((Array.isArray(res) ? res : res?.items || [])[0] || null))
       .catch(() => setProfile(null));
   }, [injected, user]);

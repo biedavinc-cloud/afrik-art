@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Flag, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import {
   Dialog,
   DialogContent,
@@ -40,7 +40,7 @@ export default function ReportDialog({ profile }) {
     e.preventDefault();
     setBusy(true);
     try {
-      await base44.entities.Report.create({
+      await api.entities.Report.create({
         profile_id: profile.id,
         profile_slug: profile.slug,
         reporter_email: email,

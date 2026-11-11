@@ -12,7 +12,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -43,7 +43,7 @@ function SettingsPage() {
 
   useEffect(() => {
     if (!user) return;
-    base44.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 })
+    api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 })
       .then((res) => {
         const p = asItems(res)[0] || null;
         setProfile(p);
@@ -66,7 +66,7 @@ function SettingsPage() {
     if (!profile) return;
     setSaving(true);
     try {
-      await base44.entities.ArtistProfile.update(profile.id, form);
+      await api.entities.ArtistProfile.update(profile.id, form);
       toast.success("Paramètres enregistrés.");
     } catch (err) {
       toast.error(err.message || "L'enregistrement a échoué.");
@@ -245,9 +245,6 @@ function SettingsPage() {
           <Lock className="h-4 w-4 text-primary" /> Sécurité
         </p>
         <div className="mt-3 space-y-2 text-[12.5px]">
-          <Link to="/mfa" className="block text-primary hover:underline">
-            Activer la double authentification
-          </Link>
           <Link to="/forgot-password" className="block text-primary hover:underline">
             Changer mon mot de passe
           </Link>
