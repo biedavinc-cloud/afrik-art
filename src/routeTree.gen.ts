@@ -47,6 +47,7 @@ import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin.ind
 import { Route as AuthedAdminArtistesRouteImport } from './routes/_authed/admin.artistes'
 import { Route as AuthedAdminBlogRouteImport } from './routes/_authed/admin.blog'
 import { Route as AuthedAdminCategoriesRouteImport } from './routes/_authed/admin.categories'
+import { Route as AuthedAdminImportRouteImport } from './routes/_authed/admin.import'
 import { Route as AuthedAdminIntegrationsRouteImport } from './routes/_authed/admin.integrations'
 import { Route as AuthedAdminMonetisationRouteImport } from './routes/_authed/admin.monetisation'
 import { Route as AuthedAdminPaiementsRouteImport } from './routes/_authed/admin.paiements'
@@ -252,6 +253,11 @@ const AuthedAdminCategoriesRoute = AuthedAdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
+const AuthedAdminImportRoute = AuthedAdminImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AuthedAdminRoute,
+} as any)
 const AuthedAdminIntegrationsRoute = AuthedAdminIntegrationsRouteImport.update({
   id: '/integrations',
   path: '/integrations',
@@ -371,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/blog': typeof AuthedAdminBlogRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
+  '/admin/import': typeof AuthedAdminImportRoute
   '/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/admin/paiements': typeof AuthedAdminPaiementsRoute
@@ -421,6 +428,7 @@ export interface FileRoutesByTo {
   '/admin/artistes': typeof AuthedAdminArtistesRoute
   '/admin/blog': typeof AuthedAdminBlogRoute
   '/admin/categories': typeof AuthedAdminCategoriesRoute
+  '/admin/import': typeof AuthedAdminImportRoute
   '/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/admin/paiements': typeof AuthedAdminPaiementsRoute
@@ -478,6 +486,7 @@ export interface FileRoutesById {
   '/_authed/admin/artistes': typeof AuthedAdminArtistesRoute
   '/_authed/admin/blog': typeof AuthedAdminBlogRoute
   '/_authed/admin/categories': typeof AuthedAdminCategoriesRoute
+  '/_authed/admin/import': typeof AuthedAdminImportRoute
   '/_authed/admin/integrations': typeof AuthedAdminIntegrationsRoute
   '/_authed/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/_authed/admin/paiements': typeof AuthedAdminPaiementsRoute
@@ -533,6 +542,7 @@ export interface FileRouteTypes {
     | '/admin/artistes'
     | '/admin/blog'
     | '/admin/categories'
+    | '/admin/import'
     | '/admin/integrations'
     | '/admin/monetisation'
     | '/admin/paiements'
@@ -583,6 +593,7 @@ export interface FileRouteTypes {
     | '/admin/artistes'
     | '/admin/blog'
     | '/admin/categories'
+    | '/admin/import'
     | '/admin/integrations'
     | '/admin/monetisation'
     | '/admin/paiements'
@@ -639,6 +650,7 @@ export interface FileRouteTypes {
     | '/_authed/admin/artistes'
     | '/_authed/admin/blog'
     | '/_authed/admin/categories'
+    | '/_authed/admin/import'
     | '/_authed/admin/integrations'
     | '/_authed/admin/monetisation'
     | '/_authed/admin/paiements'
@@ -940,6 +952,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminCategoriesRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
+    '/_authed/admin/import': {
+      id: '/_authed/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AuthedAdminImportRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
     '/_authed/admin/integrations': {
       id: '/_authed/admin/integrations'
       path: '/integrations'
@@ -1079,6 +1098,7 @@ interface AuthedAdminRouteChildren {
   AuthedAdminArtistesRoute: typeof AuthedAdminArtistesRoute
   AuthedAdminBlogRoute: typeof AuthedAdminBlogRoute
   AuthedAdminCategoriesRoute: typeof AuthedAdminCategoriesRoute
+  AuthedAdminImportRoute: typeof AuthedAdminImportRoute
   AuthedAdminIntegrationsRoute: typeof AuthedAdminIntegrationsRoute
   AuthedAdminMonetisationRoute: typeof AuthedAdminMonetisationRoute
   AuthedAdminPaiementsRoute: typeof AuthedAdminPaiementsRoute
@@ -1091,6 +1111,7 @@ const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
   AuthedAdminArtistesRoute: AuthedAdminArtistesRoute,
   AuthedAdminBlogRoute: AuthedAdminBlogRoute,
   AuthedAdminCategoriesRoute: AuthedAdminCategoriesRoute,
+  AuthedAdminImportRoute: AuthedAdminImportRoute,
   AuthedAdminIntegrationsRoute: AuthedAdminIntegrationsRoute,
   AuthedAdminMonetisationRoute: AuthedAdminMonetisationRoute,
   AuthedAdminPaiementsRoute: AuthedAdminPaiementsRoute,

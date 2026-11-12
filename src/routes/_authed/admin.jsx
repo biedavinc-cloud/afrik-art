@@ -5,6 +5,7 @@ import {
   CreditCard,
   Flag,
   LayoutDashboard,
+  Upload,
   Menu,
   Newspaper,
   Plug,
@@ -47,6 +48,7 @@ const GROUPS = [
       { label: "Journal", to: "/admin/blog", icon: Newspaper },
       { label: "Catégories", to: "/admin/categories", icon: Tags },
       { label: "Signalements", to: "/admin/signalements", icon: Flag },
+      { label: "Import de données", to: "/admin/import", icon: Upload },
     ],
   },
 ];

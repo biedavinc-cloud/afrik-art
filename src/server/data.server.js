@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { ADMIN_ONLY, BROWSER_BLOCKED, ENTITIES, PROTECTED_FIELDS, ruleFor } from "./entities";
+import { ADMIN_ONLY, BROWSER_BLOCKED, ENTITIES, PRIVATE_FIELDS, PROTECTED_FIELDS, ruleFor } from "./entities";
 import { HttpError } from "./errors";
 import { ensureSchema } from "./schema.server";
 import { newId } from "./security.server";
@@ -242,6 +242,18 @@ function hydrate(row) {
   };
 }
 
+// Ce que voit réellement le lecteur : le propriétaire et les administrateurs ont tout, les autres perdent
+// l'adresse e-mail de l'auteur et les champs privés (coordonnées de contact notamment).
+function present(ctx, name, record) {
+  if (ctx.service || isAdmin(ctx)) return record;
+  const mine = ctx.user && (record.created_by_id === ctx.user.id || record.user_id === ctx.user.id);
+  if (mine) return record;
+  const out = { ...record };
+  delete out.created_by;
+  for (const field of PRIVATE_FIELDS[name] ?? []) delete out[field];
+  return out;
+}
+
 function denied(ctx) {
   return ctx.user ? new HttpError(403, "Accès refusé.") : new HttpError(401, "Authentification requise.");
 }
@@ -293,7 +305,7 @@ function createEntityApi(ctx, name) {
       .prepare(sql)
       .bind(name, ...q.params, ...r.params, limit, skip)
       .all();
-    return results.map(hydrate);
+    return results.map((row) => present(ctx, name, hydrate(row)));
   }
 
   return {
@@ -306,7 +318,7 @@ function createEntityApi(ctx, name) {
       await prepare(ctx);
       const row = hydrate(await loadRow(name, id));
       if (!ctx.service && !evalRule(ruleFor(def, "read"), ctx.user, row)) throw denied(ctx);
-      return row;
+      return present(ctx, name, row);
     },
 
     async count(query) {
@@ -339,7 +351,7 @@ function createEntityApi(ctx, name) {
         .prepare("INSERT INTO records (entity, id, data, created_date, updated_date, created_by, created_by_id) VALUES (?,?,?,?,?,?,?)")
         .bind(name, id, serialize(fields), now, now, ctx.user?.email ?? null, ctx.user?.id ?? null)
         .run();
-      return hydrate({ id, data: JSON.stringify(fields), created_date: now, updated_date: now, created_by: ctx.user?.email ?? null, created_by_id: ctx.user?.id ?? null });
+      return present(ctx, name, hydrate({ id, data: JSON.stringify(fields), created_date: now, updated_date: now, created_by: ctx.user?.email ?? null, created_by_id: ctx.user?.id ?? null }));
     },
 
     async update(id, patch) {
@@ -357,7 +369,7 @@ function createEntityApi(ctx, name) {
 
       const now = new Date().toISOString();
       await db().prepare("UPDATE records SET data = ?, updated_date = ? WHERE entity = ? AND id = ?").bind(serialize(data), now, name, id).run();
-      return hydrate({ ...row, data: JSON.stringify(data), updated_date: now });
+      return present(ctx, name, hydrate({ ...row, data: JSON.stringify(data), updated_date: now }));
     },
 
     async updateMany(query, update) {
@@ -375,6 +387,50 @@ function createEntityApi(ctx, name) {
         .bind(JSON.stringify(changes), now, name, ...q.params, ...w.params)
         .run();
       return { updated: res.meta?.changes ?? 0 };
+    },
+
+    /**
+     * Import en masse (export d'une ancienne base, par exemple) — réservé au code serveur.
+     * Conserve l'identifiant, les dates et l'auteur d'origine ; relancer l'import met à jour au lieu de dupliquer.
+     * Tolère les exports CSV (listes en texte, nombres et booléens écrits en toutes lettres).
+     */
+    async importMany(records) {
+      if (!ctx.service) throw new HttpError(403, "Accès refusé.");
+      await prepare(ctx);
+      const result = { imported: 0, skipped: [] };
+      const toDate = (v) => (v && !Number.isNaN(Date.parse(v)) ? new Date(v).toISOString() : new Date().toISOString());
+      for (const [index, raw] of (Array.isArray(records) ? records : []).entries()) {
+        try {
+          if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new HttpError(422, "Ligne invalide.");
+          const input = {};
+          for (const [key, value] of Object.entries(stripReserved(raw))) {
+            const spec = def.properties?.[key];
+            if (value === "" || value === undefined) continue;
+            if (spec?.type === "array" && typeof value === "string") {
+              try {
+                input[key] = JSON.parse(value);
+              } catch {
+                input[key] = value.split(/\s*[,;]\s*/).filter(Boolean);
+              }
+            } else input[key] = value;
+          }
+          const fields = withDefaults(def, cleanFields(def, input));
+          assertRequired(def, fields);
+          const id = typeof raw.id === "string" && /^[\w-]{1,64}$/.test(raw.id) ? raw.id : newId();
+          const created = toDate(raw.created_date);
+          await db()
+            .prepare(
+              `INSERT INTO records (entity, id, data, created_date, updated_date, created_by, created_by_id) VALUES (?,?,?,?,?,?,?)
+               ON CONFLICT(entity, id) DO UPDATE SET data = excluded.data, updated_date = excluded.updated_date`,
+            )
+            .bind(name, id, serialize(fields), created, toDate(raw.updated_date ?? raw.created_date), raw.created_by ?? null, raw.created_by_id ?? null)
+            .run();
+          result.imported += 1;
+        } catch (error) {
+          result.skipped.push({ index: index + 1, reason: error?.message || "Erreur" });
+        }
+      }
+      return result;
     },
 
     async delete(id) {

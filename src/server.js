@@ -11,4 +11,23 @@ const handler = createStartHandler((ctx) => {
   return defaultStreamHandler(ctx);
 });
 
-export default { fetch: handler };
+// En-têtes de sécurité ajoutés à toutes les réponses : pas d'affichage du site dans une page tierce
+// (clickjacking), pas de détection de type hasardeuse, adresse d'origine limitée dans les liens sortants, HTTPS imposé.
+const SECURITY_HEADERS = {
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "SAMEORIGIN",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+};
+
+export default {
+  async fetch(request, env, ctx) {
+    const response = await handler(request, env, ctx);
+    const secured = new Response(response.body, response);
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+      if (!secured.headers.has(name)) secured.headers.set(name, value);
+    }
+    return secured;
+  },
+};

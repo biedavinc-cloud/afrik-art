@@ -35,12 +35,24 @@ Ajouter un champ à une entité = éditer son JSON ; aucune migration de base.
 E-mail + mot de passe (PBKDF2), code de vérification à 6 chiffres, réinitialisation par lien à usage unique,
 Google OAuth (si `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` sont définis). Limitation de débit sur les connexions,
 codes et envois. Protection CSRF (`Sec-Fetch-Site` / `Origin`) sur toute requête qui modifie l'état.
-Les adresses de `SUPERADMIN_EMAILS` reçoivent le rôle `admin` dès que leur e-mail est vérifié.
+Les adresses du secret `SUPERADMIN_EMAILS` reçoivent le rôle `admin` dès que leur e-mail est vérifié.
+Inscrire une adresse déjà utilisée ne révèle rien à l'écran (le titulaire est prévenu par e-mail) : pas d'énumération de comptes.
+
+## Données sensibles
+
+Le dépôt est public : aucune adresse, clé ni secret n'y figure (secrets Cloudflare uniquement).
+Côté API, `created_by` (e-mail de l'auteur) et les champs de `PRIVATE_FIELDS` sont retirés pour tout lecteur qui n'est ni
+admin ni propriétaire. Les formulaires publics (contact, messagerie) sont limités par IP et par destinataire.
+
+## E-mails
+
+Modèles dans `src/server/mail-templates.js`, textes dans `src/server/mail-i18n.js` (fr, en, es, pt, sw : la langue du
+visiteur est transmise par le navigateur et mémorisée sur le compte). Tout texte utilisateur y est échappé.
 
 ## Configuration (`wrangler.jsonc`)
 
-Variables : `PUBLIC_URL`, `MAIL_FROM`, `SUPERADMIN_EMAILS`, `ENVIRONMENT`. Secrets optionnels (tableau de bord
-Cloudflare ou `wrangler secret put`) : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+Variables : `PUBLIC_URL`, `MAIL_FROM`, `ENVIRONMENT`. Secrets (tableau de bord Cloudflare ou `wrangler secret put`) :
+`SUPERADMIN_EMAILS` (obligatoire), `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET` (optionnels).
 Les clés des prestataires (paiement, IA) se saisissent dans l'espace superadmin > Connecteurs (stockées en D1,
 jamais renvoyées au navigateur).
 

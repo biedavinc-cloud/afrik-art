@@ -28,6 +28,15 @@ export const BROWSER_BLOCKED = {
 };
 
 /**
+ * Champs jamais renvoyés à un lecteur qui n'est ni administrateur ni propriétaire de l'enregistrement,
+ * même quand la lecture de l'enregistrement lui-même est publique (profil d'artiste, œuvre…).
+ * `created_by` (l'adresse e-mail de l'auteur) est masqué sur TOUTES les entités.
+ */
+export const PRIVATE_FIELDS = {
+  ArtistProfile: ["contact_email", "notify_email", "notify_whatsapp"],
+};
+
+/**
  * Champs qu'un utilisateur non administrateur ne peut jamais écrire lui-même, à la création comme à la
  * modification (ils sont ignorés silencieusement) : sinon n'importe qui pourrait s'attribuer le plan
  * premium, la certification ou se réactiver après une suspension.

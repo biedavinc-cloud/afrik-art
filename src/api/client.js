@@ -33,6 +33,15 @@ async function request(path, { method = "POST", body, form } = {}) {
   return payload;
 }
 
+// Langue choisie par le visiteur sur le site : les e-mails (code, mot de passe…) arrivent dans cette langue.
+function currentLang() {
+  try {
+    return window.localStorage.getItem("afrikart.lang") || document.documentElement.lang || navigator.language?.slice(0, 2) || "fr";
+  } catch {
+    return "fr";
+  }
+}
+
 const entityClients = new Map();
 
 function entityClient(entity) {
@@ -64,12 +73,12 @@ export const api = {
   auth: {
     me: async () => (await request("/api/auth/me", { method: "GET" })).user,
     options: () => request("/api/auth/options", { method: "GET" }),
-    register: (payload) => request("/api/auth/register", { body: payload }),
+    register: (payload) => request("/api/auth/register", { body: { ...payload, lang: currentLang() } }),
     verifyOtp: ({ email, otpCode }) => request("/api/auth/verify-otp", { body: { email, otpCode } }),
-    resendOtp: (email) => request("/api/auth/resend-otp", { body: { email } }),
-    login: (email, password) => request("/api/auth/login", { body: { email, password } }),
+    resendOtp: (email) => request("/api/auth/resend-otp", { body: { email, lang: currentLang() } }),
+    login: (email, password) => request("/api/auth/login", { body: { email, password, lang: currentLang() } }),
     logout: () => request("/api/auth/logout", { body: {} }),
-    resetPasswordRequest: (email) => request("/api/auth/reset-password-request", { body: { email } }),
+    resetPasswordRequest: (email) => request("/api/auth/reset-password-request", { body: { email, lang: currentLang() } }),
     resetPassword: ({ resetToken, newPassword }) => request("/api/auth/reset-password", { body: { resetToken, newPassword } }),
     // Navigation complète : le serveur redirige ensuite vers returnTo (chemin interne uniquement).
     loginWithGoogle: (returnTo = "/") => window.location.assign(`/api/auth/google-start?returnTo=${encodeURIComponent(returnTo)}`),

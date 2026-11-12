@@ -1,40 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { getRequest } from "@tanstack/react-start/server";
 import { requireUser } from "@/lib/auth-middleware";
+import { limitPublicSubmission } from "@/server/abuse.server";
+import { publicUrl } from "@/server/config.server";
+import { pickLang } from "@/server/lang";
+import { contactNotificationEmail, replyEmail } from "@/server/mail-templates";
 
 const asItems = (res) => (Array.isArray(res) ? res : res?.items || []);
 const nowIso = () => new Date().toISOString();
 
-async function sendMail(api, { to, subject, html }) {
+async function sendMail(api, { to, subject, html, text }) {
   if (!to) return false;
   try {
-    await api.integrations.Core.SendEmail({ to, subject, html, category: "transactional" });
+    await api.integrations.Core.SendEmail({ to, subject, html, text });
     return true;
   } catch {
     return false;
   }
-}
-
-function artistEmailTemplate(thread) {
-  return `
-    <div style="font-family:Helvetica,Arial,sans-serif;line-height:1.6;color:#1d1d1d">
-      <h2 style="color:#e31d2b;margin-bottom:4px">Nouveau message client</h2>
-      <p><strong>${thread.client_name}</strong> vous a contacté depuis Afrik Art.</p>
-      <p style="margin:16px 0;padding:16px;background:#f7f7f7;border-radius:10px;white-space:pre-line">${thread.last_message}</p>
-      <p>Répondez directement depuis votre espace : <a href="https://afrik.cloud/messagerie">ouvrir la messagerie</a></p>
-      <p style="color:#666;font-size:12px">Email du client : ${thread.client_email}${
-        thread.client_phone ? ` · Téléphone : ${thread.client_phone}` : ""
-      }</p>
-    </div>`;
-}
-
-function clientEmailTemplate(thread, artistName) {
-  return `
-    <div style="font-family:Helvetica,Arial,sans-serif;line-height:1.6;color:#1d1d1d">
-      <h2 style="color:#e31d2b;margin-bottom:4px">Réponse de ${artistName}</h2>
-      <p style="margin:16px 0;padding:16px;background:#f7f7f7;border-radius:10px;white-space:pre-line">${thread.last_message}</p>
-      <p style="color:#666;font-size:12px">Afrik Art — la plateforme panafricaine des talents.</p>
-    </div>`;
 }
 
 async function artistContact(api, artistUserId) {
@@ -70,6 +53,7 @@ export const startConversation = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
+    await limitPublicSubmission("conversation", data.profileId);
     const service = context.getApi().asServiceRole;
     const profile = await service.entities.ArtistProfile.get(data.profileId);
     if (!profile) throw new Error("Profil introuvable.");
@@ -94,6 +78,7 @@ export const startConversation = createServerFn({ method: "POST" })
       client_name: data.senderName,
       client_email: data.senderEmail,
       client_phone: data.senderPhone || "",
+      client_lang: pickLang(null, getRequest()),
       subject,
       collaboration_type: data.collaborationType || "collaboration",
       status: "open",
@@ -134,8 +119,14 @@ export const startConversation = createServerFn({ method: "POST" })
       const owner = await artistContact(service, profile.user_id);
       emailed = await sendMail(service, {
         to: owner?.email,
-        subject: `${data.senderName} vous a contacté sur Afrik Art`,
-        html: artistEmailTemplate({ ...thread, last_message: data.message }),
+        ...contactNotificationEmail({
+          lang: owner?.lang || "fr",
+          baseUrl: publicUrl(),
+          clientName: data.senderName,
+          message: data.message,
+          clientEmail: data.senderEmail,
+          clientPhone: data.senderPhone,
+        }),
       });
     }
 
@@ -233,18 +224,30 @@ export const replyToThread = createServerFn({ method: "POST" })
     let emailed = false;
     if (isArtist) {
       if (thread.client_email) {
+        const profile = await api.asServiceRole.entities.ArtistProfile.get(thread.profile_id).catch(() => null);
         emailed = await sendMail(api.asServiceRole, {
           to: thread.client_email,
-          subject: `Réponse de ${thread.artist_name} sur Afrik Art`,
-          html: clientEmailTemplate({ last_message: data.body }, thread.artist_name),
+          ...replyEmail({
+            lang: thread.client_lang || "fr",
+            baseUrl: publicUrl(),
+            artistName: thread.artist_name,
+            message: data.body,
+            profileUrl: profile?.slug ? `${publicUrl()}/talents/${profile.slug}` : undefined,
+          }),
         });
       }
     } else {
       const owner = await artistContact(api.asServiceRole, thread.artist_user_id);
       emailed = await sendMail(api.asServiceRole, {
         to: owner?.email,
-        subject: `${message.sender_name} vous a répondu sur Afrik Art`,
-        html: artistEmailTemplate({ ...thread, last_message: data.body }),
+        ...contactNotificationEmail({
+          lang: owner?.lang || "fr",
+          baseUrl: publicUrl(),
+          clientName: message.sender_name,
+          message: data.body,
+          clientEmail: thread.client_email,
+          clientPhone: thread.client_phone,
+        }),
       });
     }
 

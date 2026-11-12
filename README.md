@@ -5,9 +5,11 @@ Plateforme panafricaine de promotion des talents. Application TanStack Start dé
 
 ## Super administrateurs
 
-Déclarés dans `wrangler.jsonc` (`SUPERADMIN_EMAILS`) : `vincentnogue2@gmail.com`, `webdxb1@gmail.com`.
+Leurs adresses ne sont **pas** dans le dépôt (il est public) : elles se définissent comme **secret** Cloudflare
+`SUPERADMIN_EMAILS` (adresses séparées par des virgules) — Worker > Settings > Variables and Secrets > Add > type « Secret ».
 Le rôle `admin` est attribué automatiquement dès que l'adresse est **vérifiée** (inscription avec code, ou Google).
 Ces comptes gèrent ensuite les autres rôles depuis `/admin/utilisateurs`.
+`/api/health` indique `"superadmins":"ok"` quand le secret est défini (jamais les adresses).
 
 ## Déploiement
 
@@ -20,7 +22,7 @@ Ces comptes gèrent ensuite les autres rôles depuis `/admin/utilisateurs`.
 4. **Domaine** : Worker > Settings > Domains & Routes > `afrik.cloud`.
 5. *(Optionnel)* Connexion Google : créer un identifiant OAuth sur Google Cloud avec l'URI de redirection
    `https://afrik.cloud/api/auth/google-callback`, puis définir les secrets `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET`.
-6. Contrôle : `https://afrik.cloud/api/health` doit répondre `{"ok":true,"database":"ok","storage":"ok","email":"ok"}`.
+6. Contrôle : `https://afrik.cloud/api/health` doit répondre `ok` pour `database`, `storage`, `email` et `superadmins`.
 
 Le nom du Worker dans `wrangler.jsonc` doit rester identique à celui du tableau de bord Cloudflare.
 

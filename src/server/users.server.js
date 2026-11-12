@@ -14,6 +14,7 @@ export const publicUser = (row) =>
     full_name: row.full_name ?? null,
     role: row.role,
     avatar_url: row.avatar_url ?? null,
+    lang: row.lang ?? null,
     email_verified: Boolean(row.email_verified),
     created_date: row.created_date,
     updated_date: row.updated_date,

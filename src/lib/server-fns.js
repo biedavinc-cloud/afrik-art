@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth-middleware";
+import { limitPublicSubmission } from "@/server/abuse.server";
 import { BOOST_PACKAGES, DEFAULT_PLANS } from "@/lib/plans";
 
 const asPage = (res) => (Array.isArray(res) ? res : res?.items || []);
@@ -298,6 +299,7 @@ export const sendContactRequest = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data, context }) => {
+    await limitPublicSubmission("contact", data.profileId);
     const api = context.getApi();
     const profile = await api.entities.ArtistProfile.get(data.profileId);
 

@@ -29,6 +29,7 @@ const STATEMENTS = [
     email_verified INTEGER NOT NULL DEFAULT 0,
     google_sub TEXT UNIQUE,
     avatar_url TEXT,
+    lang TEXT,
     created_date TEXT NOT NULL,
     updated_date TEXT NOT NULL
   )`,
@@ -72,11 +73,17 @@ const STATEMENTS = [
   ),
 ];
 
+// Colonnes ajoutées après la première version du schéma (les bases déjà créées sont mises à niveau).
+const ADDED_COLUMNS = ["ALTER TABLE users ADD COLUMN lang TEXT"];
+
 let ready;
 
 // Appliqué une seule fois par instance du Worker.
 export function ensureSchema() {
-  ready ??= env.DB.batch(STATEMENTS.map((sql) => env.DB.prepare(sql))).catch((error) => {
+  ready ??= (async () => {
+    await env.DB.batch(STATEMENTS.map((sql) => env.DB.prepare(sql)));
+    for (const sql of ADDED_COLUMNS) await env.DB.prepare(sql).run().catch(() => {}); // « duplicate column » = déjà fait
+  })().catch((error) => {
     ready = undefined; // on réessaiera à la requête suivante
     throw error;
   });
@@ -87,5 +94,10 @@ export function ensureSchema() {
 export async function health() {
   await ensureSchema();
   await env.DB.prepare("SELECT 1").first();
-  return { database: "ok", storage: env.FILES ? "ok" : "missing", email: env.EMAIL ? "ok" : "missing" };
+  return {
+    database: "ok",
+    storage: env.FILES ? "ok" : "missing",
+    email: env.EMAIL ? "ok" : "missing",
+    superadmins: String(env.SUPERADMIN_EMAILS || "").trim() ? "ok" : "missing",
+  };
 }

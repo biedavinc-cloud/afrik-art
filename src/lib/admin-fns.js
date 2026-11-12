@@ -206,3 +206,18 @@ export const settlePayment = createServerFn({ method: "POST" })
 
     return { ok: true, status: "paid" };
   });
+// Entités qu'un export d'ancienne base peut réalimenter.
+const IMPORTABLE = ["BlogPost", "Category", "PlanConfig", "ArtistProfile", "Artwork"];
+
+export const importRecords = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .validator(
+    z.object({
+      entity: z.enum(IMPORTABLE),
+      records: z.array(z.record(z.string(), z.any())).min(1).max(100),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    assertAdmin(context);
+    return context.getApi().asServiceRole.entities[data.entity].importMany(data.records);
+  });

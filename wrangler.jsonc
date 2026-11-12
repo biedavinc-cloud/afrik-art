@@ -21,8 +21,8 @@
     "ENVIRONMENT": "production",
     "PUBLIC_URL": "https://afrik.cloud",
     // Adresse expéditrice : le domaine doit être validé dans Cloudflare > Email Service.
-    "MAIL_FROM": "noreply@afrik.cloud",
-    // Super administrateurs : rôle « admin » attribué dès que l'adresse e-mail est vérifiée.
-    "SUPERADMIN_EMAILS": "vincentnogue2@gmail.com,webdxb1@gmail.com"
+    "MAIL_FROM": "noreply@afrik.cloud"
+    // SUPERADMIN_EMAILS (adresses des super administrateurs) n'est volontairement PAS ici : le dépôt est public.
+    // Définissez-le comme SECRET : Cloudflare > Worker > Settings > Variables and Secrets > Add > type « Secret ».
   }
 }

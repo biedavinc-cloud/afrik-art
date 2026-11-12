@@ -1,6 +1,8 @@
 import { env } from "cloudflare:workers";
 import { HttpError } from "./errors";
-import { otpEmail, resetEmail, sendMail } from "./mail.server";
+import { pickLang } from "./lang";
+import { sendMail } from "./mail.server";
+import { accountExistsEmail, otpEmail, resetEmail } from "./mail-templates";
 import { ensureSchema } from "./schema.server";
 import { hashPassword, newId, randomDigits, randomHex, safeEqual, sha256Hex, verifyPassword } from "./security.server";
 import { normalizeEmail, publicUser, superadminEmails } from "./users.server";
@@ -132,7 +134,7 @@ function validatePassword(password) {
   return password;
 }
 
-async function issueOtp(email, userId) {
+async function issueOtp(request, email, userId, lang) {
   await throttle(`otp-send:${email}`, 5, 3600);
   const code = randomDigits(6);
   const now = Date.now();
@@ -143,43 +145,52 @@ async function issueOtp(email, userId) {
     )
     .bind(email, await sha256Hex(`${code}:${email}`), userId, now, now + OTP_TTL_MS)
     .run();
-  const mail = otpEmail(code);
-  await sendMail({ to: email, ...mail });
+  await sendMail({ to: email, ...otpEmail({ lang, baseUrl: originOf(request), code }) });
 }
 
-export async function register(request, { email: rawEmail, password: rawPassword, full_name }) {
+// Une inscription visant une adresse déjà inscrite ne révèle rien à l'écran (sinon n'importe qui pourrait
+// tester quelles adresses ont un compte) : le titulaire est simplement prévenu par e-mail.
+async function notifyAccountExists(request, email, lang) {
+  await throttle(`exists-mail:${email}`, 3, 3600);
+  await sendMail({ to: email, ...accountExistsEmail({ lang, baseUrl: originOf(request) }) });
+}
+
+export async function register(request, { email: rawEmail, password: rawPassword, full_name, lang: rawLang }) {
   await ensureSchema();
+  const lang = pickLang(rawLang, request);
   await throttle(`register:${clientIp(request)}`, 20, 3600);
   const email = validateEmail(rawEmail);
   const password = validatePassword(rawPassword);
   const existing = await userByEmail(email);
   if (existing?.email_verified && existing.password_hash) {
-    throw new HttpError(409, "Un compte existe déjà avec cette adresse e-mail. Connectez-vous.", "account_exists");
+    await notifyAccountExists(request, email, existing.lang || lang);
+    return { ok: true };
   }
   const passwordHash = await hashPassword(password);
   const now = new Date().toISOString();
   let userId = existing?.id;
   if (existing) {
     // Compte non vérifié (ou invité) : le dernier mot de passe saisi gagne, mais rien n'est actif tant que l'e-mail n'est pas confirmé.
-    await db().prepare("UPDATE users SET password_hash = ?, full_name = COALESCE(?, full_name), updated_date = ? WHERE id = ?").bind(passwordHash, full_name?.slice(0, 120) ?? null, now, existing.id).run();
+    await db().prepare("UPDATE users SET password_hash = ?, full_name = COALESCE(?, full_name), lang = ?, updated_date = ? WHERE id = ?").bind(passwordHash, full_name?.slice(0, 120) ?? null, lang, now, existing.id).run();
   } else {
     userId = newId();
     await db()
-      .prepare("INSERT INTO users (id, email, full_name, role, password_hash, email_verified, created_date, updated_date) VALUES (?,?,?,?,?,0,?,?)")
-      .bind(userId, email, full_name?.slice(0, 120) ?? null, "user", passwordHash, now, now)
+      .prepare("INSERT INTO users (id, email, full_name, role, password_hash, email_verified, lang, created_date, updated_date) VALUES (?,?,?,?,?,0,?,?,?)")
+      .bind(userId, email, full_name?.slice(0, 120) ?? null, "user", passwordHash, lang, now, now)
       .run();
   }
-  await issueOtp(email, userId);
+  await issueOtp(request, email, userId, lang);
   return { ok: true };
 }
 
-export async function resendOtp(request, { email: rawEmail }) {
+export async function resendOtp(request, { email: rawEmail, lang: rawLang }) {
   await ensureSchema();
   const email = validateEmail(rawEmail);
   const user = await userByEmail(email);
-  if (user?.email_verified && user.password_hash) throw new HttpError(400, "Email already verified");
-  if (user) await issueOtp(email, user.id);
-  return { ok: true }; // même réponse si le compte n'existe pas
+  const lang = pickLang(rawLang ?? user?.lang, request);
+  if (user?.email_verified && user.password_hash) await notifyAccountExists(request, email, lang);
+  else if (user) await issueOtp(request, email, user.id, lang);
+  return { ok: true }; // même réponse que le compte existe, soit déjà vérifié ou inconnu
 }
 
 export async function verifyOtp(request, { email: rawEmail, otpCode }) {
@@ -189,7 +200,6 @@ export async function verifyOtp(request, { email: rawEmail, otpCode }) {
   const user = await userByEmail(email);
   const row = await db().prepare("SELECT * FROM auth_codes WHERE purpose = 'otp' AND key = ?").bind(email).first();
   if (!row || row.expires_at < Date.now() || !user) {
-    if (user?.email_verified) throw new HttpError(400, "Email already verified");
     throw new HttpError(400, "Code invalide ou expiré. Demandez un nouveau code.");
   }
   if (row.attempts >= MAX_OTP_ATTEMPTS) {
@@ -211,7 +221,7 @@ export async function verifyOtp(request, { email: rawEmail, otpCode }) {
 // Hash factice pour que « compte inconnu » et « mauvais mot de passe » prennent le même temps.
 const DUMMY_HASH = `pbkdf2$100000$${"00".repeat(16)}$${"00".repeat(32)}`;
 
-export async function login(request, { email: rawEmail, password }) {
+export async function login(request, { email: rawEmail, password, lang: rawLang }) {
   await ensureSchema();
   const email = normalizeEmail(rawEmail);
   await throttle(`login-ip:${clientIp(request)}`, 40, 900);
@@ -220,11 +230,14 @@ export async function login(request, { email: rawEmail, password }) {
   const valid = await verifyPassword(String(password ?? ""), user?.password_hash || DUMMY_HASH);
   if (!user || !user.password_hash || !valid) throw new HttpError(401, "Adresse e-mail ou mot de passe incorrect.", "invalid_credentials");
   if (!user.email_verified) {
-    await issueOtp(email, user.id).catch(() => {});
+    await issueOtp(request, email, user.id, pickLang(rawLang ?? user.lang, request)).catch(() => {});
     throw new HttpError(403, "Adresse e-mail non vérifiée. Un nouveau code vient de vous être envoyé : terminez l'inscription.", "email_not_verified");
   }
   await db().prepare("DELETE FROM throttle WHERE key = ?").bind(`login:${email}`).run();
-  return startSession(request, user);
+  // La langue choisie sur le site est mémorisée : les prochains e-mails (messages, etc.) la respectent.
+  const lang = pickLang(rawLang ?? user.lang, request);
+  if (lang !== user.lang) await db().prepare("UPDATE users SET lang = ? WHERE id = ?").bind(lang, user.id).run();
+  return startSession(request, { ...user, lang });
 }
 
 export async function logout(request) {
@@ -239,7 +252,7 @@ export async function logout(request) {
 
 const originOf = (request) => env.PUBLIC_URL || new URL(request.url).origin;
 
-async function sendPasswordLink(request, user, { invited, ttl }) {
+async function sendPasswordLink(request, user, { invited, ttl, lang }) {
   const token = randomHex(32);
   const now = Date.now();
   await db()
@@ -250,17 +263,17 @@ async function sendPasswordLink(request, user, { invited, ttl }) {
     .bind(user.id, await sha256Hex(token), user.id, now, now + ttl)
     .run();
   const link = `${originOf(request)}/reset-password?token=${token}`;
-  return sendMail({ to: user.email, ...resetEmail(link, { invited }) });
+  return sendMail({ to: user.email, ...resetEmail({ lang, baseUrl: originOf(request), link, invited }) });
 }
 
-export async function requestPasswordReset(request, { email: rawEmail }) {
+export async function requestPasswordReset(request, { email: rawEmail, lang: rawLang }) {
   await ensureSchema();
   const email = normalizeEmail(rawEmail);
   if (!EMAIL_RE.test(email)) return { ok: true };
   await throttle(`reset:${email}`, 5, 3600);
   await throttle(`reset-ip:${clientIp(request)}`, 20, 3600);
   const user = await userByEmail(email);
-  if (user) await sendPasswordLink(request, user, { invited: false, ttl: RESET_TTL_MS });
+  if (user) await sendPasswordLink(request, user, { invited: false, ttl: RESET_TTL_MS, lang: pickLang(rawLang ?? user.lang, request) });
   return { ok: true }; // identique que le compte existe ou non
 }
 
@@ -298,7 +311,7 @@ export async function inviteUser(request, email, role = "user") {
     await db().prepare("INSERT INTO users (id, email, role, email_verified, created_date, updated_date) VALUES (?,?,?,0,?,?)").bind(id, clean, wanted, now, now).run();
     user = { id, email: clean };
   }
-  await sendPasswordLink(request, user, { invited: true, ttl: INVITE_TTL_MS });
+  await sendPasswordLink(request, user, { invited: true, ttl: INVITE_TTL_MS, lang: user.lang || "fr" });
   return { ok: true };
 }
 
@@ -379,8 +392,8 @@ export async function googleCallback(request) {
     } else {
       const id = newId();
       await db()
-        .prepare("INSERT INTO users (id, email, full_name, role, email_verified, google_sub, avatar_url, created_date, updated_date) VALUES (?,?,?,?,1,?,?,?,?)")
-        .bind(id, email, info.name ?? null, "user", info.sub, info.picture ?? null, now, now)
+        .prepare("INSERT INTO users (id, email, full_name, role, email_verified, google_sub, avatar_url, lang, created_date, updated_date) VALUES (?,?,?,?,1,?,?,?,?,?)")
+        .bind(id, email, info.name ?? null, "user", info.sub, info.picture ?? null, pickLang(null, request), now, now)
         .run();
       user = { id, email, role: "user", email_verified: 1 };
     }
