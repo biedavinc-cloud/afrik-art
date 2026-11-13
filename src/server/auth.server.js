@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { HttpError } from "./errors";
 import { pickLang } from "./lang";
-import { sendMail } from "./mail.server";
+import { sendMailDetailed } from "./mail.server";
 import { accountExistsEmail, otpEmail, resetEmail } from "./mail-templates";
 import { ensureSchema } from "./schema.server";
 import { hashPassword, newId, randomDigits, randomHex, safeEqual, sha256Hex, verifyPassword } from "./security.server";
@@ -134,6 +134,13 @@ function validatePassword(password) {
   return password;
 }
 
+// Réponse de l'API après envoi d'un e-mail : en cas d'échec d'infrastructure on renvoie une référence technique
+// (code d'erreur Cloudflare, jamais d'adresse ni de contenu), identique que le compte existe ou non.
+function mailOutcome(result) {
+  if (result.ok) return { ok: true, emailed: true };
+  return { ok: true, emailed: false, emailError: result.code, ...(result.code === "UNKNOWN" ? { emailDetail: String(result.message || "").slice(0, 140) } : {}) };
+}
+
 async function issueOtp(request, email, userId, lang) {
   await throttle(`otp-send:${email}`, 5, 3600);
   const code = randomDigits(6);
@@ -145,14 +152,14 @@ async function issueOtp(request, email, userId, lang) {
     )
     .bind(email, await sha256Hex(`${code}:${email}`), userId, now, now + OTP_TTL_MS)
     .run();
-  return sendMail({ to: email, ...otpEmail({ lang, baseUrl: originOf(request), code }) });
+  return sendMailDetailed({ to: email, ...otpEmail({ lang, baseUrl: originOf(request), code }) });
 }
 
 // Une inscription visant une adresse déjà inscrite ne révèle rien à l'écran (sinon n'importe qui pourrait
 // tester quelles adresses ont un compte) : le titulaire est simplement prévenu par e-mail.
 async function notifyAccountExists(request, email, lang) {
   await throttle(`exists-mail:${email}`, 3, 3600);
-  return sendMail({ to: email, ...accountExistsEmail({ lang, baseUrl: originOf(request) }) });
+  return sendMailDetailed({ to: email, ...accountExistsEmail({ lang, baseUrl: originOf(request) }) });
 }
 
 export async function register(request, { email: rawEmail, password: rawPassword, full_name, lang: rawLang }) {
@@ -164,7 +171,7 @@ export async function register(request, { email: rawEmail, password: rawPassword
   const existing = await userByEmail(email);
   if (existing?.email_verified && existing.password_hash) {
     // `emailed` ne dépend pas de l'existence du compte (dans les deux cas un e-mail part) : rien n'est révélé.
-    return { ok: true, emailed: await notifyAccountExists(request, email, existing.lang || lang) };
+    return mailOutcome(await notifyAccountExists(request, email, existing.lang || lang));
   }
   const passwordHash = await hashPassword(password);
   const now = new Date().toISOString();
@@ -179,7 +186,7 @@ export async function register(request, { email: rawEmail, password: rawPassword
       .bind(userId, email, full_name?.slice(0, 120) ?? null, "user", passwordHash, lang, now, now)
       .run();
   }
-  return { ok: true, emailed: await issueOtp(request, email, userId, lang) };
+  return mailOutcome(await issueOtp(request, email, userId, lang));
 }
 
 export async function resendOtp(request, { email: rawEmail, lang: rawLang }) {
@@ -187,10 +194,10 @@ export async function resendOtp(request, { email: rawEmail, lang: rawLang }) {
   const email = validateEmail(rawEmail);
   const user = await userByEmail(email);
   const lang = pickLang(rawLang ?? user?.lang, request);
-  let emailed = true;
-  if (user?.email_verified && user.password_hash) emailed = await notifyAccountExists(request, email, lang);
-  else if (user) emailed = await issueOtp(request, email, user.id, lang);
-  return { ok: true, emailed }; // même forme de réponse que le compte soit vérifié, en attente ou inconnu
+  let outcome = { ok: true };
+  if (user?.email_verified && user.password_hash) outcome = await notifyAccountExists(request, email, lang);
+  else if (user) outcome = await issueOtp(request, email, user.id, lang);
+  return mailOutcome(outcome); // même forme de réponse que le compte soit vérifié, en attente ou inconnu
 }
 
 export async function verifyOtp(request, { email: rawEmail, otpCode }) {
@@ -263,7 +270,7 @@ async function sendPasswordLink(request, user, { invited, ttl, lang }) {
     .bind(user.id, await sha256Hex(token), user.id, now, now + ttl)
     .run();
   const link = `${originOf(request)}/reset-password?token=${token}`;
-  return sendMail({ to: user.email, ...resetEmail({ lang, baseUrl: originOf(request), link, invited }) });
+  return (await sendMailDetailed({ to: user.email, ...resetEmail({ lang, baseUrl: originOf(request), link, invited }) })).ok;
 }
 
 export async function requestPasswordReset(request, { email: rawEmail, lang: rawLang }) {

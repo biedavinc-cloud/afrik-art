@@ -25,6 +25,12 @@ const isAlreadyVerified = (err) => err?.status === 400 && /already verified/i.te
  * does not sign the user in (the account is unverified), so the code step is never
  * skipped and loginViaEmailPassword is never called right after register.
  */
+// Message affiché quand le serveur n'a pas pu envoyer l'e-mail, avec la référence technique à donner au support.
+function mailFailureMessage(result) {
+  const reference = result?.emailError ? ` (Réf. : ${result.emailError}${result.emailDetail ? ` — ${result.emailDetail}` : ""})` : "";
+  return "L'e-mail contenant le code n'a pas pu être envoyé pour le moment. Réessayez avec « Renvoyer le code » dans un instant ; si le problème persiste, contactez le support." + reference;
+}
+
 export function RegisterPage() {
   const returnTo = safeReturnTo();
   // Sans destination demandée, on arrive dans son espace (qui propose de créer le profil s'il n'existe pas encore).
@@ -64,7 +70,7 @@ export function RegisterPage() {
       const result = await api.auth.register({ email, password });
       setStep("otp");
       setCooldown(60);
-      if (result?.emailed === false) setError("L'e-mail contenant le code n'a pas pu être envoyé pour le moment. Réessayez avec « Renvoyer le code » dans un instant ; si le problème persiste, contactez le support.");
+      if (result?.emailed === false) setError(mailFailureMessage(result));
     } catch (err) {
       setError(err.message || "La création du compte a échoué.");
     } finally {
@@ -95,7 +101,7 @@ export function RegisterPage() {
     try {
       const result = await api.auth.resendOtp(email);
       setCooldown(60);
-      if (result?.emailed === false) setError("L'e-mail contenant le code n'a pas pu être envoyé pour le moment. Réessayez avec « Renvoyer le code » dans un instant ; si le problème persiste, contactez le support.");
+      if (result?.emailed === false) setError(mailFailureMessage(result));
       else toast("Code envoyé", { description: "Consultez votre boîte mail (et vos courriers indésirables) pour le nouveau code." });
     } catch (err) {
       if (isAlreadyVerified(err)) setStep("already_verified");
