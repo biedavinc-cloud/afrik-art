@@ -1,8 +1,8 @@
 import { env } from "cloudflare:workers";
-import { ADMIN_ONLY, BROWSER_BLOCKED, ENTITIES, PRIVATE_FIELDS, PROTECTED_FIELDS, ruleFor } from "./entities";
+import { ADMIN_ONLY, BROWSER_BLOCKED, ENTITIES, PRIVATE_FIELDS, PROTECTED_FIELDS, UNIQUE_FIELDS, ruleFor } from "./entities";
 import { HttpError } from "./errors";
 import { ensureSchema } from "./schema.server";
-import { newId } from "./security.server";
+import { newId, randomHex } from "./security.server";
 import { createUsersApi } from "./users.server";
 
 /**
@@ -284,6 +284,31 @@ async function loadRow(name, id) {
   return row;
 }
 
+// Garantit l'unicité des champs déclarés dans UNIQUE_FIELDS (voir entities.js) pour les champs présents dans `fields`.
+async function ensureUnique(name, fields, { excludeId = "", creating }) {
+  const rules = UNIQUE_FIELDS[name];
+  if (!rules) return fields;
+  const out = { ...fields };
+  for (const [field, rule] of Object.entries(rules)) {
+    const base = out[field];
+    if (typeof base !== "string" || !base) continue;
+    const taken = async (value) =>
+      Boolean(
+        await db()
+          .prepare(`SELECT 1 FROM records WHERE entity = ? AND json_extract(data, '$.${field}') = ? AND id != ? LIMIT 1`)
+          .bind(name, value, excludeId)
+          .first(),
+      );
+    if (!(await taken(base))) continue;
+    if (!creating && rule.onUpdate === "error") throw new HttpError(409, `La valeur « ${base} » est déjà utilisée (${field}).`);
+    let candidate = base;
+    for (let n = 2; n <= 50 && (await taken(candidate)); n++) candidate = `${base}-${n}`;
+    if (await taken(candidate)) candidate = `${base}-${randomHex(2)}`;
+    out[field] = candidate;
+  }
+  return out;
+}
+
 function serialize(data) {
   const text = JSON.stringify(data);
   if (text.length > MAX_RECORD_BYTES) throw new HttpError(413, "Enregistrement trop volumineux.");
@@ -341,6 +366,7 @@ function createEntityApi(ctx, name) {
       fields = stripProtected(ctx, name, fields);
       fields = withDefaults(def, cleanFields(def, fields));
       assertRequired(def, fields);
+      fields = await ensureUnique(name, fields, { creating: true });
 
       const candidate = { ...fields, created_by_id: ctx.user?.id };
       if (!ctx.service && !evalRule(ruleFor(def, "create"), ctx.user, candidate)) throw denied(ctx);
@@ -363,7 +389,7 @@ function createEntityApi(ctx, name) {
 
       const incoming = patch?.$set && typeof patch.$set === "object" ? patch.$set : patch;
       if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) throw new HttpError(400, "Données invalides.");
-      const changes = cleanFields(def, stripProtected(ctx, name, stripReserved(incoming)));
+      const changes = await ensureUnique(name, cleanFields(def, stripProtected(ctx, name, stripReserved(incoming))), { excludeId: id, creating: false });
       const data = { ...JSON.parse(row.data), ...changes };
       assertRequired(def, data);
 

@@ -32,12 +32,14 @@ function OnboardingPage() {
   useEffect(() => {
     if (isLoadingAuth || !user) return;
     let active = true;
-    api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 }).then((res) => {
-      if (!active) return;
-      const items = Array.isArray(res) ? res : res?.items || [];
-      if (items[0]) navigate({ to: "/dashboard" });
-      else setChecking(false);
-    });
+    api.entities.ArtistProfile.filter({ user_id: user.id }, { limit: 1 })
+      .then((res) => {
+        if (!active) return;
+        const items = Array.isArray(res) ? res : res?.items || [];
+        if (items[0]) navigate({ to: "/dashboard" });
+        else setChecking(false);
+      })
+      .catch(() => active && setChecking(false)); // en cas d'erreur réseau, on affiche le formulaire plutôt qu'un écran vide
     return () => {
       active = false;
     };

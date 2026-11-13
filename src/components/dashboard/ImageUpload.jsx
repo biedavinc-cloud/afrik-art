@@ -11,16 +11,17 @@ export default function ImageUpload({ value, onChange, label, ratio = "aspect-[4
   async function handle(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) {
-      toast.error("Image trop lourde : 8 Mo maximum.");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image trop lourde : 10 Mo maximum.");
       return;
     }
     setBusy(true);
     try {
       const res = await api.integrations.Core.UploadPublicFile({ file });
       onChange(res.file_url);
-    } catch {
-      toast.error("L'envoi a échoué. Réessayez.");
+    } catch (err) {
+      // Le serveur explique la cause (format non pris en charge, trop lourd, session expirée…).
+      toast.error(err?.message || "L'envoi a échoué. Réessayez.");
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -44,8 +45,8 @@ export default function ImageUpload({ value, onChange, label, ratio = "aspect-[4
           </span>
         )}
       </button>
-      <input ref={inputRef} type="file" accept="image/*" onChange={handle} className="hidden" />
-      {hint && <p className="mt-1.5 text-[11px] text-muted-foreground">{hint}</p>}
+      <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" onChange={handle} className="hidden" />
+      <p className="mt-1.5 text-[11px] text-muted-foreground">{hint || "JPEG, PNG, WebP, GIF ou AVIF — 10 Mo maximum."}</p>
     </div>
   );
 }

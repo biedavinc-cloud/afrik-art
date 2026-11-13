@@ -30,6 +30,9 @@ function withLinks(text) {
   return nodes;
 }
 
+// Image sur sa propre ligne : ![légende](https://…) ou ![légende](/chemin). Seuls https et les chemins du site sont acceptés.
+const IMAGE_RE = /^!\[([^\]]*)\]\((https:\/\/[^\s)]+|\/[^\s)]+)\)$/;
+
 function parse(content) {
   const blocks = [];
   let list = null;
@@ -49,6 +52,11 @@ function parse(content) {
       return;
     }
     list = null;
+    const image = IMAGE_RE.exec(text);
+    if (image) {
+      blocks.push({ type: "image", alt: image[1], src: image[2] });
+      return;
+    }
     if (text.startsWith("## ")) blocks.push({ type: "h2", text: text.slice(3) });
     else if (text.startsWith("> ")) blocks.push({ type: "quote", text: text.slice(2) });
     else blocks.push({ type: "p", text });
@@ -71,6 +79,14 @@ export default function ArticleBody({ content }) {
                 {b.text}
               </h2>
             </div>
+          );
+
+        if (b.type === "image")
+          return (
+            <figure key={i} className="mt-10">
+              <img src={b.src} alt={b.alt} loading="lazy" decoding="async" className="w-full rounded-xl object-cover" />
+              {b.alt && <figcaption className="mt-3 text-[13px] leading-relaxed text-muted-foreground">{b.alt}</figcaption>}
+            </figure>
           );
 
         if (b.type === "quote")

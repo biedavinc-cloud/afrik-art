@@ -1,5 +1,5 @@
 import { LogIn, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import {
   AuthError,
@@ -12,12 +12,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 // The /login page. ?returnTo= (or the platform's ?from_url=) is where the visitor
 // goes after signing in — the login gate and the MCP consent page send people here with it.
 export function LoginPage() {
   const returnTo = safeReturnTo();
+  // Sans destination demandée, on arrive dans son espace (qui propose de créer le profil s'il n'existe pas encore).
+  const destination = returnTo === "/" ? "/dashboard" : returnTo;
+  const { isAuthenticated } = useAuth();
+  useEffect(() => {
+    if (isAuthenticated) window.location.replace(destination);
+  }, [isAuthenticated, destination]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(() => {
@@ -35,7 +42,7 @@ export function LoginPage() {
     try {
       await api.auth.login(email, password);
       // Redirection complète : l'application repart avec la nouvelle session.
-      window.location.href = returnTo;
+      window.location.href = destination;
     } catch (err) {
       setError(err.message || "Adresse e-mail ou mot de passe incorrect.");
       setBusy(false);

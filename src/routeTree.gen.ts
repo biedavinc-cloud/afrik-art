@@ -52,6 +52,7 @@ import { Route as AuthedAdminIntegrationsRouteImport } from './routes/_authed/ad
 import { Route as AuthedAdminMonetisationRouteImport } from './routes/_authed/admin.monetisation'
 import { Route as AuthedAdminPaiementsRouteImport } from './routes/_authed/admin.paiements'
 import { Route as AuthedAdminSignalementsRouteImport } from './routes/_authed/admin.signalements'
+import { Route as AuthedAdminSystemeRouteImport } from './routes/_authed/admin.systeme'
 import { Route as AuthedAdminUtilisateursRouteImport } from './routes/_authed/admin.utilisateurs'
 import { Route as AuthedDashboardIndexRouteImport } from './routes/_authed/dashboard.index'
 import { Route as AuthedDashboardAbonnementRouteImport } from './routes/_authed/dashboard.abonnement'
@@ -278,6 +279,11 @@ const AuthedAdminSignalementsRoute = AuthedAdminSignalementsRouteImport.update({
   path: '/signalements',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
+const AuthedAdminSystemeRoute = AuthedAdminSystemeRouteImport.update({
+  id: '/systeme',
+  path: '/systeme',
+  getParentRoute: () => AuthedAdminRoute,
+} as any)
 const AuthedAdminUtilisateursRoute = AuthedAdminUtilisateursRouteImport.update({
   id: '/utilisateurs',
   path: '/utilisateurs',
@@ -382,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/admin/paiements': typeof AuthedAdminPaiementsRoute
   '/admin/signalements': typeof AuthedAdminSignalementsRoute
+  '/admin/systeme': typeof AuthedAdminSystemeRoute
   '/admin/utilisateurs': typeof AuthedAdminUtilisateursRoute
   '/dashboard/abonnement': typeof AuthedDashboardAbonnementRoute
   '/dashboard/demandes': typeof AuthedDashboardDemandesRoute
@@ -433,6 +440,7 @@ export interface FileRoutesByTo {
   '/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/admin/paiements': typeof AuthedAdminPaiementsRoute
   '/admin/signalements': typeof AuthedAdminSignalementsRoute
+  '/admin/systeme': typeof AuthedAdminSystemeRoute
   '/admin/utilisateurs': typeof AuthedAdminUtilisateursRoute
   '/dashboard/abonnement': typeof AuthedDashboardAbonnementRoute
   '/dashboard/demandes': typeof AuthedDashboardDemandesRoute
@@ -491,6 +499,7 @@ export interface FileRoutesById {
   '/_authed/admin/monetisation': typeof AuthedAdminMonetisationRoute
   '/_authed/admin/paiements': typeof AuthedAdminPaiementsRoute
   '/_authed/admin/signalements': typeof AuthedAdminSignalementsRoute
+  '/_authed/admin/systeme': typeof AuthedAdminSystemeRoute
   '/_authed/admin/utilisateurs': typeof AuthedAdminUtilisateursRoute
   '/_authed/dashboard/abonnement': typeof AuthedDashboardAbonnementRoute
   '/_authed/dashboard/demandes': typeof AuthedDashboardDemandesRoute
@@ -547,6 +556,7 @@ export interface FileRouteTypes {
     | '/admin/monetisation'
     | '/admin/paiements'
     | '/admin/signalements'
+    | '/admin/systeme'
     | '/admin/utilisateurs'
     | '/dashboard/abonnement'
     | '/dashboard/demandes'
@@ -598,6 +608,7 @@ export interface FileRouteTypes {
     | '/admin/monetisation'
     | '/admin/paiements'
     | '/admin/signalements'
+    | '/admin/systeme'
     | '/admin/utilisateurs'
     | '/dashboard/abonnement'
     | '/dashboard/demandes'
@@ -655,6 +666,7 @@ export interface FileRouteTypes {
     | '/_authed/admin/monetisation'
     | '/_authed/admin/paiements'
     | '/_authed/admin/signalements'
+    | '/_authed/admin/systeme'
     | '/_authed/admin/utilisateurs'
     | '/_authed/dashboard/abonnement'
     | '/_authed/dashboard/demandes'
@@ -987,6 +999,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminSignalementsRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
+    '/_authed/admin/systeme': {
+      id: '/_authed/admin/systeme'
+      path: '/systeme'
+      fullPath: '/admin/systeme'
+      preLoaderRoute: typeof AuthedAdminSystemeRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
     '/_authed/admin/utilisateurs': {
       id: '/_authed/admin/utilisateurs'
       path: '/utilisateurs'
@@ -1103,6 +1122,7 @@ interface AuthedAdminRouteChildren {
   AuthedAdminMonetisationRoute: typeof AuthedAdminMonetisationRoute
   AuthedAdminPaiementsRoute: typeof AuthedAdminPaiementsRoute
   AuthedAdminSignalementsRoute: typeof AuthedAdminSignalementsRoute
+  AuthedAdminSystemeRoute: typeof AuthedAdminSystemeRoute
   AuthedAdminUtilisateursRoute: typeof AuthedAdminUtilisateursRoute
   AuthedAdminIndexRoute: typeof AuthedAdminIndexRoute
 }
@@ -1116,6 +1136,7 @@ const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
   AuthedAdminMonetisationRoute: AuthedAdminMonetisationRoute,
   AuthedAdminPaiementsRoute: AuthedAdminPaiementsRoute,
   AuthedAdminSignalementsRoute: AuthedAdminSignalementsRoute,
+  AuthedAdminSystemeRoute: AuthedAdminSystemeRoute,
   AuthedAdminUtilisateursRoute: AuthedAdminUtilisateursRoute,
   AuthedAdminIndexRoute: AuthedAdminIndexRoute,
 }

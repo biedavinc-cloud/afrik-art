@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   ArrowLeft,
   CreditCard,
+  Activity,
   Flag,
   LayoutDashboard,
   Upload,
@@ -49,6 +50,7 @@ const GROUPS = [
       { label: "Catégories", to: "/admin/categories", icon: Tags },
       { label: "Signalements", to: "/admin/signalements", icon: Flag },
       { label: "Import de données", to: "/admin/import", icon: Upload },
+      { label: "Système", to: "/admin/systeme", icon: Activity },
     ],
   },
 ];

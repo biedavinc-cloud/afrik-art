@@ -28,6 +28,17 @@ export const BROWSER_BLOCKED = {
 };
 
 /**
+ * Champs dont la valeur doit être unique par entité (liens publics /talents/<slug>, /actualites/<slug>…).
+ * À la création, un doublon reçoit un suffixe (-2, -3…) ; à la modification, un profil est suffixé aussi,
+ * les autres entités refusent (409) pour ne pas changer silencieusement une adresse choisie par un admin.
+ */
+export const UNIQUE_FIELDS = {
+  ArtistProfile: { slug: { onUpdate: "suffix" } },
+  BlogPost: { slug: { onUpdate: "error" } },
+  Category: { slug: { onUpdate: "error" } },
+};
+
+/**
  * Champs jamais renvoyés à un lecteur qui n'est ni administrateur ni propriétaire de l'enregistrement,
  * même quand la lecture de l'enregistrement lui-même est publique (profil d'artiste, œuvre…).
  * `created_by` (l'adresse e-mail de l'auteur) est masqué sur TOUTES les entités.

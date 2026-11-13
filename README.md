@@ -26,6 +26,25 @@ Ces comptes gèrent ensuite les autres rôles depuis `/admin/utilisateurs`.
 
 Le nom du Worker dans `wrangler.jsonc` doit rester identique à celui du tableau de bord Cloudflare.
 
+## E-mails : le code de vérification n'arrive pas
+
+L'inscription affiche maintenant un message clair quand l'envoi échoue. Pour trouver la cause exacte :
+1. Connectez-vous avec un compte super admin (son adresse doit figurer dans le secret `SUPERADMIN_EMAILS`).
+2. Ouvrez **Superadmin > Système**, puis « Envoyer un e-mail de test » : le code d'erreur Cloudflare et l'action à mener s'affichent.
+
+Causes les plus fréquentes :
+- `E_SENDER_DOMAIN_NOT_AVAILABLE` / `E_SENDER_NOT_VERIFIED` : le domaine n'est pas activé pour l'**envoi**
+  (Cloudflare > Email Service > **Email Sending** > Onboard domain, puis enregistrements DNS SPF/DKIM). L'Email Routing seul ne suffit pas.
+- L'adresse `MAIL_FROM` (`wrangler.jsonc`) doit appartenir au domaine validé.
+- L'envoi vers n'importe quel destinataire demande le plan **Workers Payant** (Email Sending est en bêta).
+- Message reçu mais en courrier indésirable : vérifiez SPF/DKIM/DMARC du domaine.
+Les échecs sont aussi écrits dans Cloudflare > Worker > Observabilité (`[mail] échec d'envoi (CODE)`), sans jamais inclure le code ni le contenu du message.
+
+## Contenu d'exemple et import
+
+**Superadmin > Import de données** : charge 6 articles d'art illustrés (supprimables en un clic) ou importe un export JSON/CSV
+(articles, catégories, profils…) sans doublon.
+
 ## Développement
 
 Voir `AGENTS.md`.

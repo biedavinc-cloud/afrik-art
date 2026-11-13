@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth-middleware";
+import { EXAMPLE_POSTS } from "@/server/example-posts";
+import { sendTestEmail, systemStatus } from "@/server/system.server";
 
 const asPage = (res) => (Array.isArray(res) ? res : res?.items || []);
 
@@ -220,4 +222,44 @@ export const importRecords = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     assertAdmin(context);
     return context.getApi().asServiceRole.entities[data.entity].importMany(data.records);
+  });
+
+// Diagnostic de la plateforme (admin) : services reliés et e-mail de test avec l'erreur exacte en cas d'échec.
+export const getSystemStatus = createServerFn({ method: "GET" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    return systemStatus();
+  });
+
+export const sendTestEmailToMe = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    return sendTestEmail(context.user.email);
+  });
+
+// Articles d'exemple du journal : chargement idempotent (relancer met à jour) et suppression en un clic.
+export const loadExamplePosts = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    return context.getApi().asServiceRole.entities.BlogPost.importMany(EXAMPLE_POSTS);
+  });
+
+export const removeExamplePosts = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    const posts = context.getApi().asServiceRole.entities.BlogPost;
+    let removed = 0;
+    for (const post of EXAMPLE_POSTS) {
+      try {
+        await posts.delete(post.id);
+        removed += 1;
+      } catch {
+        // déjà supprimé
+      }
+    }
+    return { removed };
   });

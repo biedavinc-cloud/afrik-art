@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { importRecords } from "@/lib/admin-fns";
+import { importRecords, loadExamplePosts, removeExamplePosts } from "@/lib/admin-fns";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authed/admin/import")({
@@ -70,6 +70,24 @@ function AdminImport() {
   const [busy, setBusy] = useState(false);
   const [report, setReport] = useState(null);
   const current = ENTITIES.find((e) => e.value === entity);
+  const [exampleBusy, setExampleBusy] = useState(false);
+
+  async function examples(action) {
+    setExampleBusy(true);
+    try {
+      if (action === "load") {
+        const result = await loadExamplePosts();
+        toast.success(`${result.imported} article(s) d'exemple chargé(s) dans le journal.`);
+      } else {
+        const result = await removeExamplePosts();
+        toast.success(`${result.removed} article(s) d'exemple supprimé(s).`);
+      }
+    } catch (error) {
+      toast.error(error.message || "Action impossible.");
+    } finally {
+      setExampleBusy(false);
+    }
+  }
 
   async function onFile(event) {
     const file = event.target.files?.[0];
@@ -116,7 +134,34 @@ function AdminImport() {
         identifiants, dates et liens d'origine sont conservés ; relancer un import met à jour sans créer de doublons.
       </p>
 
-      <div className="mt-8 space-y-6 rounded-2xl border border-border bg-card p-6">
+      <div className="mt-8 rounded-2xl border border-border bg-card p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">Articles d'exemple</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Remplissez le journal avec 6 articles d'art illustrés (conseils, marché de l'art, culture). Ils portent le badge
+          « Rédaction », se rechargent sans doublon et se suppriment en un clic.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => examples("load")}
+            disabled={exampleBusy}
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {exampleBusy && <Loader2 className="h-4 w-4 animate-spin" />}
+            Charger les articles d'exemple
+          </button>
+          <button
+            type="button"
+            onClick={() => examples("remove")}
+            disabled={exampleBusy}
+            className="inline-flex h-11 items-center rounded-full border border-border px-6 text-sm font-medium transition-colors hover:bg-secondary disabled:opacity-50"
+          >
+            Supprimer les exemples
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-6 rounded-2xl border border-border bg-card p-6">
         <div>
           <Label htmlFor="import-entity">Type de contenu</Label>
           <select

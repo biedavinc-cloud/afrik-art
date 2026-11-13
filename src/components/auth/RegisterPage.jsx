@@ -1,7 +1,8 @@
 import { Mail, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import {
   AuthError,
@@ -26,6 +27,12 @@ const isAlreadyVerified = (err) => err?.status === 400 && /already verified/i.te
  */
 export function RegisterPage() {
   const returnTo = safeReturnTo();
+  // Sans destination demandée, on arrive dans son espace (qui propose de créer le profil s'il n'existe pas encore).
+  const destination = returnTo === "/" ? "/dashboard" : returnTo;
+  const { isAuthenticated } = useAuth();
+  useEffect(() => {
+    if (isAuthenticated) window.location.replace(destination);
+  }, [isAuthenticated, destination]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -33,6 +40,13 @@ export function RegisterPage() {
   const [step, setStep] = useState("form");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  // Renvoi du code : 60 s entre deux demandes (évite les envois en rafale).
+  const [cooldown, setCooldown] = useState(0);
+  useEffect(() => {
+    if (cooldown <= 0) return undefined;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   async function register(e) {
     e.preventDefault();
@@ -47,8 +61,10 @@ export function RegisterPage() {
     }
     setBusy(true);
     try {
-      await api.auth.register({ email, password });
+      const result = await api.auth.register({ email, password });
       setStep("otp");
+      setCooldown(60);
+      if (result?.emailed === false) setError("L'e-mail contenant le code n'a pas pu être envoyé pour le moment. Réessayez avec « Renvoyer le code » dans un instant ; si le problème persiste, contactez le support.");
     } catch (err) {
       setError(err.message || "La création du compte a échoué.");
     } finally {
@@ -63,7 +79,7 @@ export function RegisterPage() {
     try {
       await api.auth.verifyOtp({ email, otpCode });
       // Le serveur a ouvert la session (cookie) : rechargement complet pour repartir connecté.
-      window.location.href = returnTo;
+      window.location.href = destination;
     } catch (err) {
       // Verified server-side but the answer never arrived: the code is spent and
       // there is no token, so the only way forward is a normal sign-in.
@@ -75,9 +91,12 @@ export function RegisterPage() {
 
   async function resend() {
     setError("");
+    if (cooldown > 0) return;
     try {
-      await api.auth.resendOtp(email);
-      toast("Code envoyé", { description: "Consultez votre boîte mail pour le nouveau code." });
+      const result = await api.auth.resendOtp(email);
+      setCooldown(60);
+      if (result?.emailed === false) setError("L'e-mail contenant le code n'a pas pu être envoyé pour le moment. Réessayez avec « Renvoyer le code » dans un instant ; si le problème persiste, contactez le support.");
+      else toast("Code envoyé", { description: "Consultez votre boîte mail (et vos courriers indésirables) pour le nouveau code." });
     } catch (err) {
       if (isAlreadyVerified(err)) setStep("already_verified");
       else setError(err.message || "Impossible de renvoyer le code.");
@@ -106,7 +125,8 @@ export function RegisterPage() {
         <form onSubmit={verify}>
           <p className="mb-4 text-sm text-muted-foreground">
             Nous avons envoyé un code à 6 chiffres à{" "}
-            <span className="font-medium text-foreground">{email}</span>.
+            <span className="font-medium text-foreground">{email}</span>. Pensez à vérifier vos courriers
+            indésirables.
           </p>
           <AuthError>{error}</AuthError>
           <div className="mb-6 flex justify-center">
@@ -123,8 +143,27 @@ export function RegisterPage() {
           </SubmitButton>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Code non reçu ?{" "}
-            <button type="button" onClick={resend} className="font-medium text-primary hover:underline">
-              Renvoyer le code
+            <button
+              type="button"
+              onClick={resend}
+              disabled={cooldown > 0}
+              className="font-medium text-primary hover:underline disabled:cursor-not-allowed disabled:text-muted-foreground disabled:no-underline"
+            >
+              {cooldown > 0 ? `Renvoyer le code (${cooldown} s)` : "Renvoyer le code"}
+            </button>
+          </p>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            Mauvaise adresse ?{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setStep("form");
+                setOtpCode("");
+                setError("");
+              }}
+              className="font-medium text-primary hover:underline"
+            >
+              La modifier
             </button>
           </p>
         </form>

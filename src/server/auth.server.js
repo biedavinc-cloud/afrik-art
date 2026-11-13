@@ -145,14 +145,14 @@ async function issueOtp(request, email, userId, lang) {
     )
     .bind(email, await sha256Hex(`${code}:${email}`), userId, now, now + OTP_TTL_MS)
     .run();
-  await sendMail({ to: email, ...otpEmail({ lang, baseUrl: originOf(request), code }) });
+  return sendMail({ to: email, ...otpEmail({ lang, baseUrl: originOf(request), code }) });
 }
 
 // Une inscription visant une adresse déjà inscrite ne révèle rien à l'écran (sinon n'importe qui pourrait
 // tester quelles adresses ont un compte) : le titulaire est simplement prévenu par e-mail.
 async function notifyAccountExists(request, email, lang) {
   await throttle(`exists-mail:${email}`, 3, 3600);
-  await sendMail({ to: email, ...accountExistsEmail({ lang, baseUrl: originOf(request) }) });
+  return sendMail({ to: email, ...accountExistsEmail({ lang, baseUrl: originOf(request) }) });
 }
 
 export async function register(request, { email: rawEmail, password: rawPassword, full_name, lang: rawLang }) {
@@ -163,8 +163,8 @@ export async function register(request, { email: rawEmail, password: rawPassword
   const password = validatePassword(rawPassword);
   const existing = await userByEmail(email);
   if (existing?.email_verified && existing.password_hash) {
-    await notifyAccountExists(request, email, existing.lang || lang);
-    return { ok: true };
+    // `emailed` ne dépend pas de l'existence du compte (dans les deux cas un e-mail part) : rien n'est révélé.
+    return { ok: true, emailed: await notifyAccountExists(request, email, existing.lang || lang) };
   }
   const passwordHash = await hashPassword(password);
   const now = new Date().toISOString();
@@ -179,8 +179,7 @@ export async function register(request, { email: rawEmail, password: rawPassword
       .bind(userId, email, full_name?.slice(0, 120) ?? null, "user", passwordHash, lang, now, now)
       .run();
   }
-  await issueOtp(request, email, userId, lang);
-  return { ok: true };
+  return { ok: true, emailed: await issueOtp(request, email, userId, lang) };
 }
 
 export async function resendOtp(request, { email: rawEmail, lang: rawLang }) {
@@ -188,9 +187,10 @@ export async function resendOtp(request, { email: rawEmail, lang: rawLang }) {
   const email = validateEmail(rawEmail);
   const user = await userByEmail(email);
   const lang = pickLang(rawLang ?? user?.lang, request);
-  if (user?.email_verified && user.password_hash) await notifyAccountExists(request, email, lang);
-  else if (user) await issueOtp(request, email, user.id, lang);
-  return { ok: true }; // même réponse que le compte existe, soit déjà vérifié ou inconnu
+  let emailed = true;
+  if (user?.email_verified && user.password_hash) emailed = await notifyAccountExists(request, email, lang);
+  else if (user) emailed = await issueOtp(request, email, user.id, lang);
+  return { ok: true, emailed }; // même forme de réponse que le compte soit vérifié, en attente ou inconnu
 }
 
 export async function verifyOtp(request, { email: rawEmail, otpCode }) {
@@ -398,7 +398,9 @@ export async function googleCallback(request) {
       user = { id, email, role: "user", email_verified: 1 };
     }
     const { setCookie } = await startSession(request, user);
-    return redirect(safePath(returnTo), [setCookie, clearOauth]);
+    // Sans destination précise, on arrive dans l'espace artiste (qui propose de créer le profil si besoin).
+    const target = safePath(returnTo);
+    return redirect(target === "/" ? "/dashboard" : target, [setCookie, clearOauth]);
   } catch (error) {
     console.error("[auth] Google callback:", error?.message || error);
     return fail();

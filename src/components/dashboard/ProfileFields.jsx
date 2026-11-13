@@ -197,13 +197,13 @@ export default function ProfileFields({ form, setForm, categories, maxCategories
       </div>
 
       <div>
-        <Label htmlFor="p-mail">Email de contact public (optionnel)</Label>
+        <Label htmlFor="p-mail">E-mail de contact (privé, optionnel)</Label>
         <Input
           id="p-mail"
           type="email"
           value={form.contact_email || ""}
           onChange={set("contact_email")}
-          placeholder="Laissez vide pour utiliser uniquement le formulaire"
+          placeholder="Jamais affiché publiquement : les visiteurs vous écrivent via la messagerie"
           className="mt-1.5"
         />
       </div>

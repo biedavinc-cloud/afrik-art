@@ -44,6 +44,12 @@ Le dépôt est public : aucune adresse, clé ni secret n'y figure (secrets Cloud
 Côté API, `created_by` (e-mail de l'auteur) et les champs de `PRIVATE_FIELDS` sont retirés pour tout lecteur qui n'est ni
 admin ni propriétaire. Les formulaires publics (contact, messagerie) sont limités par IP et par destinataire.
 
+## Espace superadmin
+
+`/admin/systeme` : état des services + e-mail de test avec le code d'erreur Cloudflare. `/admin/import` : import JSON/CSV
+idempotent et articles d'exemple (`src/server/example-posts.js`). Une inscription dont l'e-mail n'a pas pu partir le signale
+à l'écran (`emailed: false`) sans révéler si l'adresse a déjà un compte.
+
 ## E-mails
 
 Modèles dans `src/server/mail-templates.js`, textes dans `src/server/mail-i18n.js` (fr, en, es, pt, sw : la langue du
