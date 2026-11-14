@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Le nom doit rester identique à celui du Worker dans le tableau de bord Cloudflare.
-  "name": "base44-tanstack-app",
+  // Le nom doit rester identique à celui du Worker dans le tableau de bord Cloudflare (vérifié : « afrik-art »).
+  "name": "afrik-art",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.js",

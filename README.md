@@ -24,7 +24,7 @@ Ces comptes gèrent ensuite les autres rôles depuis `/admin/utilisateurs`.
    `https://afrik.cloud/api/auth/google-callback`, puis définir les secrets `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET`.
 6. Contrôle : `https://afrik.cloud/api/health` doit répondre `ok` pour `database`, `storage`, `email` et `superadmins`.
 
-Le nom du Worker dans `wrangler.jsonc` doit rester identique à celui du tableau de bord Cloudflare.
+Le nom du Worker dans `wrangler.jsonc` (`afrik-art`) doit rester identique à celui du tableau de bord Cloudflare.
 
 ## E-mails : le code de vérification n'arrive pas
 
