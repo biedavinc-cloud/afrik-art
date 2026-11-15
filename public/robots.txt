@@ -10,3 +10,5 @@ Disallow: /parametres
 Disallow: /onboarding
 Disallow: /login
 Disallow: /register
+
+Sitemap: https://afrik.cloud/sitemap.xml
