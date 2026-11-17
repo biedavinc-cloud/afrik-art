@@ -3,7 +3,7 @@ import { publicUrl } from "@/server/config.server";
 
 // Plan du site pour les moteurs de recherche : pages publiques, profils d'artistes actifs et articles publiés.
 // Les règles d'accès s'appliquent comme pour un visiteur : un profil suspendu ou un brouillon n'y figure jamais.
-const STATIC_PAGES = ["/", "/explorer", "/galerie", "/actualites", "/top-artistes", "/categories", "/tarifs", "/guide-artiste", "/faq", "/support"];
+const STATIC_PAGES = ["/", "/explorer", "/galerie", "/actualites", "/top-artistes", "/categories", "/tarifs", "/guide-artiste", "/faq", "/support", "/ecosysteme"];
 
 const xml = (value) => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c]);
 const day = (iso) => (iso && !Number.isNaN(Date.parse(iso)) ? new Date(iso).toISOString().slice(0, 10) : undefined);

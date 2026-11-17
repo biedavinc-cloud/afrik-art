@@ -33,6 +33,7 @@ export default function SiteFooter() {
               { label: t("nav.journal"), to: "/actualites" },
               { label: t("nav.top"), to: "/top-artistes" },
               { label: t("nav.pricing"), to: "/tarifs" },
+              { label: t("nav.ecosystem"), to: "/ecosysteme" },
             ]}
           />
           <FooterCol

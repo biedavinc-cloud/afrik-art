@@ -34,6 +34,7 @@ export default function SiteHeader() {
     { label: t("nav.categories"), to: "/categories" },
     { label: t("nav.guide"), to: "/guide-artiste" },
     { label: t("nav.faq"), to: "/faq" },
+    { label: t("nav.ecosystem"), to: "/ecosysteme" },
     { label: t("nav.support"), to: "/support" },
     { label: t("nav.contact"), to: "/contact-artiste" },
   ];

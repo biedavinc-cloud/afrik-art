@@ -28,6 +28,7 @@ import { Route as SiteConfidentialiteRouteImport } from './routes/_site/confiden
 import { Route as SiteContactArtisteRouteImport } from './routes/_site/contact-artiste'
 import { Route as SiteCookiesRouteImport } from './routes/_site/cookies'
 import { Route as SiteDroitsAuteurRouteImport } from './routes/_site/droits-auteur'
+import { Route as SiteEcosystemeRouteImport } from './routes/_site/ecosysteme'
 import { Route as SiteExplorerRouteImport } from './routes/_site/explorer'
 import { Route as SiteFaqRouteImport } from './routes/_site/faq'
 import { Route as SiteGalerieRouteImport } from './routes/_site/galerie'
@@ -157,6 +158,11 @@ const SiteCookiesRoute = SiteCookiesRouteImport.update({
 const SiteDroitsAuteurRoute = SiteDroitsAuteurRouteImport.update({
   id: '/droits-auteur',
   path: '/droits-auteur',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteEcosystemeRoute = SiteEcosystemeRouteImport.update({
+  id: '/ecosysteme',
+  path: '/ecosysteme',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteExplorerRoute = SiteExplorerRouteImport.update({
@@ -371,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/contact-artiste': typeof SiteContactArtisteRoute
   '/cookies': typeof SiteCookiesRoute
   '/droits-auteur': typeof SiteDroitsAuteurRoute
+  '/ecosysteme': typeof SiteEcosystemeRoute
   '/explorer': typeof SiteExplorerRoute
   '/faq': typeof SiteFaqRoute
   '/galerie': typeof SiteGalerieRoute
@@ -424,6 +431,7 @@ export interface FileRoutesByTo {
   '/contact-artiste': typeof SiteContactArtisteRoute
   '/cookies': typeof SiteCookiesRoute
   '/droits-auteur': typeof SiteDroitsAuteurRoute
+  '/ecosysteme': typeof SiteEcosystemeRoute
   '/explorer': typeof SiteExplorerRoute
   '/faq': typeof SiteFaqRoute
   '/galerie': typeof SiteGalerieRoute
@@ -483,6 +491,7 @@ export interface FileRoutesById {
   '/_site/contact-artiste': typeof SiteContactArtisteRoute
   '/_site/cookies': typeof SiteCookiesRoute
   '/_site/droits-auteur': typeof SiteDroitsAuteurRoute
+  '/_site/ecosysteme': typeof SiteEcosystemeRoute
   '/_site/explorer': typeof SiteExplorerRoute
   '/_site/faq': typeof SiteFaqRoute
   '/_site/galerie': typeof SiteGalerieRoute
@@ -542,6 +551,7 @@ export interface FileRouteTypes {
     | '/contact-artiste'
     | '/cookies'
     | '/droits-auteur'
+    | '/ecosysteme'
     | '/explorer'
     | '/faq'
     | '/galerie'
@@ -595,6 +605,7 @@ export interface FileRouteTypes {
     | '/contact-artiste'
     | '/cookies'
     | '/droits-auteur'
+    | '/ecosysteme'
     | '/explorer'
     | '/faq'
     | '/galerie'
@@ -653,6 +664,7 @@ export interface FileRouteTypes {
     | '/_site/contact-artiste'
     | '/_site/cookies'
     | '/_site/droits-auteur'
+    | '/_site/ecosysteme'
     | '/_site/explorer'
     | '/_site/faq'
     | '/_site/galerie'
@@ -842,6 +854,13 @@ declare module '@tanstack/react-router' {
       path: '/droits-auteur'
       fullPath: '/droits-auteur'
       preLoaderRoute: typeof SiteDroitsAuteurRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/ecosysteme': {
+      id: '/_site/ecosysteme'
+      path: '/ecosysteme'
+      fullPath: '/ecosysteme'
+      preLoaderRoute: typeof SiteEcosystemeRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/explorer': {
@@ -1226,6 +1245,7 @@ interface SiteRouteChildren {
   SiteContactArtisteRoute: typeof SiteContactArtisteRoute
   SiteCookiesRoute: typeof SiteCookiesRoute
   SiteDroitsAuteurRoute: typeof SiteDroitsAuteurRoute
+  SiteEcosystemeRoute: typeof SiteEcosystemeRoute
   SiteExplorerRoute: typeof SiteExplorerRoute
   SiteFaqRoute: typeof SiteFaqRoute
   SiteGalerieRoute: typeof SiteGalerieRoute
@@ -1246,6 +1266,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteContactArtisteRoute: SiteContactArtisteRoute,
   SiteCookiesRoute: SiteCookiesRoute,
   SiteDroitsAuteurRoute: SiteDroitsAuteurRoute,
+  SiteEcosystemeRoute: SiteEcosystemeRoute,
   SiteExplorerRoute: SiteExplorerRoute,
   SiteFaqRoute: SiteFaqRoute,
   SiteGalerieRoute: SiteGalerieRoute,

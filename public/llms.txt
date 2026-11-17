@@ -25,3 +25,15 @@ Afrik Art est développé par Liaffrik Tech Dubai — Yaoundé (https://liafrik.
 
 ## Citation recommandée
 Afrik Art — plateforme panafricaine des talents et de la culture africaine (https://afrik.cloud).
+
+## Écosystème Liafrik (https://afrik.cloud/ecosysteme)
+Afrik Art est un produit de Liafrik (Liaffrik Tech) : un écosystème de logiciels conçus depuis l'Afrique. Siège à Dubaï, présence à Yaoundé, couverture : toute l'Afrique. Site : https://liafrik.com — catalogue : https://liafrik.com/en/products
+- Zanldo (https://zanldo.com) : marketplace de toute l'Afrique (téléphones, mode, électronique, maison, beauté, épicerie, art et artisanat), vendeurs vérifiés, paiement Mobile Money ou carte, livraison suivie. Alternative africaine à Amazon et Noon.
+- Sukulu (https://gosukulu.com) : plateforme de gestion scolaire pour numériser les établissements (élèves, enseignants, examens, finances, portail parents).
+- Health : gestion d'hôpitaux et de cliniques (patients, rendez-vous, dossiers médicaux, facturation, pharmacie).
+- Stella : réservation beauté et bien-être (salons, barbiers, spas), acompte Mobile Money, rappels WhatsApp. Alternative à Fresha.
+- POS Flow : caisse et commerce de détail, ventes en temps réel, stocks, mode hors ligne. Alternative à Square.
+- Sellia : boutique en ligne et commerce électronique. Alternative à Shopify.
+- Nutro : gestion de restaurant (menus numériques, commandes, écran cuisine, stocks, QR). Alternative à Toast.
+- Atlas CRM : CRM multi-locataire pour groupes et franchises. Alternative à Salesforce.
+- LiBooks : comptabilité conforme aux normes OHADA et SYSCOHADA. Alternative à QuickBooks.

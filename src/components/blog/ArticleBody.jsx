@@ -27,7 +27,20 @@ function withLinks(text) {
   }
 
   if (last < text.length) nodes.push(text.slice(last));
-  return nodes;
+  return nodes.flatMap((node, i) => (typeof node === "string" ? withBold(node, i) : [node]));
+}
+
+// Gras : **texte**
+function withBold(text, seed) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
+      <strong key={`b${seed}-${i}`} className="font-semibold text-foreground">
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      part
+    )
+  );
 }
 
 // Image sur sa propre ligne : ![légende](https://…) ou ![légende](/chemin). Seuls https et les chemins du site sont acceptés.

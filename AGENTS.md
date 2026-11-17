@@ -44,6 +44,13 @@ Le dépôt est public : aucune adresse, clé ni secret n'y figure (secrets Cloud
 Côté API, `created_by` (e-mail de l'auteur) et les champs de `PRIVATE_FIELDS` sont retirés pour tout lecteur qui n'est ni
 admin ni propriétaire. Les formulaires publics (contact, messagerie) sont limités par IP et par destinataire.
 
+## Écosystème Liafrik
+
+`src/lib/ecosystem.js` est la source unique des produits Liafrik (textes FR/EN, logos dans `public/ecosystem/`, liens) : bloc
+d'accueil (`components/home/EcosystemBlock.jsx`), page `/ecosysteme` (avec JSON-LD), `llms.txt` et sitemap. Les descriptions reprennent
+les fiches officielles de https://liafrik.com : n'y ajouter ni chiffre ni prix non confirmés. Les 11 articles du Journal
+(`src/server/ecosystem-posts.js`) se chargent depuis Superadmin > Import de données.
+
 ## Espace superadmin
 
 `/admin/systeme` : état des services + e-mail de test avec le code d'erreur Cloudflare. `/admin/import` : import JSON/CSV

@@ -6,6 +6,7 @@ import ArtistRail from "@/components/home/ArtistRail";
 import HowItWorks from "@/components/home/HowItWorks";
 import MissionBlock from "@/components/home/MissionBlock";
 import CtaSection from "@/components/home/CtaSection";
+import EcosystemBlock, { ArtMarketBand } from "@/components/home/EcosystemBlock";
 import PlanCards from "@/components/PlanCards";
 import { getHomeData } from "@/lib/server-fns";
 import { demoCategories } from "@/lib/demoContent";
@@ -114,6 +115,10 @@ function HomePage() {
           </p>
         </div>
       </section>
+
+      <ArtMarketBand />
+
+      <EcosystemBlock />
 
       <CtaSection />
     </>

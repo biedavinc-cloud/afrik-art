@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth-middleware";
+import { ECOSYSTEM_POSTS } from "@/server/ecosystem-posts";
 import { EXAMPLE_POSTS } from "@/server/example-posts";
 import { sendTestEmail, systemStatus } from "@/server/system.server";
 
@@ -254,6 +255,31 @@ export const removeExamplePosts = createServerFn({ method: "POST" })
     const posts = context.getApi().asServiceRole.entities.BlogPost;
     let removed = 0;
     for (const post of EXAMPLE_POSTS) {
+      try {
+        await posts.delete(post.id);
+        removed += 1;
+      } catch {
+        // déjà supprimé
+      }
+    }
+    return { removed };
+  });
+
+// Articles du Journal sur l'écosystème Liafrik (catégorie « Écosystème Liafrik ») : chargement idempotent et suppression.
+export const loadEcosystemPosts = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    return context.getApi().asServiceRole.entities.BlogPost.importMany(ECOSYSTEM_POSTS);
+  });
+
+export const removeEcosystemPosts = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    const posts = context.getApi().asServiceRole.entities.BlogPost;
+    let removed = 0;
+    for (const post of ECOSYSTEM_POSTS) {
       try {
         await posts.delete(post.id);
         removed += 1;
