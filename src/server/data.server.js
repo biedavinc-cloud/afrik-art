@@ -1,4 +1,6 @@
 import { env } from "cloudflare:workers";
+import { ECOSYSTEM_POSTS } from "./ecosystem-posts";
+import { EXAMPLE_POSTS } from "./example-posts";
 import { ADMIN_ONLY, BROWSER_BLOCKED, ENTITIES, PRIVATE_FIELDS, PROTECTED_FIELDS, UNIQUE_FIELDS, ruleFor } from "./entities";
 import { HttpError } from "./errors";
 import { ensureSchema } from "./schema.server";
@@ -218,11 +220,30 @@ const isAdmin = (ctx) => ctx.user?.role === "admin";
 // Schéma appliqué + utilisateur de la requête résolu (une seule fois, à la première opération qui en a besoin).
 async function prepare(ctx) {
   await ensureSchema();
+  if (!ctx.skipSeed) await seedJournalOnce();
   if (ctx.load) {
     const load = ctx.load;
     ctx.load = null;
     ctx.user = await load();
   }
+}
+
+// Journal de départ : au tout premier accès à une base vierge, les articles d'exemple et ceux de l'écosystème Liafrik
+// sont publiés une seule fois (un drapeau en base empêche tout nouveau chargement : les supprimer depuis l'espace admin est définitif).
+// Une base qui contient déjà des articles n'est pas touchée.
+let seedPromise;
+function seedJournalOnce() {
+  seedPromise ??= (async () => {
+    const flag = await db().prepare("SELECT value FROM meta WHERE key = 'seed:journal:v1'").first();
+    if (flag) return;
+    const posts = createEntities({ service: true, browser: false, user: null, skipSeed: true }).BlogPost;
+    if ((await posts.count({})) === 0) await posts.importMany([...ECOSYSTEM_POSTS, ...EXAMPLE_POSTS]);
+    await db().prepare("INSERT OR IGNORE INTO meta (key, value) VALUES ('seed:journal:v1', ?)").bind(new Date().toISOString()).run();
+  })().catch((error) => {
+    seedPromise = undefined; // on réessaiera à la requête suivante
+    console.error("[seed] journal :", error?.message || error);
+  });
+  return seedPromise;
 }
 
 function entityDef(name) {

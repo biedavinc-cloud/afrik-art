@@ -51,6 +51,10 @@ const STATEMENTS = [
     PRIMARY KEY (purpose, key)
   )`,
   `CREATE INDEX IF NOT EXISTS idx_auth_codes_hash ON auth_codes(purpose, code_hash)`,
+  `CREATE TABLE IF NOT EXISTS meta (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  )`,
   `CREATE TABLE IF NOT EXISTS throttle (
     key TEXT PRIMARY KEY,
     count INTEGER NOT NULL,
