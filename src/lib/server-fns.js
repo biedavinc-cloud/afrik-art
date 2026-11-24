@@ -302,6 +302,7 @@ export const sendContactRequest = createServerFn({ method: "POST" })
     await limitPublicSubmission("contact", data.profileId);
     const api = context.getApi();
     const profile = await api.entities.ArtistProfile.get(data.profileId);
+    if (profile.is_demo) throw new Error("Ce profil est un exemple : le contact est désactivé.");
 
     await api.entities.ContactRequest.create({
       profile_id: profile.id,

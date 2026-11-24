@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth-middleware";
 import { ECOSYSTEM_POSTS } from "@/server/ecosystem-posts";
 import { EXAMPLE_POSTS } from "@/server/example-posts";
+import { EXPLORE_ARTISTS, EXPLORE_ARTWORKS } from "@/server/explore-seed";
 import { sendTestEmail, systemStatus } from "@/server/system.server";
 
 const asPage = (res) => (Array.isArray(res) ? res : res?.items || []);
@@ -282,6 +283,35 @@ export const removeEcosystemPosts = createServerFn({ method: "POST" })
     for (const post of ECOSYSTEM_POSTS) {
       try {
         await posts.delete(post.id);
+        removed += 1;
+      } catch {
+        // déjà supprimé
+      }
+    }
+    return { removed };
+  });
+
+// Profils d'artistes d'exemple de la page Explorer (marqués is_demo, sans coordonnées, non contactables).
+export const loadExploreExamples = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    const svc = context.getApi().asServiceRole.entities;
+    const profiles = await svc.ArtistProfile.importMany(EXPLORE_ARTISTS);
+    await svc.Artwork.importMany(EXPLORE_ARTWORKS);
+    return profiles;
+  });
+
+export const removeExploreExamples = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    assertAdmin(context);
+    const svc = context.getApi().asServiceRole.entities;
+    let removed = 0;
+    for (const artwork of EXPLORE_ARTWORKS) await svc.Artwork.delete(artwork.id).catch(() => {});
+    for (const profile of EXPLORE_ARTISTS) {
+      try {
+        await svc.ArtistProfile.delete(profile.id);
         removed += 1;
       } catch {
         // déjà supprimé

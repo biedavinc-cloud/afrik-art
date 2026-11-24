@@ -20,7 +20,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         ]);
         const entries = [
           ...STATIC_PAGES.map((path) => ({ path, priority: path === "/" ? "1.0" : "0.7" })),
-          ...profiles.filter((p) => p.slug).map((p) => ({ path: `/talents/${encodeURIComponent(p.slug)}`, lastmod: day(p.updated_date), priority: "0.8" })),
+          ...profiles.filter((p) => p.slug && !p.is_demo).map((p) => ({ path: `/talents/${encodeURIComponent(p.slug)}`, lastmod: day(p.updated_date), priority: "0.8" })),
           ...posts.filter((p) => p.slug).map((p) => ({ path: `/actualites/${encodeURIComponent(p.slug)}`, lastmod: day(p.updated_date || p.published_at), priority: "0.6" })),
         ];
         const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries

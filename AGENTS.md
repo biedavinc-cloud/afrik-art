@@ -51,6 +51,17 @@ d'accueil (`components/home/EcosystemBlock.jsx`), page `/ecosysteme` (avec JSON-
 les fiches officielles de https://liafrik.com : n'y ajouter ni chiffre ni prix non confirmés. Les 11 articles du Journal
 (`src/server/ecosystem-posts.js`) se chargent depuis Superadmin > Import de données.
 
+## Contenu de départ et images
+
+- Au premier accès à une base vierge, le site publie une fois (drapeaux `seed:*` dans la table `meta`) : le Journal (articles d'exemple et
+  articles Liafrik), les catégories et 5 profils d'exemple pour Explorer (`src/server/explore-seed.js`, `is_demo`). Les profils d'exemple
+  n'ont aucune coordonnée, ne sont pas contactables (serveur et interface), portent « Exemple » et sont exclus du sitemap (`noindex`).
+  Supprimer ces contenus depuis Superadmin > Import est définitif.
+- `components/ui/image.jsx` : toute image hors Base44/Wix est recadrée (`object-fit: cover`, ou `contain` pour `fittingType="fit"`) ; sans cela
+  les photos envoyées vers R2 seraient étirées. Ne jamais afficher une photo utilisateur avec une largeur ET une hauteur imposées sans object-fit.
+- Visuels de marque des articles (`public/ecosystem/covers`) : logo dans une carte en haut à droite ; leur adresse porte `?pos=100% 10%`
+  (point de cadrage lu par `coverPosition`) pour rester visibles quand le bandeau est recadré.
+
 ## Espace superadmin
 
 `/admin/systeme` : état des services + e-mail de test avec le code d'erreur Cloudflare. `/admin/import` : import JSON/CSV

@@ -40,6 +40,8 @@ export const Route = createFileRoute("/_site/talents/$slug")({
         { property: "og:description", content: description },
         { property: "og:type", content: "profile" },
         ...(p.cover_url ? [{ property: "og:image", content: p.cover_url }] : []),
+        // Profil d'exemple : jamais indexé par les moteurs de recherche.
+        ...(p.is_demo ? [{ name: "robots", content: "noindex, nofollow" }] : []),
       ],
     };
   },
@@ -56,6 +58,7 @@ function PublicProfilePage() {
   const { profile, artworks, boosted } = Route.useLoaderData();
   const { user, isAuthenticated } = useAuth();
   const isOwner = isAuthenticated && user?.id === profile.user_id;
+  const isDemo = profile.is_demo === true; // profil d'exemple : aucun moyen de contact
 
   useEffect(() => {
     recordProfileView({ data: { profileId: profile.id } }).catch(() => {});
@@ -157,6 +160,8 @@ function PublicProfilePage() {
               >
                 <Sparkles className="h-3.5 w-3.5" /> Mettre en avant
               </Link>
+            ) : isDemo ? (
+              <span className="inline-flex items-center rounded-full bg-secondary px-4 py-2.5 text-[12.5px] font-medium text-muted-foreground">Profil d'exemple</span>
             ) : (
               <ContactDialog profile={profile}>
                 <button className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-[12.5px] font-medium text-background transition-colors hover:bg-primary">
@@ -275,12 +280,13 @@ function PublicProfilePage() {
 
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <div className="rounded-2xl border border-border bg-card p-6">
-              <p className="label-caps">Contact professionnel</p>
+              <p className="label-caps">{isDemo ? "Profil d'exemple" : "Contact professionnel"}</p>
               <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
-                Envoyez une demande détaillée : projet, dates, budget. L'artiste reçoit
-                votre message directement dans son espace.
+                {isDemo
+                  ? "Ce profil illustre une page d'artiste sur Afrik Art. Il n'est pas contactable. Les artistes réels ouvrent leur profil gratuitement."
+                  : "Envoyez une demande détaillée : projet, dates, budget. L'artiste reçoit votre message directement dans son espace."}
               </p>
-              {!isOwner && (
+              {!isOwner && !isDemo && (
                 <>
                   <ContactDialog profile={profile}>
                     <button className="mt-5 w-full rounded-full bg-foreground px-5 py-3 text-[13px] font-medium text-background transition-colors hover:bg-primary">

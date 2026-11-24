@@ -43,7 +43,7 @@ const COPY = {
   },
 };
 
-const abs = (path) => (path ? SITE + path : undefined);
+const abs = (path) => (path ? (/^https?:\/\//.test(path) ? path : SITE + path) : undefined);
 
 function structuredData(L) {
   return {
@@ -146,11 +146,11 @@ function EcosystemPage() {
 
       {/* Produits par domaine */}
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2">
           {PRODUCTS.map((p) => (
             <article key={p.id} id={p.id} className="flex flex-col rounded-2xl border border-border bg-card p-7">
               <div className="flex items-start justify-between gap-3">
-                <ProductLogo product={p} className="h-14" />
+                <ProductLogo product={p} className="h-16" />
                 <span className="shrink-0 rounded-full bg-secondary px-3 py-1 text-[10.5px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{pick(GROUPS[p.group], L)}</span>
               </div>
               <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">{pick(p.label, L)}</p>
@@ -159,7 +159,7 @@ function EcosystemPage() {
                 {pick(p.alt, L)}
               </p>
               <p className="mt-4 text-[14.5px] leading-relaxed text-muted-foreground">{pick(p.text, L)}</p>
-              <ul className="mt-5 space-y-2">
+              <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {pick(p.features, L).map((f) => (
                   <li key={f} className="flex items-start gap-2 text-[13.5px]">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-foreground" /> {f}

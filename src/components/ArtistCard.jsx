@@ -35,6 +35,9 @@ export default function ArtistCard({ artist, sponsored = false }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-80" />
 
         <div className="absolute left-3 top-3 flex gap-2">
+          {artist.is_demo && (
+            <span className="rounded-full bg-foreground/85 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-background">Exemple</span>
+          )}
           {sponsored && (
             <span className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-foreground">
               {t("artist.sponsored")}

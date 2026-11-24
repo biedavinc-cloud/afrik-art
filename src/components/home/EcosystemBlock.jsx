@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { HOME_PRODUCT_IDS, LIAFRIK, PRODUCTS, pick } from "@/lib/ecosystem";
@@ -40,11 +41,24 @@ const COPY = {
   },
 };
 
-export function ProductLogo({ product, className = "h-12" }) {
-  if (product.logo) return <img src={product.logo} alt={product.name} loading="lazy" decoding="async" className={`${className} w-auto max-w-full object-contain`} />;
-  // Pas de logo fourni : monogramme neutre, jamais un faux logo.
+// Logo d'un produit. Les proportions sont toujours conservées (hauteur imposée, largeur automatique plafonnée, object-contain).
+// Pas de logo, ou logo distant indisponible : monogramme neutre, jamais un faux logo.
+export function ProductLogo({ product, className = "h-16" }) {
+  const [failed, setFailed] = useState(false);
+  if (product.logo && !failed) {
+    return (
+      <img
+        src={product.logo}
+        alt={product.name}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+        className={`${className} w-auto max-w-[210px] object-contain object-left`}
+      />
+    );
+  }
   return (
-    <span className="flex h-12 w-12 items-center justify-center rounded-xl text-xl font-semibold text-white" style={{ background: product.accent }} aria-label={product.name}>
+    <span className="flex h-14 w-14 items-center justify-center rounded-xl text-xl font-semibold text-white" style={{ background: product.accent }} aria-label={product.name}>
       {product.name.charAt(0)}
     </span>
   );
@@ -126,7 +140,7 @@ export default function EcosystemBlock() {
             <li key={p.id}>
               <a href={p.url} target="_blank" rel="noopener" className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-sm">
                 <div className="flex h-16 items-center">
-                  <ProductLogo product={p} className="h-14" />
+                  <ProductLogo product={p} className="h-16" />
                 </div>
                 <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">{pick(p.label, L)}</p>
                 <h3 className="mt-1.5 font-heading text-xl font-semibold tracking-tight">{p.name}</h3>

@@ -56,6 +56,7 @@ export const startConversation = createServerFn({ method: "POST" })
     await limitPublicSubmission("conversation", data.profileId);
     const service = context.getApi().asServiceRole;
     const profile = await service.entities.ArtistProfile.get(data.profileId);
+    if (profile.is_demo) throw new Error("Ce profil est un exemple : le contact est désactivé.");
     if (!profile) throw new Error("Profil introuvable.");
     if (profile.accepting_contact === false) {
       throw new Error("Cet artiste ne reçoit pas de nouvelles demandes pour le moment.");

@@ -5,7 +5,7 @@ import BlogCard from "@/components/blog/BlogCard";
 import ShareBar from "@/components/blog/ShareBar";
 import { Image } from "@/components/ui/image";
 import { getBlogPost } from "@/lib/content-fns";
-import { formatDate, readMinutes } from "@/lib/blog";
+import { coverPosition, formatDate, readMinutes } from "@/lib/blog";
 
 export const Route = createFileRoute("/_site/actualites/$slug")({
   loader: async ({ params }) => {
@@ -39,6 +39,8 @@ export const Route = createFileRoute("/_site/actualites/$slug")({
 
 function ArticlePage() {
   const { post, related } = Route.useLoaderData();
+  // Visuel de marque (logo sur fond uni) : affiché sans assombrissement pour garder le logo lisible.
+  const brandCover = Boolean(coverPosition(post.cover_url));
 
   const schema = {
     "@context": "https://schema.org",
@@ -67,9 +69,10 @@ function ArticlePage() {
               src={post.cover_url}
               alt={post.title}
               quality={95}
-              className="h-full w-full opacity-70"
+              className={brandCover ? "h-full w-full" : "h-full w-full opacity-70"}
+              style={{ objectPosition: coverPosition(post.cover_url) }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25" />
+            <div className={`absolute inset-0 bg-gradient-to-t ${brandCover ? "from-black/85 via-black/25 to-transparent" : "from-black/90 via-black/55 to-black/25"}`} />
           </div>
         ) : (
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_25%,rgba(227,29,43,0.45),transparent_65%)]" />

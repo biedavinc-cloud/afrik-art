@@ -7,8 +7,17 @@ import {
   parseWixMediaUrl,
 } from "./image-helpers"
 
-const FALLBACK_IMAGE_URL =
-  "https://static.wixstatic.com/media/12d367_4f26ccd17f8f4e3a8958306ea08c2332~mv2.png"
+// Image de remplacement locale (aucun hébergeur tiers) : aucune image choisie, ou image d'origine introuvable.
+const FALLBACK_IMAGE_URL = "/image-placeholder.svg"
+
+// Recadrage par défaut des images simples (hors Base44/Wix) : sans object-fit, un <img> de taille imposée est ÉTIRÉ
+// pour remplir son cadre. On recadre donc (cover), ou on contient (contain) pour fittingType="fit", sauf si la classe
+// ou le style du composant appelant impose déjà son propre object-fit.
+const HAS_OBJECT_FIT = /\bobject-(cover|contain|fill|none|scale-down)\b/
+function withFit(imageProps, fittingType) {
+  if (HAS_OBJECT_FIT.test(imageProps.className || "") || imageProps.style?.objectFit) return imageProps
+  return { ...imageProps, style: { objectFit: fittingType === "fit" ? "contain" : "cover", ...imageProps.style } }
+}
 
 /**
  * Image with built-in Wix Media Platform support: canonical public images on
@@ -67,7 +76,7 @@ const Image = React.forwardRef(
       // click-to-edit toolbar keys its "Replace Image" action off the DOM
       // tag being `img`, so a placeholder div would be unrecoverable in the
       // editor. FALLBACK_IMAGE_URL doubles as the "no image chosen" graphic.
-      return <img ref={ref} src={FALLBACK_IMAGE_URL} {...imageProps} data-empty-image />
+      return <img ref={ref} src={FALLBACK_IMAGE_URL} {...withFit(imageProps, fittingType)} data-empty-image />
     }
 
     // A failed transform retries the underlying original as a plain image.
@@ -78,7 +87,7 @@ const Image = React.forwardRef(
       const isErrorMode = mode === IMAGE_LOAD_MODE.FALLBACK
       const imageSrc = isErrorMode ? FALLBACK_IMAGE_URL : getOriginalImageUrl(src, parsedSource)
       return (
-        <img ref={ref} src={imageSrc} {...imageProps} data-error-image={isErrorMode || undefined} />
+        <img ref={ref} src={imageSrc} {...withFit(imageProps, fittingType)} data-error-image={isErrorMode || undefined} />
       )
     }
 

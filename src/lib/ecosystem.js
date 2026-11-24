@@ -34,6 +34,7 @@ export const GROUPS = {
   education: { fr: "Éducation", en: "Education" },
   health: { fr: "Santé", en: "Healthcare" },
   beauty: { fr: "Beauté & bien-être", en: "Beauty & wellness" },
+  laundry: { fr: "Pressing & textile", en: "Laundry & textile" },
   business: { fr: "Gestion d'entreprise", en: "Business management" },
 };
 
@@ -57,6 +58,27 @@ export const PRODUCTS = [
     features: {
       fr: ["Vendeurs vérifiés", "Paiement Mobile Money et carte", "Livraison suivie", "Petites commissions pour les vendeurs"],
       en: ["Verified sellers", "Mobile Money and card payment", "Tracked delivery", "Small commissions for sellers"],
+    },
+  },
+  {
+    id: "elora",
+    name: "Elora",
+    group: "laundry",
+    url: "https://elora.liafrik.com",
+    sheet: "https://elora.liafrik.com",
+    logo: "/ecosystem/elora.png",
+    cover: "/ecosystem/covers/elora.jpg",
+    accent: "#0B6FC4",
+    label: { fr: "Pressing & blanchisserie", en: "Laundry & dry cleaning" },
+    alt: { fr: "Le logiciel des pressings, de la caisse à la livraison", en: "Software for laundries, from the counter to delivery" },
+    tagline: { fr: "Du comptoir à la livraison, le pressing sous contrôle.", en: "From the counter to delivery, your laundry under control." },
+    text: {
+      fr: "Caisse, suivi de chaque vêtement par QR code, production, collecte et livraison, facturation et analyses : un seul logiciel pour une boutique comme pour un groupe présent dans plusieurs pays. Paiement par Mobile Money ou carte.",
+      en: "Point of sale, garment-level QR tracking, production, pickup and delivery, billing and analytics: one platform for a single store or a group operating across countries. Pay by Mobile Money or card.",
+    },
+    features: {
+      fr: ["Suivi de chaque vêtement par QR code", "Collecte et livraison à domicile", "Mobile Money et carte", "Rapports multi-sites"],
+      en: ["Garment-level QR tracking", "Home pickup and delivery", "Mobile Money and card", "Multi-site reports"],
     },
   },
   {
@@ -168,21 +190,21 @@ export const PRODUCTS = [
     id: "nutro",
     name: "Nutro",
     group: "restaurant",
-    url: sheet("nutro"),
+    url: "https://nutro.liafrik.com",
     sheet: sheet("nutro"),
-    logo: null,
+    logo: "/ecosystem/nutro.png",
     cover: "/ecosystem/covers/nutro.jpg",
     accent: "#1D1D1D",
     label: { fr: "Gestion de restaurant", en: "Restaurant management" },
     alt: { fr: "L'alternative à Toast", en: "The Toast alternative" },
     tagline: { fr: "La technologie des restaurants d'exception.", en: "Technology for exceptional restaurants." },
     text: {
-      fr: "Menus numériques, plats, ingrédients et informations nutritionnelles, commandes, écran cuisine, tables, stocks et recettes, menu et commande par QR code, planning du personnel : une plateforme premium pour restaurants, cafés, chaînes et hôtels.",
-      en: "Digital menus, dishes, ingredients and nutrition information, orders, kitchen display, tables, inventory and recipes, QR menu and ordering, staff scheduling: a premium platform for restaurants, cafés, chains and hotels.",
+      fr: "Caisse cloud, menu tablette, écran cuisine, stocks et rapports multi-branches, en français, en anglais et en arabe. Nutro fonctionne dans le navigateur, sans matériel spécifique, et continue d'encaisser même sans connexion.",
+      en: "Cloud POS, tablet menu, kitchen display, inventory and multi-branch reports, in English, French and Arabic. Nutro runs in the browser, with no special hardware, and keeps taking payments even without a connection.",
     },
     features: {
-      fr: ["Écran cuisine", "Menu et commande par QR", "Stocks et recettes", "Plusieurs établissements"],
-      en: ["Kitchen display", "QR menu and ordering", "Inventory and recipes", "Multiple outlets"],
+      fr: ["Écran cuisine en temps réel", "Caisse cloud et paiements fractionnés", "Menu tablette avec filtre d'allergènes", "Mode hors ligne"],
+      en: ["Real-time kitchen display", "Cloud POS and split payments", "Tablet menu with allergen filter", "Offline mode"],
     },
   },
   {
@@ -210,21 +232,22 @@ export const PRODUCTS = [
     id: "libooks",
     name: "LiBooks",
     group: "business",
-    url: sheet("libooks"),
+    url: "https://libooks.liafrik.com",
     sheet: sheet("libooks"),
-    logo: null,
+    // Logo officiel servi par le site de LiBooks (aucun fichier fourni) ; un monogramme prend le relais s'il est indisponible.
+    logo: "https://libooks.liafrik.com/logo-192.png",
     cover: "/ecosystem/covers/libooks.jpg",
-    accent: "#1D1D1D",
+    accent: "#12332B",
     label: { fr: "Comptabilité", en: "Accounting" },
     alt: { fr: "L'alternative à QuickBooks", en: "The QuickBooks alternative" },
-    tagline: { fr: "Une comptabilité aux normes OHADA et SYSCOHADA.", en: "Accounting built for OHADA and SYSCOHADA standards." },
+    tagline: { fr: "La comptabilité en ligne pensée pour l'Afrique.", en: "Online accounting designed for Africa." },
     text: {
-      fr: "Facturation, comptabilité en partie double, rapports financiers et conformité fiscale, dans le respect des normes OHADA et SYSCOHADA : restez prêt pour l'audit et suivez votre trésorerie en direct.",
-      en: "Invoicing, double-entry accounting, financial reports and tax compliance, aligned with OHADA and SYSCOHADA standards: stay audit-ready and track your cash flow live.",
+      fr: "Facturation, gestion de stock, comptabilité aux normes SYSCOHADA et OHADA, paiements Mobile Money, paie et IA pour la trésorerie : le logiciel de comptabilité en ligne de Liafrik, utilisé depuis le Cameroun, le Sénégal ou la Côte d'Ivoire.",
+      en: "Invoicing, inventory, SYSCOHADA and OHADA accounting, Mobile Money payments, payroll and AI for cash flow: Liafrik's online accounting software, built for businesses in Cameroon, Senegal, Côte d'Ivoire and beyond.",
     },
     features: {
-      fr: ["Facturation automatisée", "Comptabilité en partie double", "Rapports financiers", "Conformité fiscale"],
-      en: ["Automated invoicing", "Double-entry accounting", "Financial reports", "Tax compliance"],
+      fr: ["Facturation et stock", "Normes SYSCOHADA et OHADA", "Mobile Money", "Paie et IA trésorerie"],
+      en: ["Invoicing and inventory", "SYSCOHADA and OHADA standards", "Mobile Money", "Payroll and cash-flow AI"],
     },
   },
 ];
@@ -245,6 +268,6 @@ export const MORE_PRODUCTS = [
 ].map(([slug, name]) => ({ id: slug, name, url: sheet(slug) }));
 
 // Sélection mise en avant sur la page d'accueil.
-export const HOME_PRODUCT_IDS = ["zanldo", "sukulu", "health", "stella", "pos", "sellia", "nutro", "atlas"];
+export const HOME_PRODUCT_IDS = ["zanldo", "elora", "sukulu", "health", "stella", "pos", "sellia", "nutro"];
 
 export const pick = (value, lang) => (value && typeof value === "object" && !Array.isArray(value) && ("fr" in value || "en" in value) ? (lang === "fr" ? value.fr : value.en) : value);

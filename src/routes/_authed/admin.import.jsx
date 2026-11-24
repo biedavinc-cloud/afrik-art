@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { FileUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { importRecords, loadEcosystemPosts, loadExamplePosts, removeEcosystemPosts, removeExamplePosts } from "@/lib/admin-fns";
+import { importRecords, loadEcosystemPosts, loadExamplePosts, loadExploreExamples, removeEcosystemPosts, removeExamplePosts, removeExploreExamples } from "@/lib/admin-fns";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authed/admin/import")({
@@ -75,7 +75,15 @@ function AdminImport() {
   async function examples(action, kind = "art") {
     setExampleBusy(true);
     try {
-      if (kind === "ecosystem") {
+      if (kind === "explore") {
+        if (action === "load") {
+          const result = await loadExploreExamples();
+          toast.success(`${result.imported} profil(s) d'exemple chargé(s) dans Explorer.`);
+        } else {
+          const result = await removeExploreExamples();
+          toast.success(`${result.removed} profil(s) d'exemple supprimé(s).`);
+        }
+      } else if (kind === "ecosystem") {
         if (action === "load") {
           const result = await loadEcosystemPosts();
           toast.success(`${result.imported} article(s) de l'écosystème Liafrik chargé(s).`);
@@ -165,6 +173,33 @@ function AdminImport() {
             className="inline-flex h-11 items-center rounded-full border border-border px-6 text-sm font-medium transition-colors hover:bg-secondary disabled:opacity-50"
           >
             Supprimer les exemples
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-border bg-card p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">Profils d'exemple (Explorer)</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          5 artistes illustratifs avec une œuvre chacun, pour que la page Explorer ne soit pas vide. Ils portent la mention « Profil d'exemple »,
+          n'ont aucune coordonnée, ne sont pas contactables ni indexés par les moteurs de recherche.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => examples("load", "explore")}
+            disabled={exampleBusy}
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {exampleBusy && <Loader2 className="h-4 w-4 animate-spin" />}
+            Charger les profils d'exemple
+          </button>
+          <button
+            type="button"
+            onClick={() => examples("remove", "explore")}
+            disabled={exampleBusy}
+            className="inline-flex h-11 items-center rounded-full border border-border px-6 text-sm font-medium transition-colors hover:bg-secondary disabled:opacity-50"
+          >
+            Supprimer les profils d'exemple
           </button>
         </div>
       </div>

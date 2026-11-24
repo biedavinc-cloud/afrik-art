@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
-import { ECOSYSTEM_POSTS } from "./ecosystem-posts";
+import { ECOSYSTEM_POSTS, ECOSYSTEM_POSTS_V2_IDS } from "./ecosystem-posts";
+import { EXPLORE_ARTISTS, EXPLORE_ARTWORKS, EXPLORE_CATEGORIES } from "./explore-seed";
 import { EXAMPLE_POSTS } from "./example-posts";
 import { ADMIN_ONLY, BROWSER_BLOCKED, ENTITIES, PRIVATE_FIELDS, PROTECTED_FIELDS, UNIQUE_FIELDS, ruleFor } from "./entities";
 import { HttpError } from "./errors";
@@ -228,20 +229,43 @@ async function prepare(ctx) {
   }
 }
 
-// Journal de départ : au tout premier accès à une base vierge, les articles d'exemple et ceux de l'écosystème Liafrik
-// sont publiés une seule fois (un drapeau en base empêche tout nouveau chargement : les supprimer depuis l'espace admin est définitif).
-// Une base qui contient déjà des articles n'est pas touchée.
+// Contenu de départ, publié automatiquement au premier accès à une base vierge (et une seule fois : un drapeau en base
+// empêche tout rechargement, supprimer ces contenus depuis l'espace admin est donc définitif) :
+//  - le Journal (articles d'exemple et articles de l'écosystème Liafrik), puis un rattrapage « v2 » pour les bases déjà amorcées ;
+//  - la page Explorer (catégories, et quelques profils d'artistes d'exemple sans coordonnées, voir explore-seed.js).
+// Une base qui contient déjà des articles, des catégories ou des artistes n'est pas touchée.
 let seedPromise;
+
+async function metaHas(key) {
+  return Boolean(await db().prepare("SELECT 1 FROM meta WHERE key = ?").bind(key).first());
+}
+const metaSet = (key) => db().prepare("INSERT OR IGNORE INTO meta (key, value) VALUES (?, ?)").bind(key, new Date().toISOString()).run();
+
 function seedJournalOnce() {
   seedPromise ??= (async () => {
-    const flag = await db().prepare("SELECT value FROM meta WHERE key = 'seed:journal:v1'").first();
-    if (flag) return;
-    const posts = createEntities({ service: true, browser: false, user: null, skipSeed: true }).BlogPost;
-    if ((await posts.count({})) === 0) await posts.importMany([...ECOSYSTEM_POSTS, ...EXAMPLE_POSTS]);
-    await db().prepare("INSERT OR IGNORE INTO meta (key, value) VALUES ('seed:journal:v1', ?)").bind(new Date().toISOString()).run();
+    const svc = createEntities({ service: true, browser: false, user: null, skipSeed: true });
+
+    if (!(await metaHas("seed:journal:v1"))) {
+      if ((await svc.BlogPost.count({})) === 0) await svc.BlogPost.importMany([...ECOSYSTEM_POSTS, ...EXAMPLE_POSTS]);
+      await metaSet("seed:journal:v1");
+      await metaSet("seed:journal:v2");
+    } else if (!(await metaHas("seed:journal:v2"))) {
+      const ids = new Set(ECOSYSTEM_POSTS_V2_IDS);
+      await svc.BlogPost.importMany(ECOSYSTEM_POSTS.filter((post) => ids.has(post.id)));
+      await metaSet("seed:journal:v2");
+    }
+
+    if (!(await metaHas("seed:explore:v1"))) {
+      if ((await svc.Category.count({})) === 0) await svc.Category.importMany(EXPLORE_CATEGORIES);
+      if ((await svc.ArtistProfile.count({})) === 0) {
+        await svc.ArtistProfile.importMany(EXPLORE_ARTISTS);
+        await svc.Artwork.importMany(EXPLORE_ARTWORKS);
+      }
+      await metaSet("seed:explore:v1");
+    }
   })().catch((error) => {
     seedPromise = undefined; // on réessaiera à la requête suivante
-    console.error("[seed] journal :", error?.message || error);
+    console.error("[seed]", error?.message || error);
   });
   return seedPromise;
 }
